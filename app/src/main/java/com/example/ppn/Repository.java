@@ -18,37 +18,6 @@ import java.util.Map;
 public class Repository {
 
 
-    //In lions rest the king sleeps, awaiting the return of the son to his keep.
-    //for dark and sorrow angels came, taking the fabled son away.
-    //now his in heaven, in hell, in shadow.
-    //and the land now calls.
-    //for the son of the lion.
-
-    //In lions rest the king sleeps, awaiting the return of the son to his keep.
-    //but evil and death tricks play, the son's soul they took away.
-    //replaced by death, greed, and power.
-    //but the land still calls.
-    //for the son of the lion.
-
-    //In lions rest the king awaits, awaits asleep for his son's soul to be released.
-    //for no evil is too great, and no sorrow too deep.
-    //will keep the lions son.
-    //from returning to his keep.
-    //and the land awakes, to return him home.
-    //but the son of the lion, in the light walks no more.
-
-    //fabled kings and lost sons. lost to darkness and to death beyond.
-    //and in the bright light and sorrow's deep.
-    //the lions son.
-    //lost his keep.
-
-    //In lions rest, the kings last sleep.
-    //In his sons keep, the cold winter now creeps.
-    //Evil and sorrow and death and greed.
-    //Have took away the sons keep.
-
-    //The lions son, will soon sleep.
-
 
     private static Repository repository;
     private static boolean created = false;
