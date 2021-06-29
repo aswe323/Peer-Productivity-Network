@@ -9,9 +9,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +25,7 @@ public class Repository {
     private static Repository repository;
     private static boolean created = false;
 
-    private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVENNEEDS THAT?
+    private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
@@ -102,6 +105,22 @@ public class Repository {
  */
 
         return task;
+    }
+
+    public static Task getThisDayActivityTasks(Context context){
+
+        Map<LocalDate,Boolean> today = new HashMap<>();
+        today.put(LocalDate.now(),true);
+
+        //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
+        Task task = db.collection(Repository.userName)
+                .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
+                .whereArrayContains("monthRange",today)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> Log.d("firestore", "getThisDayActivityTasks: success"))
+                .addOnFailureListener(e -> Log.d("firestore", "getThisDayActivityTasks: failed"));
+
+         return task;
     }
 
     // TODO: 24/06/2021 update a specific activity task(?)
@@ -234,6 +253,7 @@ public class Repository {
     //region notification
 
 
+
     /**
      *
      * set a notification for a specific activity task. uses the notificationID in the TimePack of the activity task as a requestCode.
@@ -253,7 +273,7 @@ public class Repository {
                 activityTask.getContent());
         // TODO: 28/06/2021 check for overlap in timepack timerange of active notifications and handle according to bucketwords > priority > natty
         // TODO: 28/06/2021 implament natty parsing into TimePack
-        // TODO: 28/06/2021 get the nearest (24h) relevent activitytasks with quering timepacks for monthNumber -> daterange -> timerange
+        // TODO: 28/06/2021 get the nearest (24h) relevent activitytasks with quering timepacks for monthNumber -> monthRange
     }
 
 

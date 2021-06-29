@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
@@ -34,7 +35,7 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-    private Map<LocalDateTime,Boolean> monthRange;
+    private Map<LocalDate,Boolean> monthRange;
     /**
      * if the TimePack overlaps with the next month, this will have the same purpose as monthRange but for the month after it.
      */
@@ -51,11 +52,19 @@ public class TimePack {
      * internal counter, initialization with the unique identifier requiring system every time the TimePack CLASS is initialized.
      */
     private final int notificationID = notificationCounter+1;
+    /**
+     * natty results from parsing the content of the related activityTask
+     */
+    private LocalDateTime nattyResults;
+
+    public void setNattyResults(LocalDateTime nattyResults) {
+        this.nattyResults = nattyResults;
+    }
 
     public TimePack() {
     }
 
-    public TimePack(LocalDateTime[][] timeRange, int monthNumber, Map<LocalDateTime, Boolean> monthRange, Map<LocalDateTime, Boolean> overlapedMonth) {
+    public TimePack(LocalDateTime[][] timeRange, int monthNumber, Map<LocalDate, Boolean> monthRange, Map<LocalDateTime, Boolean> overlapedMonth) {
 
 
 
@@ -87,7 +96,7 @@ public class TimePack {
         return monthNumber;
     }
 
-    public Map<LocalDateTime, Boolean> getMonthRange() {
+    public Map<LocalDate, Boolean> getMonthRange() {
         return monthRange;
     }
 
