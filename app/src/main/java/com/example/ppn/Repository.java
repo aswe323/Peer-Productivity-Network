@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,7 +77,7 @@ public class Repository {
 
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivity,timePack, priorityWords);
 
-        Task task = db.collection(Repository.userName).document("ActivityTask" + activityTaskID)
+        Task task = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID)
                 .set(activityTask)
                 .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
                 .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
@@ -86,11 +86,10 @@ public class Repository {
     }
 
 
-    // TODO: 24/06/2021 get ALL activity tasks of the current user
 
     public static Task getAllUserActivityTasks() throws Throwable {
 
-       Task task = db.collection(Repository.userName)
+       Task task = db.collection(Repository.userName + "ActivityTasks")
                .get()
                .addOnSuccessListener(queryDocumentSnapshots -> Log.d("firestore", "getAllUserActivityTasks: success"))
                .addOnFailureListener(e -> Log.d("firestore", "getAllUserActivityTasks: failure"));
@@ -107,13 +106,13 @@ public class Repository {
         return task;
     }
 
-    public static Task getThisDayActivityTasks(Context context){
+    public static Task getThisDayActivityTasks(){
 
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
 
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
-        Task task = db.collection(Repository.userName)
+        Task task = db.collection(Repository.userName + "ActivityTasks")
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
                 .whereArrayContains("monthRange",today)
                 .get()
@@ -123,24 +122,35 @@ public class Repository {
          return task;
     }
 
-    // TODO: 24/06/2021 update a specific activity task(?)
 
-    public static Task updateActivityTask(int activtyiTaskID,String fieldToUpdate, String newValue) {
+    public static Task updateActivityTask(int activityTaskID,String fieldToUpdate, String newValue) {
 
-        Task task = db.collection(Repository.userName).document("ActivityTask" + activtyiTaskID)
+        DocumentReference updatedActivityTask = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID);
+
+
+
+        Task task = updatedActivityTask
                 .update(fieldToUpdate, newValue)
-                .addOnSuccessListener(unused -> Log.d("firestore", "updateActivityTask: success for ID " + activtyiTaskID + " | updated " + fieldToUpdate + "to " + newValue));
+                .addOnSuccessListener(unused -> {
+                    Log.d("firestore", "updateActivityTask: success for ID " + activityTaskID + " | updated " + fieldToUpdate + "to " + newValue);
+                    int newPriority = 0;
+                    if(fieldToUpdate.equals("content")){
+                        String[] newWords = newValue.split(" ");
+                        for (String newWord :
+                                newWords) {
+                            newPriority += priorityWords.getOrDefault(newWord,0);
+                        }
+
+                    }
+                    updatedActivityTask.update("content",newPriority);
+                });
 
         return task;
     }
 
-
-
-    // TODO: 24/06/2021 remove an activity task
-
     public static Task deleteActivivtyTask(int activityTaskID){
 
-        Task task = db.collection(Repository.userName).document("ActivityTask" + activityTaskID)
+        Task task = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID)
                 .delete()
                 .addOnFailureListener(e -> Log.d("firestore", "deleteActivivtyTask: failed to delete | " + e.getCause()))
                 .addOnSuccessListener(unused -> Log.d("firestore", "deleteActivivtyTask: success"));
@@ -148,9 +158,6 @@ public class Repository {
         return task;
 
     }
-
-
-
 
 
     //endregion
@@ -252,6 +259,16 @@ public class Repository {
 
     //region notification
 
+    private static void refreshNotifications() throws Throwable {
+
+        Task task = getThisDayActivityTasks();
+        ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();
+
+        //task.addOnCompleteListener(task1 -> task1.getResult())
+// TODO: 30/06/2021 YOU ARE HERE
+
+
+    }
 
 
     /**
@@ -271,12 +288,10 @@ public class Repository {
                 activity.getClass(),
                 activityTask.getMasloCategory().toString(),
                 activityTask.getContent());
-        // TODO: 28/06/2021 check for overlap in timepack timerange of active notifications and handle according to bucketwords > priority > natty
-        // TODO: 28/06/2021 implament natty parsing into TimePack
-        // TODO: 28/06/2021 get the nearest (24h) relevent activitytasks with quering timepacks for monthNumber -> monthRange
     }
 
 
     //endregion
+    // TODO: 28/06/2021 check for overlap in timepack timerange of active(todays) notifications and handle according to bucketwords > priority > natty
 
 }
