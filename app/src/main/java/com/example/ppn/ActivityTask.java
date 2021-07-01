@@ -4,6 +4,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
@@ -12,26 +13,24 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
+import java.util.function.BiConsumer;
 
 public class ActivityTask {
     private int activityTaskID;
     private MasloCategory masloCategory;
     private String content;
-    private ArrayList<SubActivity> subActivity;
+    private Map<Integer, SubActivity> subActivity;
     private int priority;
     private TimePack timePack;
 
     public ActivityTask() {
     }
 
-    public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivity, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
+    public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, Map<Integer, SubActivity> subActivity, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
         this.activityTaskID = activityTaskID;
         this.masloCategory = masloCategory;
         this.subActivity = subActivity;
@@ -73,17 +72,45 @@ public class ActivityTask {
         return subActivity.size();
     }
 
+    public boolean containsKey(@Nullable @org.jetbrains.annotations.Nullable Object key) {
+        return subActivity.containsKey(key);
+    }
+
+    public boolean containsValue(@Nullable @org.jetbrains.annotations.Nullable Object value) {
+        return subActivity.containsValue(value);
+    }
+
+    public SubActivity put(Integer key, SubActivity value) {
+        return subActivity.put(key, value);
+    }
+
+    public SubActivity remove(@Nullable @org.jetbrains.annotations.Nullable Object key) {
+        return subActivity.remove(key);
+    }
+
+    public SubActivity getOrDefault(@Nullable @org.jetbrains.annotations.Nullable Object key, @Nullable @org.jetbrains.annotations.Nullable SubActivity defaultValue) {
+        return subActivity.getOrDefault(key, defaultValue);
+    }
+
+    public void forEach(@NonNull @NotNull BiConsumer<? super Integer, ? super SubActivity> action) {
+        subActivity.forEach(action);
+    }
+
     public boolean add(SubActivity subActivity) {
-        return this.subActivity.add(subActivity);
+
+        try {
+            this.subActivity.put(this.subActivity.size() + 1, subActivity);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
     }
 
     public SubActivity removeSubActivityAtIndex(int index) {
         return subActivity.remove(index);
     }
 
-    public boolean removeSubActivityIf(@NonNull @NotNull Predicate<? super SubActivity> filter) {
-        return subActivity.removeIf(filter);
-    }
 
     public int getActivityTaskID() {
         return activityTaskID;
@@ -95,10 +122,6 @@ public class ActivityTask {
 
     public String getContent() {
         return content;
-    }
-
-    public ArrayList<SubActivity> getSubActivity() {
-        return subActivity;
     }
 
     public int getPriority() {

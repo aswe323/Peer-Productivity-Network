@@ -5,10 +5,17 @@ import android.content.Context;
 import android.util.Log;
 
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +31,14 @@ public class Repository {
 
     private static Repository repository;
     private static boolean created = false;
+
+    private static Context defaultContext;
+
+
+
+    private static Activity defaultActivity;
+
+
 
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
     private static Map<String, Integer> priorityWords = new HashMap<>();
@@ -70,10 +85,17 @@ public class Repository {
         created = true;
     }
 
+    public static void setDefaultActivity(Activity defaultActivity) {
+        Repository.defaultActivity = defaultActivity;
+    }
+    public static void setDefaultContext(Context defaultContext) {
+        Repository.defaultContext = defaultContext;
+    }
+
     //region ActivityTask
 
 
-    public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivity, TimePack timePack){
+    public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, Map<Integer,SubActivity> subActivity, TimePack timePack){
 
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivity,timePack, priorityWords);
 
@@ -115,9 +137,7 @@ public class Repository {
         Task task = db.collection(Repository.userName + "ActivityTasks")
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
                 .whereArrayContains("monthRange",today)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> Log.d("firestore", "getThisDayActivityTasks: success"))
-                .addOnFailureListener(e -> Log.d("firestore", "getThisDayActivityTasks: failed"));
+                .get();
 
          return task;
     }
@@ -260,13 +280,24 @@ public class Repository {
     //region notification
 
     private static void refreshNotifications() throws Throwable {
-
-        Task task = getThisDayActivityTasks();
+        Map<LocalDate,Boolean> today = new HashMap<>();
+        today.put(LocalDate.now(),true);
         ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();
-
-        //task.addOnCompleteListener(task1 -> task1.getResult())
-// TODO: 30/06/2021 YOU ARE HERE
-
+        getThisDayActivityTasks().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for (QueryDocumentSnapshot document :
+                            task.getResult()) {
+                        thisDayActivityTasks.add(document.toObject(ActivityTask.class));
+                    }
+                    for (ActivityTask activityTask :
+                            thisDayActivityTasks) {
+                        setNotification(defaultContext,activityTask,defaultActivity);
+                    }
+                }
+            }
+        });
 
     }
 
@@ -280,10 +311,14 @@ public class Repository {
      * @param activity the activity to open when the notification is tapped on
      */
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
-        long delayInMiliseconds = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - activityTask.getTimePack().getTimeRange()[0][0].atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+
+        final LocalDateTime[] nearestTime = new LocalDateTime[1];
+        activityTask.getTimePack().getTimeRange().forEach((localDateTime, localDateTime2) -> nearestTime[0] = localDateTime.isBefore(nearestTime[0])? localDateTime: nearestTime[0]);
+
+        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - nearestTime[0].atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
-                delayInMiliseconds,
+                delayInMili,
                 activityTask.getTimePack().getNotificationID(),
                 activity.getClass(),
                 activityTask.getMasloCategory().toString(),
@@ -292,6 +327,8 @@ public class Repository {
 
 
     //endregion
+
+
     // TODO: 28/06/2021 check for overlap in timepack timerange of active(todays) notifications and handle according to bucketwords > priority > natty
 
 }

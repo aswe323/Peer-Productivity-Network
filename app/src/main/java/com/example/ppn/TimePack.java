@@ -20,14 +20,11 @@ import java.util.Set;
 public class TimePack {
 
 
+
     /**
      * the time of day i.e 21:00 to 22:00
      */
-    private LocalDateTime[][] timeRange;
-    /**
-     * range of dates, i.e : [Aug 10]  [aug 29], [feb 6] [feb 16], ... and so on.
-     */
-    private LocalDateTime[][] dateRange;
+    private Map<LocalDateTime,LocalDateTime> timeRange;
     /**
      * January will be 1 February will be 2 and so on... tip: can get current month number with YearMonth.now().getMonth().getValue()
      */
@@ -64,12 +61,9 @@ public class TimePack {
     public TimePack() {
     }
 
-    public TimePack(LocalDateTime[][] timeRange, int monthNumber, Map<LocalDate, Boolean> monthRange, Map<LocalDateTime, Boolean> overlapedMonth) {
-
-
+    public TimePack(Map<LocalDateTime,LocalDateTime> timeRange, int monthNumber, Map<LocalDate, Boolean> monthRange, Map<LocalDateTime, Boolean> overlapedMonth) {
 
         this.timeRange = timeRange;
-        this.dateRange = new LocalDateTime[YearMonth.of(Year.now().getValue(),monthNumber).getMonth().maxLength()][];
         this.monthNumber = monthNumber;
         this.monthRange = monthRange;
         this.overlapedMonth = overlapedMonth;
@@ -83,13 +77,32 @@ public class TimePack {
     }
 //what does notification need?
 
-
-    public LocalDateTime[][] getTimeRange() {
-        return timeRange;
+    public int size() {
+        return timeRange.size();
     }
 
-    public LocalDateTime[][] getDateRange() {
-        return dateRange;
+    public boolean containsKey(@Nullable @org.jetbrains.annotations.Nullable Object key) {
+        return timeRange.containsKey(key);
+    }
+
+    public boolean containsValue(@Nullable @org.jetbrains.annotations.Nullable Object value) {
+        return timeRange.containsValue(value);
+    }
+
+    public LocalDateTime putTimeRange(LocalDateTime key, LocalDateTime value) {
+        return timeRange.put(key, value);
+    }
+
+    public void putAll(@NonNull @NotNull Map<? extends LocalDateTime, ? extends LocalDateTime> m) {
+        timeRange.putAll(m);
+    }
+
+    public LocalDateTime getOrDefault(@Nullable @org.jetbrains.annotations.Nullable Object key, @Nullable @org.jetbrains.annotations.Nullable LocalDateTime defaultValue) {
+        return timeRange.getOrDefault(key, defaultValue);
+    }
+
+    public Map<LocalDateTime, LocalDateTime> getTimeRange() {
+        return timeRange;
     }
 
     public int getMonthNumber() {
