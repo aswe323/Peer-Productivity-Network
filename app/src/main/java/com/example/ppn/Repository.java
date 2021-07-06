@@ -2,10 +2,12 @@ package com.example.ppn;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,18 +29,12 @@ import java.util.Map;
 
 public class Repository {
 
-
-
     private static Repository repository;
     private static boolean created = false;
 
     private static Context defaultContext;
 
-
-
     private static Activity defaultActivity;
-
-
 
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
     private static Map<String, Integer> priorityWords = new HashMap<>();
@@ -85,6 +81,22 @@ public class Repository {
         created = true;
     }
 
+    /**
+     *
+     * intitializes the prioritywords and bucketwords documant.
+     * note: to access a users collection, setUserName should be used with the desired name to be given the collection.
+     *
+     *
+     * @return a Repository instance
+     */
+    public static Repository getInstance(){
+        if(created) return repository;
+        repository = new Repository();
+        created = true;
+        return repository;
+    }
+
+
     public static void setDefaultActivity(Activity defaultActivity) {
         Repository.defaultActivity = defaultActivity;
     }
@@ -128,6 +140,7 @@ public class Repository {
         return task;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task getThisDayActivityTasks(){
 
         Map<LocalDate,Boolean> today = new HashMap<>();
@@ -143,7 +156,8 @@ public class Repository {
     }
 
 
-    public static Task updateActivityTask(int activityTaskID,String fieldToUpdate, String newValue) {
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static Task updateActivityTask(int activityTaskID, String fieldToUpdate, String newValue) {
 
         DocumentReference updatedActivityTask = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID);
 
@@ -279,6 +293,7 @@ public class Repository {
 
     //region notification
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private static void refreshNotifications() throws Throwable {
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
@@ -301,7 +316,6 @@ public class Repository {
 
     }
 
-
     /**
      *
      * set a notification for a specific activity task. uses the notificationID in the TimePack of the activity task as a requestCode.
@@ -310,6 +324,7 @@ public class Repository {
      * @param activityTask the activity task which the notification is created for
      * @param activity the activity to open when the notification is tapped on
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
 
         final LocalDateTime[] nearestTime = new LocalDateTime[1];
@@ -325,10 +340,7 @@ public class Repository {
                 activityTask.getContent());
     }
 
-
     //endregion
 
-
     // TODO: 28/06/2021 check for overlap in timepack timerange of active(todays) notifications and handle according to bucketwords > priority > natty
-
 }
