@@ -41,11 +41,11 @@ public class Repository {
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static String userName = "default";
 
     static private DocumentReference priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
     static private DocumentReference bucketWordsRef = db.collection(Repository.userName).document("BucketWords");
 
-    private static String userName = "default";
 
     public static String setUserName(String userName) {
         Repository.userName = userName;
@@ -54,6 +54,20 @@ public class Repository {
 
     private Repository(){
 
+
+        created = true;
+    }
+
+    /**
+     *
+     * intitializes the prioritywords and bucketwords documant.
+     * note: to access a users collection, setUserName should be used with the desired name to be given the collection.
+     *
+     *
+     *
+     */
+    public static void init(){
+        if(created) return;
         Task taskPriorityWords = getAllPriorityWords();
         Task taskBucketWords = getBucketWords();
 
@@ -78,22 +92,7 @@ public class Repository {
             }
         });
 
-        created = true;
-    }
-
-    /**
-     *
-     * intitializes the prioritywords and bucketwords documant.
-     * note: to access a users collection, setUserName should be used with the desired name to be given the collection.
-     *
-     *
-     * @return a Repository instance
-     */
-    public static Repository getInstance(){
-        if(created) return repository;
-        repository = new Repository();
-        created = true;
-        return repository;
+        return;
     }
 
 

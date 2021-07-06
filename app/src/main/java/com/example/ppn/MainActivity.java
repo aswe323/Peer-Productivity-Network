@@ -14,6 +14,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Repository.init();
+
+        Repository.setUserName("matan");
+        Repository.createPriorityWord("test1",3);
+
         final ViewPager2 viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
     }
