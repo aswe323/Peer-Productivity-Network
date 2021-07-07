@@ -54,6 +54,10 @@ public class TimePack {
      */
     private LocalDateTime nattyResults;
 
+    public LocalDateTime getNattyResults() {
+        return nattyResults;
+    }
+
     public void setNattyResults(LocalDateTime nattyResults) {
         this.nattyResults = nattyResults;
     }

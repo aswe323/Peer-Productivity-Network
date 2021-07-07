@@ -1,6 +1,7 @@
 package com.example.ppn;
 
 import android.app.Activity;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -23,6 +24,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +36,6 @@ public class Repository {
     private static boolean created = false;
 
     private static Context defaultContext;
-
     private static Activity defaultActivity;
 
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
@@ -208,7 +210,7 @@ public class Repository {
         return task;
     }
 
-    private static Task getAllPriorityWords(){
+    public static Task getAllPriorityWords(){
 
         Task task = priorityWordsRef.get();
         return task;
@@ -304,6 +306,93 @@ public class Repository {
                     for (QueryDocumentSnapshot document :
                             task.getResult()) {
                         thisDayActivityTasks.add(document.toObject(ActivityTask.class));
+                    }
+
+
+                    for (ActivityTask activityTask1 :
+                            thisDayActivityTasks) {
+
+                        Map<LocalDateTime,LocalDateTime> act1time = activityTask1.getTimePack().getTimeRange();
+                        ArrayList<LocalDateTime> timeArray2 = new ArrayList<>(act1time.keySet());
+                        LocalDateTime act1StartingTime = timeArray2.get(0);
+
+                        for (ActivityTask activityTask2 :
+                                thisDayActivityTasks) {
+
+                            // if AT1 start time ==  AT2 start time
+                            // if AT1 priority > AT2 priority: (AT2 priority / AT1 priority) * (AT1endtimeInFromEpocInMili - AT1startTimeFromEpoc) -> push AT2
+                            // same goes for AT1 priority < AT2 priority
+
+
+                            if(activityTask1.getTimePack().getTimeRange().containsKey(activityTask2.getTimePack().getTimeRange().keySet())){
+
+                                ArrayList<String> activityTask1bucketWords = new ArrayList<>();
+                                ArrayList<String> activityTask2bucketWords = new ArrayList<>();
+
+                                Map<LocalDateTime,LocalDateTime> act2TimeMap = activityTask2.getTimePack().getTimeRange();
+                                ArrayList<LocalDateTime> act2TimeArray = new ArrayList<>(act2TimeMap.keySet());
+                                ArrayList<LocalDateTime> act2EndTime = new ArrayList<>(act2TimeMap.values());
+
+                                LocalDateTime act2StartingTime = act2TimeArray.get(0);
+                                LocalDateTime act2EndingTime = act2EndTime.get(0);
+                                for (String word :
+                                        activityTask1.getContent().split(" ")) {
+                                    if(bucketWords.containsKey(word)) activityTask1bucketWords.add(word);
+                                }
+                                for (String word :
+                                        activityTask2.getContent().split(" ")) {
+                                    if(bucketWords.containsKey(word)) activityTask2bucketWords.add(word);
+
+                                }
+
+                                activityTask2bucketWords.removeAll(activityTask1bucketWords);
+                                LocalDateTime bestChoice = act2StartingTime;
+                                if (activityTask2bucketWords.size() != 0){
+
+
+
+                                    for (String word :
+                                            activityTask2bucketWords) {
+
+                                        Map<LocalDateTime,LocalDateTime> timeMap = bucketWords.get(word).getTimeRange();
+                                        ArrayList<LocalDateTime> timeArray = new ArrayList<>(timeMap.keySet());
+                                        LocalDateTime time = timeArray.get(0);
+
+
+                                        if(time.isAfter(act1StartingTime) && time.isBefore(bestChoice)){
+                                            bestChoice = time;
+                                        }
+                                    }
+                                    if (bestChoice != act2StartingTime) {
+                                        Long changeInTime =  act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
+                                        activityTask2.getTimePack().putTimeRange(bestChoice,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
+
+                                        continue;
+
+                                    }
+                                }
+                                Map<String , ActivityTask.compareResult> x = activityTask1.compare(activityTask2);
+                                        if (x.get("priority").equals(ActivityTask.compareResult.higherPriority)) {
+                                            activityTask1.getTimePack().getTimeRange().forEach((localDateTime, localDateTime2) -> {
+
+                                                Long delay = localDateTime2.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - localDateTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
+
+                                                activityTask2.getTimePack().putTimeRange(
+                                                        localDateTime.plus(delay, ChronoUnit.MILLIS),
+                                                        activityTask2.getTimePack().getTimeRange().get(localDateTime).plus(delay, ChronoUnit.MILLIS)
+                                                );
+                                            });
+                                            continue;
+                                        }
+
+                                        if(!activityTask2.getTimePack().getNattyResults().isEqual(act1StartingTime)){
+                                            LocalDateTime nattyresults = activityTask2.getTimePack().getNattyResults();
+                                            Long delay = act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+                                            activityTask2.getTimePack().putTimeRange(nattyresults, nattyresults.plus(delay,ChronoUnit.MILLIS));
+                                        }
+
+                            }
+                        }
                     }
                     for (ActivityTask activityTask :
                             thisDayActivityTasks) {

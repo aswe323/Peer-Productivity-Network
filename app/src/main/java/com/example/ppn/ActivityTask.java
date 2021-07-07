@@ -134,15 +134,22 @@ public class ActivityTask {
 
 
 
-    enum compareResult{sameContent,lowerPriority,higherPriority,samePriority,sameBucketWords,sameNattyResult,none}
+    enum compareResult{sameContent,lowerPriority,higherPriority,samePriority,sameNattyResult,none}
     public Map<String,compareResult> compare(ActivityTask activityTask) {
         Map<String ,compareResult> results = new HashMap<>();
 
 
         if(this.content.equals(activityTask.getContent())) results.put("content",compareResult.sameContent);
+
         if(this.priority > activityTask.getPriority()) results.put("priority",compareResult.higherPriority);
         if(this.priority < activityTask.getPriority()) results.put("priority",compareResult.lowerPriority);
         if(this.priority == activityTask.getPriority()) results.put("priority",compareResult.samePriority);
+
+
+        if(this.getTimePack().getNattyResults().isEqual(activityTask.getTimePack().getNattyResults())) results.put("natty",compareResult.sameNattyResult);
+
+        results.putIfAbsent("content",compareResult.none);
+        results.putIfAbsent("natty",compareResult.none);
 
 
 
