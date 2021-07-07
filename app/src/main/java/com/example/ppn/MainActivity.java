@@ -4,14 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -27,26 +30,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        /*
+        if(textView==null)
+            Toast.makeText(getApplication(), "null", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getApplication(), "ZZZZZZ", Toast.LENGTH_SHORT).show();
+    */
         Repository.init();
 
         Repository.setUserName("matan");
-        Repository.createPriorityWord("test1",3);
-        Map<String ,String > map = new HashMap<String, String>();
 
-        Repository.getAllPriorityWords().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
 
+        Repository.createPriorityWord("test1",6);
+        Task t=Repository.getAllPriorityWords();
 
+        Map<String,Integer> m = new HashMap<>();
+        t.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
-                for (QueryDocumentSnapshot documentSnapshot :
-                        task.getResult()) {
-                    map.putAll((Map<? extends String, ? extends String>) documentSnapshot.getData().entrySet());
+                if(task.isSuccessful())
+                {
+                    for(QueryDocumentSnapshot document : task.getResult()) {
+                        m.putAll((Map<? extends String, ? extends Integer>) document.getData().entrySet());
+                    }
                 }
             }
         });
+        TextView textView= new TextView(getApplication());
+        LinearLayout linearLayout = findViewById(R.id.linearlayout);
+        textView.setText("test");
+        linearLayout.addView(textView);
 
-
-
+        Toast.makeText(getApplication(), "", Toast.LENGTH_SHORT).show();
+        //endregion
 
         final ViewPager2 viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));

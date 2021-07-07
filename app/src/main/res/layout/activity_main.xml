@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="android.support.design.widget.TabLayout$ScrollingViewBehavior"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:id="@+id/linearlayout">
 
 
     <androidx.viewpager2.widget.ViewPager2
