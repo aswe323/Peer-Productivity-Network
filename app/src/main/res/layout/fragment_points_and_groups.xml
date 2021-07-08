@@ -12,7 +12,7 @@
 
 
         <TextView
-            android:id="@+id/MyPoint_textView"
+            android:id="@+id/TextView_MyPoint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -23,7 +23,7 @@
             android:text="My points: 0" />
 
         <TextView
-            android:id="@+id/GroupPoints_textView"
+            android:id="@+id/TextView_GroupPoints"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -34,12 +34,13 @@
             android:text="group points: 0" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
+            android:layout_width="360dp"
             android:layout_height="250dp"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="25dp"/>
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/Btn_group_friends"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -49,7 +50,7 @@
             android:text="group friends" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/Btn_group_join_or_leave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"

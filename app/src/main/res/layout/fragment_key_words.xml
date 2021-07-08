@@ -17,7 +17,7 @@
         </androidx.recyclerview.widget.RecyclerView>
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/Btn_add_word"
             android:layout_gravity="center"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

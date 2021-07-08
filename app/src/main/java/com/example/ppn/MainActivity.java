@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
 
-        Repository.createPriorityWord("test1",6);
+        /*Repository.createPriorityWord("test1",6);
         Task t=Repository.getAllPriorityWords();
 
         Map<String,Integer> m = new HashMap<>();
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setText("test");
         linearLayout.addView(textView);
 
-        Toast.makeText(getApplication(), "", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();*/
         //endregion
 
         final ViewPager2 viewPager = findViewById(R.id.viewpager);

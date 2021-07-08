@@ -1,5 +1,29 @@
 <resources>
     <string name="app_name">ppn</string>
+    <string-array name="Spinner_Edit_frequency">
+        <item>no_repeating</item>
+        <item>every_24_hours</item>
+        <item>every_month</item>
+        <item>every_year</item>
+        <item>every_week</item>
+        <item>every_sunday</item>
+        <item>every_monday</item>
+        <item>every_tuesday</item>
+        <item>every_wednesday</item>
+        <item>every_thursday</item>
+        <item>every_friday</item>
+        <item>every_saturday</item>
+    </string-array>
+
+    <string-array name="Spinner_Edit_category">
+        <item>none</item>
+        <item>Physiological_needs</item>
+        <item>Safety_Needs</item>
+        <item>Love_And_Belonging</item>
+        <item>Esteem</item>
+        <item>Self_Actualization</item>
+    </string-array>
+
     <string-array name="spinnerItems">
         <item>Reminders</item>
         <item>item2</item>
