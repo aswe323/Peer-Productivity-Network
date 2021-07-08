@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,14 +49,12 @@ public class MainActivity extends AppCompatActivity {
         Task t=Repository.getAllPriorityWords();
 
         Map<String,Integer> m = new HashMap<>();
-        t.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful())
-                {
-                    for(QueryDocumentSnapshot document : task.getResult()) {
-                        m.putAll((Map<? extends String, ? extends Integer>) document.getData().entrySet());
-                    }
+        t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+            if(task.isSuccessful())
+            {
+                for (Map.Entry<String ,Object> entry:
+                     task.getResult().getData().entrySet()) {
+                    m.put(entry.getKey(),((Long) entry.getValue()).intValue());
                 }
             }
         });

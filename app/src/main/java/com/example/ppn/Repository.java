@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -98,20 +99,27 @@ public class Repository {
         Task taskPriorityWords = getAllPriorityWords();
         Task taskBucketWords = getBucketWords();
 
-        taskPriorityWords.addOnCompleteListener(task -> {
+        taskPriorityWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if (task.isSuccessful()) {
                 try {
-                    priorityWords.putAll((Map<? extends String, ? extends Integer>) task.getResult(Map.class));
+
+                    for (Map.Entry<String, Object> entry:
+                    task.getResult().getData().entrySet()){
+                        priorityWords.put(entry.getKey(), ((Long) entry.getValue()).intValue());
+                    }
                 } catch (Throwable throwable) {
                     Log.d("firestore,Repository", "onComplete: failed at adding PriorityWords to HashMap");
                     throwable.printStackTrace();
                 }
             }
         });
-        taskBucketWords.addOnCompleteListener(task -> {
+        taskBucketWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if (task.isSuccessful()) {
                 try {
-                    bucketWords.putAll((Map<? extends String, ? extends TimePack>) task.getResult(Map.class));
+                    for(Map.Entry<String, Object> entry:
+                    task.getResult().getData().entrySet()){
+                        bucketWords.put(entry.getKey(), (TimePack) entry.getValue());
+                    }
                 } catch (Throwable throwable) {
                     Log.d("firestore,Repository", "onComplete: failed at adding BucketWords to HashMap");
                     throwable.printStackTrace();
@@ -462,7 +470,11 @@ public class Repository {
                 activityTask.getContent());
     }
 
-    // TODO: 08/07/2021 incorporate MasloCategory and Repetition to the notification system
 
     //endregion
+
+    // TODO: 08/07/2021 incorporate MasloCategory and Repetition to the notification system
+    // TODO: 08/07/2021 exclude same ActivityTask comparision in refershNoitifications
+    // TODO: 08/07/2021 add comments to ActivityTask
+    // TODO: 08/07/2021 change return type in javaDocs to appropriate type returned by the methods. instead of general Task<TResult>.
 }
