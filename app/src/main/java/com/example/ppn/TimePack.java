@@ -19,8 +19,6 @@ import java.util.Set;
  */
 public class TimePack {
 
-
-
     /**
      * the time of day i.e 21:00 to 22:00
      */

@@ -30,19 +30,48 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * <h4>a service class.</h3>
+ * <p>main access to data and firestore operations. puts together critical compunents for ease of use.
+ * {@link Repository#init() Repository.init()} should be called at least once before any use of the class to recive priorityWords and bucketWords from firestore. i.e: in the first activity called/it's view model.
+ *</p>
+ *
+ * <p> {@link com.example.ppn.Repository#userName userName} should be set by the coder, otherwise "default" will be used as a collection across all devices.</p>
+ * <p>  {@link com.example.ppn.Repository#defaultActivity defaultActivity } should be assign to a default activity to be return to when a notification is clicked/tapped</p>
+ * <p> {@link com.example.ppn.Repository#defaultContext defaultContext} should be assign to pass a context which can be used for creating a notification. </p>
+ 
+ * <p>  methods are structured in a c.r.u.d manner, and return a Task object. Task is an object representing an async operation.</p>
+ *
+ * <h4>refrence to Task and it's uses:</h4>
+ * @see <a href="https://developer.android.com/reference/com/google/android/play/core/tasks/Task">Tasks Android Reference</a>
+ * @see <a href="https://cloud.google.com/firestore/docs/query-data/get-data">Getting Data with Firestore</a>
+ *
+ *
+ */
 public class Repository {
 
-    private static Repository repository;
     private static boolean created = false;
 
+    /**
+     * indicates default context to be used when creating a new notification.
+     */
     private static Context defaultContext;
+    /**
+     * indicates what activity should be returned to by default when notifications are clicked/tapped.
+     */
     private static Activity defaultActivity;
 
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
+
+
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    /**
+     * effectively the collection name for the current user.
+     */
     private static String userName = "default";
 
     static private DocumentReference priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
@@ -61,12 +90,8 @@ public class Repository {
     }
 
     /**
-     *
-     * intitializes the prioritywords and bucketwords documant.
-     * note: to access a users collection, setUserName should be used with the desired name to be given the collection.
-     *
-     *
-     *
+     * <p>initializes the prioritywords and bucketwords document.</p>
+     * <p>note: to access a users collection, {@link Repository#setUserName(String) Repository.setUserName()} should be used with the desired name to be given the collection.</p>
      */
     public static void init(){
         if(created) return;
@@ -97,17 +122,23 @@ public class Repository {
         return;
     }
 
-
+    /**
+     * @see Repository#setNotification(Context, ActivityTask, Activity)
+     * @param defaultActivity the activity to be used by default.
+     */
     public static void setDefaultActivity(Activity defaultActivity) {
         Repository.defaultActivity = defaultActivity;
     }
+
+    /**
+     * @see Repository#setNotification(Context, ActivityTask, Activity)
+     * @param defaultContext the context to be used by default.
+     */
     public static void setDefaultContext(Context defaultContext) {
         Repository.defaultContext = defaultContext;
     }
 
     //region ActivityTask
-
-
     public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, Map<Integer,SubActivity> subActivity, TimePack timePack){
 
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivity,timePack, priorityWords);
@@ -119,8 +150,6 @@ public class Repository {
 
         return task;
     }
-
-
 
     public static Task getAllUserActivityTasks() throws Throwable {
 
@@ -294,8 +323,13 @@ public class Repository {
 
     //region notification
 
+    /**
+     *<p>The method calls for the ActivityTasks relevent for the date LocalDateTime.now() returns. and applies smart notification logic</p>
+     *@see <a href="https://app.diagrams.net/#G1F6Cc5yGinKNx1HIdPaEcC9FuKkSm9ye3">Smart notification logic flowchart</a>
+     * @throws Throwable
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void refreshNotifications() throws Throwable {
+    private static void refreshNotifications() {
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
         ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();
@@ -394,6 +428,7 @@ public class Repository {
                             }
                         }
                     }
+
                     for (ActivityTask activityTask :
                             thisDayActivityTasks) {
                         setNotification(defaultContext,activityTask,defaultActivity);
@@ -405,12 +440,11 @@ public class Repository {
     }
 
     /**
+     * <p>set a notification for a specific activity task. uses the notificationID in the TimePack of the activity task as a requestCode.</p>
      *
-     * set a notification for a specific activity task. uses the notificationID in the TimePack of the activity task as a requestCode.
-     *
-     * @param context, context of which the notification was created
-     * @param activityTask the activity task which the notification is created for
-     * @param activity the activity to open when the notification is tapped on
+     * @param context context of which the notification was created. if non given, {@link Repository#defaultContext defaultContext} will be used.
+     * @param activityTask the activity task which the notification is created for.
+     * @param activity the activity to open when the notification is tapped on.  if non given, {@link Repository#defaultActivity defaultActivity} will be used.
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
@@ -428,7 +462,7 @@ public class Repository {
                 activityTask.getContent());
     }
 
-    //endregion
+    // TODO: 08/07/2021 incorporate MasloCategory and Repetition to the notification system
 
-    // TODO: 28/06/2021 check for overlap in timepack timerange of active(todays) notifications and handle according to bucketwords > priority > natty
+    //endregion
 }
