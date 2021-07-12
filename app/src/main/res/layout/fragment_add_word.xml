@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddWord">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/EditText_word_content"
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            android:text="write reminder...."  />
+
+        <Switch
+            android:id="@+id/Switch_key_or_bucket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bucket word:\t\t\t\t" />
+
+        <SeekBar
+            android:id="@+id/SeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/seek_bar"
+            android:thumb="@drawable/seek_thumb"
+            android:indeterminate="false"
+            android:max="10"
+            android:progress="1" />
+
+        <TextView
+            android:id="@+id/TextView_priority_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:layout_marginLeft="0dp"
+            android:text="priority: N" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/Btn_save_word"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="save" />
+
+            <Button
+                android:id="@+id/Btn_cancel_word"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="cancel" />
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

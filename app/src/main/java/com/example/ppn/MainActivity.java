@@ -21,6 +21,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -41,15 +44,36 @@ public class MainActivity extends AppCompatActivity {
     */
         Repository.init();
 
+
         Repository.setUserName("matan");
 
         //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
 
-        /*Repository.createPriorityWord("test1",6);
+        //Repository.createPriorityWord("test1",6);
         Task t=Repository.getAllPriorityWords();
 
         Map<String,Integer> m = new HashMap<>();
-        t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+        Map<String,TimePack> bw = new HashMap<>();
+        Map<LocalDateTime,LocalDateTime> LDT= new HashMap<>();
+        Map<LocalDate, Boolean> monthRange = new HashMap<>();
+        Map<LocalDateTime, Boolean> overlapdMonth = new HashMap<>();
+        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
+            monthRange.put(LocalDate.now().withDayOfMonth(i),true);
+        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
+            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);
+
+        WordPriority wordPriority = WordPriority.getInstance(m,bw);
+        /*wordPriority.putInPriorityWords("test1",1);
+        wordPriority.putInPriorityWords("TEST",6);
+        wordPriority.putInPriorityWords("2222",42);*/
+
+        //LocalDateTime.parse("2021-7-12 17:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
+        TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
+
+        wordPriority.putInBucketWords("Bucket1", T);
+
+        /*t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if(task.isSuccessful())
             {
                 for (Map.Entry<String ,Object> entry:
@@ -58,12 +82,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        TextView textView= new TextView(getApplication());
-        LinearLayout linearLayout = findViewById(R.id.linearlayout);
-        textView.setText("test");
-        linearLayout.addView(textView);
+        for( Map.Entry<String,Integer> entry:m.entrySet())
+        {
+            TextView textView= new TextView(getApplication());
+            LinearLayout linearLayout = findViewById(R.id.linearlayout);
+            textView.setTextSize(25);
+            textView.setText(entry.getKey()+" priority:"+entry.getValue());
+            linearLayout.addView(textView);
+        }*/
+        t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+            if(task.isSuccessful())
+            {
+                for (Map.Entry<String ,Object> entry:
+                        task.getResult().getData().entrySet()) {//TODO: problem - task.getResult().getData().entrySet() returns a Long as Object
 
-        Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();*/
+                    Toast.makeText(getApplication(), ""+entry.getValue().getClass(), Toast.LENGTH_SHORT).show(); //used to test to see what kind of class the object is
+                    //bw.put(entry.getKey(),((TimePack) entry.getValue()).getTimeRange()); //TODO: problem - can't convert object to TimePack
+                }
+            }
+        });
+        /*for( Map.Entry<String,TimePack> entry:bw.entrySet())
+        {
+            TextView textView= new TextView(getApplication());
+            LinearLayout linearLayout = findViewById(R.id.linearlayout);
+            textView.setTextSize(25);
+            textView.setText(entry.getKey()+" range: "+entry.getValue());
+            linearLayout.addView(textView);
+        }*/
+
+        Toast.makeText(getApplication(), ""+bw.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
 
         final ViewPager2 viewPager = findViewById(R.id.viewpager);
