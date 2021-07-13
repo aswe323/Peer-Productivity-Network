@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -46,18 +47,21 @@ public class MainActivity extends AppCompatActivity {
         Task t;
 
         Map<String,Integer> m = new HashMap<>();
-       /* Map<String,TimePack> bw = new HashMap<>();
+        Map<String,TimePack> bw = new HashMap<>();
+        //ArrayList<ActivityTask> at;
         Map<LocalDateTime,LocalDateTime> LDT= new HashMap<>();
         Map<LocalDate, Boolean> monthRange = new HashMap<>();
         Map<LocalDateTime, Boolean> overlapdMonth = new HashMap<>();
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             monthRange.put(LocalDate.now().withDayOfMonth(i),true);
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);*/
+            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);/**/
 
-        Repository.createPriorityWord("test1",1);
-        Repository.createPriorityWord("TEST",6);
-        Repository.createPriorityWord("2222",42);
+        //region priority word test
+        //TODO: adding word is working, no do anything else plz
+        /*Repository.createPriorityWord("XXXXX",1);
+        Repository.createPriorityWord("1111111",50);
+        //Repository.createPriorityWord("2222",42);
 
 
         t=Repository.getAllPriorityWords();
@@ -67,54 +71,73 @@ public class MainActivity extends AppCompatActivity {
                 for (Map.Entry<String ,Object> entry:
                      task.getResult().getData().entrySet()) {
                     m.put(entry.getKey(),((Long) entry.getValue()).intValue());
-
-                    TextView textView= new TextView(getApplication());
-                    LinearLayout linearLayout = findViewById(R.id.linearlayout);
-                    textView.setTextSize(25);
-                    textView.setText(entry.getKey()+" priority:"+entry.getValue());
-                    linearLayout.addView(textView);
                 }
             }
-        });
-        /*for( Map.Entry<String,Integer> entry:m.entrySet())
-        {
-            TextView textView= new TextView(getApplication());
-            LinearLayout linearLayout = findViewById(R.id.linearlayout);
-            textView.setTextSize(25);
-            textView.setText(entry.getKey()+" priority:"+entry.getValue());
-            linearLayout.addView(textView);
-        }*/
+            for( Map.Entry<String,Integer> entry:m.entrySet())
+            {
+                TextView textView= new TextView(getApplication());
+                LinearLayout linearLayout = findViewById(R.id.linearlayout);
+                textView.setTextSize(25);
+                textView.setText(entry.getKey()+" priority:"+entry.getValue());
+                linearLayout.addView(textView);
+            }
+        });*/
+        //endregion
 
-        //LocalDateTime.parse("2021-7-12 17:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        /*LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
+        //region bucket word test
+        
+        /*//TODO <<<<< bucket word test 1 start
+        LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
         TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
-        Repository.createBucketWord("Bucket1", T);
+        Repository.createBucketWord("Bucket1", T); //TODO: crash when trying to set.
+        *///TODO <<<<< bucket word test 1 end
 
-        LDT.clear();
+        /*LDT.clear(); //TODO: second bucket word **take out of commenting only if the first one worked**
         LDT.put(LocalDateTime.now().withHour(18).withMinute(00),LocalDateTime.now().withHour(18).withMinute(05));
         T=new TimePack(LDT,7,monthRange,overlapdMonth);
-        Repository.createBucketWord("buCKEt222", T);
+        Repository.createBucketWord("buCKEt222", T);*/
 
-        t=Repository.getBucketWords();
+        /*t=Repository.getBucketWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if(task.isSuccessful())
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-
-                    Toast.makeText(getApplication(), ""+entry.getValue().getClass(), Toast.LENGTH_SHORT).show(); //used to test to see what kind of class the object is
-                    //bw.put(entry.getKey(),((TimePack) entry.getValue()).getTimeRange());
+                    bw.put(entry.getKey(),((TimePack) entry.getValue()));
                 }
             }
+            for( Map.Entry<String,TimePack> entry:bw.entrySet())
+            {
+                TextView textView= new TextView(getApplication());
+                LinearLayout linearLayout = findViewById(R.id.linearlayout);
+                textView.setTextSize(25);
+                textView.setText(entry.getKey()+" range: "+entry.getValue());
+                linearLayout.addView(textView);
+            }
         });*/
-        /*for( Map.Entry<String,TimePack> entry:bw.entrySet())
-        {
-            TextView textView= new TextView(getApplication());
-            LinearLayout linearLayout = findViewById(R.id.linearlayout);
-            textView.setTextSize(25);
-            textView.setText(entry.getKey()+" range: "+entry.getValue());
-            linearLayout.addView(textView);
+        //endregion bucket word test
+
+        //region activity task test
+        /* //TODO <<<<< activity task test 1 start
+        LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
+        TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
+        Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",null,T); //TODO:crash at the constructor of the ActivityTask class
+        */ //TODO <<<<< activity task test 1 end
+        /*try {
+            t=Repository.getAllUserActivityTasks();
+            t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+                if(task.isSuccessful())
+                {
+                    ArrayList<ActivityTask> at = ((ArrayList<ActivityTask>) task.getResult().get("matan" + "ActivityTasks")); //idk if this will crash, should get arraylist
+                }
+
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }*/
+
+
+        //endregion activity task test
 
         Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
