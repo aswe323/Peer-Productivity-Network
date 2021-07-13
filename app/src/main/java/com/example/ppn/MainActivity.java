@@ -55,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);*/
 
-        //Repository.createPriorityWord("test1",1);
+        Repository.createPriorityWord("test1",1);
         Repository.createPriorityWord("TEST",6);
-        //Repository.createPriorityWord("2222",42);
+        Repository.createPriorityWord("2222",42);
 
 
         t=Repository.getAllPriorityWords();

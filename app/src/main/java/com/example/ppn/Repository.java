@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -243,7 +244,7 @@ public class Repository {
         Map<String,Integer> newWord = new HashMap<>();
         newWord.put(word,priorty);
         Task task = priorityWordsRef
-                .set(newWord)
+                .set(newWord, SetOptions.merge())
                 .addOnSuccessListener(unused -> Log.d("firestore", "createPriorityWord: success for word " + word + " user " + userName))
                 .addOnFailureListener(e -> Log.d("firestore", "createPriorityWord: failure"));
         return task;
@@ -289,7 +290,7 @@ public class Repository {
         newSet.put(word,timePack);
 
         Task task = bucketWordsRef
-                .set(newSet)
+                .set(newSet,SetOptions.merge())
                 .addOnSuccessListener(unused -> Log.d("firestore", "createBucketWord: success"))
                 .addOnFailureListener(e -> Log.d("firestore", "createBucketWord: failed"));
 
