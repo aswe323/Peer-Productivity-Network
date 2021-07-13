@@ -294,7 +294,7 @@ public class Repository {
         return task;
     }
 
-    private static Task getBucketWords(){
+    public static Task getBucketWords(){ //TODO: this was privet, changed it to public - from Lior
 
         Task task = bucketWordsRef
                 .get()
