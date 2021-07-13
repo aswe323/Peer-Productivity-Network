@@ -81,6 +81,8 @@ public class Repository {
 
     public static String setUserName(String userName) {
         Repository.userName = userName;
+        bucketWordsRef = db.collection(Repository.userName).document("BucketWords");
+        priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
         return Repository.userName;
     }
 
@@ -242,7 +244,7 @@ public class Repository {
         newWord.put(word,priorty);
         Task task = priorityWordsRef
                 .set(newWord)
-                .addOnSuccessListener(unused -> Log.d("firestore", "createPriorityWord: success"))
+                .addOnSuccessListener(unused -> Log.d("firestore", "createPriorityWord: success for word " + word + " user " + userName))
                 .addOnFailureListener(e -> Log.d("firestore", "createPriorityWord: failure"));
         return task;
     }
