@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A helper class to centralize time operations.
@@ -34,7 +35,7 @@ public class TimePack {
     /**
      * internal counter, initialization with the unique identifier requiring system every time the TimePack CLASS is initialized.
      */
-    private final int notificationID = notificationCounter+1;
+    private int notificationID = notificationCounter+1;
     /**
      * natty results from parsing the content of the related activityTask
      */
@@ -55,6 +56,18 @@ public class TimePack {
         notificationCounter = notificationCounter +1;
 
     }
+    public TimePack(HashMap<String ,Object> mappedData) {
+
+        this.timeRange = (ArrayList<LocalDateTime>) mappedData.get("timeTange");
+        this.monthNumber = ((Long) mappedData.get("monthNumber")).intValue();
+        this.repetition = Repetition.valueOf((String) mappedData.get("repetition"));
+        this.relaventDates = (ArrayList<LocalDateTime>) mappedData.get("relaventDates");
+        this.notificationID = ((Long) mappedData.get("notificationID")).intValue();
+
+    }
+
+
+
 
     public ArrayList<LocalDateTime> getRelaventDates() {
         return relaventDates;

@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-                    bw.put(entry.getKey(),((TimePack) entry.getValue()));
+                    bw.put(entry.getKey(),new TimePack((HashMap<String, Object>) entry.getValue()));
                 }
             }
             for( Map.Entry<String,TimePack> entry:bw.entrySet())
