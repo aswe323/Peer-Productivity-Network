@@ -86,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
         //region bucket word test
         
-        /*//TODO <<<<< bucket word test 1 start
+/*        //TODO <<<<< bucket word test 1 start
         LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
         TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
         Repository.createBucketWord("Bucket1", T); //TODO: crash when trying to set.
-        *///TODO <<<<< bucket word test 1 end
+        //TODO <<<<< bucket word test 1 end*/
 
         /*LDT.clear(); //TODO: second bucket word **take out of commenting only if the first one worked**
         LDT.put(LocalDateTime.now().withHour(18).withMinute(00),LocalDateTime.now().withHour(18).withMinute(05));
@@ -118,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
         //endregion bucket word test
 
         //region activity task test
-        /* //TODO <<<<< activity task test 1 start
+         //TODO <<<<< activity task test 1 start
         LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
         TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
         Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",null,T); //TODO:crash at the constructor of the ActivityTask class
-        */ //TODO <<<<< activity task test 1 end
+         //TODO <<<<< activity task test 1 end
         /*try {
             t=Repository.getAllUserActivityTasks();
             t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {

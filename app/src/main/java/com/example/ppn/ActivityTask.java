@@ -1,10 +1,10 @@
 package com.example.ppn;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,19 +24,21 @@ public class ActivityTask {
     private int activityTaskID;
     private MasloCategory masloCategory;
     private String content;
-    private Map<Integer, SubActivity> subActivity;
+    private ArrayList<SubActivity> subActivitys;
     private int priority;
     private TimePack timePack;
 
     public ActivityTask() {
     }
 
-    public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, Map<Integer, SubActivity> subActivity, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
+    public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
         this.activityTaskID = activityTaskID;
         this.masloCategory = masloCategory;
-        this.subActivity = subActivity;
+        this.subActivitys = subActivitys;
         this.content = content;
         this.timePack = timePack;
+
+
         
         List<DateGroup> groups;
         Parser parser = new Parser();
@@ -48,7 +51,7 @@ public class ActivityTask {
 
         }else{
             this.timePack.setNattyResults(LocalDateTime.now());
-            Log.d("activityTask,natty", "ActivityTask: natty was not able to parse activityTask with ID:" + activityTaskID);
+            Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + activityTaskID);
         }
 
         String[] words = content.split(" ");
@@ -59,6 +62,12 @@ public class ActivityTask {
         }
         this.priority = score;
 
+        if(this.getTimePack().getTimeRange().isEmpty()){
+            this.getTimePack().getTimeRange().set(0,this.timePack.getNattyResults());
+            this.getTimePack().getTimeRange().set(1,this.timePack.getNattyResults());
+        }
+        this.timePack.reCalculateReleventDates();
+
     }
 
     public boolean editReminder(String newContent,MasloCategory newMasloCategory,Repetition newRepetition){
@@ -68,49 +77,34 @@ public class ActivityTask {
         return true;
     }
 
-    public int size() {
-        return subActivity.size();
+
+    public ArrayList<SubActivity> getSubActivitys() {
+        return subActivitys;
     }
 
-    public boolean containsKey(@Nullable @org.jetbrains.annotations.Nullable Object key) {
-        return subActivity.containsKey(key);
+    public void setActivityTaskID(int activityTaskID) {
+        this.activityTaskID = activityTaskID;
     }
 
-    public boolean containsValue(@Nullable @org.jetbrains.annotations.Nullable Object value) {
-        return subActivity.containsValue(value);
+    public void setMasloCategory(MasloCategory masloCategory) {
+        this.masloCategory = masloCategory;
     }
 
-    public SubActivity put(Integer key, SubActivity value) {
-        return subActivity.put(key, value);
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public SubActivity remove(@Nullable @org.jetbrains.annotations.Nullable Object key) {
-        return subActivity.remove(key);
+    public void setSubActivitys(ArrayList<SubActivity> subActivitys) {
+        this.subActivitys = subActivitys;
     }
 
-    public SubActivity getOrDefault(@Nullable @org.jetbrains.annotations.Nullable Object key, @Nullable @org.jetbrains.annotations.Nullable SubActivity defaultValue) {
-        return subActivity.getOrDefault(key, defaultValue);
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
-    public void forEach(@NonNull @NotNull BiConsumer<? super Integer, ? super SubActivity> action) {
-        subActivity.forEach(action);
+    public void setTimePack(TimePack timePack) {
+        this.timePack = timePack;
     }
-
-    public boolean add(SubActivity subActivity) {
-
-        try {
-            this.subActivity.put(this.subActivity.size() + 1, subActivity);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
-
-    }
-
-    public SubActivity removeSubActivityAtIndex(int index) {
-        return subActivity.remove(index);
-    }
-
 
     public int getActivityTaskID() {
         return activityTaskID;

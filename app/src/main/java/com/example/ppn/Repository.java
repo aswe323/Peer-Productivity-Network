@@ -1,7 +1,6 @@
 package com.example.ppn;
 
 import android.app.Activity;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -27,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -150,9 +148,9 @@ public class Repository {
     }
 
     //region ActivityTask
-    public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, Map<Integer,SubActivity> subActivity, TimePack timePack){
+    public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack){
 
-        ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivity,timePack, priorityWords);
+        ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
         Task task = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID)
                 .set(activityTask)
@@ -357,9 +355,9 @@ public class Repository {
                     for (ActivityTask activityTask1 :
                             thisDayActivityTasks) {
 
-                        Map<LocalDateTime,LocalDateTime> act1time = activityTask1.getTimePack().getTimeRange();
-                        ArrayList<LocalDateTime> timeArray2 = new ArrayList<>(act1time.keySet());
-                        LocalDateTime act1StartingTime = timeArray2.get(0);
+                        ArrayList<LocalDateTime> act1time = activityTask1.getTimePack().getTimeRange();
+                        LocalDateTime act1StartingTime = act1time.get(0);
+                        LocalDateTime act1EndingTime = act1time.get(1);
 
                         for (ActivityTask activityTask2 :
                                 thisDayActivityTasks) {
@@ -368,18 +366,17 @@ public class Repository {
                             // if AT1 priority > AT2 priority: (AT2 priority / AT1 priority) * (AT1endtimeInFromEpocInMili - AT1startTimeFromEpoc) -> push AT2
                             // same goes for AT1 priority < AT2 priority
 
-
-                            if(activityTask1.getTimePack().getTimeRange().containsKey(activityTask2.getTimePack().getTimeRange().keySet())){
+                            //if the activities start at the same time, and act1 maslocategory is more important then act2
+                            if(activityTask1.getTimePack().getTimeRange().get(0).isEqual(activityTask2.getTimePack().getTimeRange().get(0)) &&
+                                    activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal()){
 
                                 ArrayList<String> activityTask1bucketWords = new ArrayList<>();
                                 ArrayList<String> activityTask2bucketWords = new ArrayList<>();
 
-                                Map<LocalDateTime,LocalDateTime> act2TimeMap = activityTask2.getTimePack().getTimeRange();
-                                ArrayList<LocalDateTime> act2TimeArray = new ArrayList<>(act2TimeMap.keySet());
-                                ArrayList<LocalDateTime> act2EndTime = new ArrayList<>(act2TimeMap.values());
+                                ArrayList<LocalDateTime> act2TimeRange = activityTask2.getTimePack().getTimeRange();
 
-                                LocalDateTime act2StartingTime = act2TimeArray.get(0);
-                                LocalDateTime act2EndingTime = act2EndTime.get(0);
+                                LocalDateTime act2StartingTime = act2TimeRange.get(0);
+                                LocalDateTime act2EndingTime = act2TimeRange.get(1);
                                 for (String word :
                                         activityTask1.getContent().split(" ")) {
                                     if(bucketWords.containsKey(word)) activityTask1bucketWords.add(word);
@@ -390,8 +387,13 @@ public class Repository {
 
                                 }
 
+                                //removing buckets words that exists in both activities.
                                 activityTask2bucketWords.removeAll(activityTask1bucketWords);
+
+
+
                                 LocalDateTime bestChoice = act2StartingTime;
+                                //if there are buckets words that don't exist, try to use them to reassign the start time of act2
                                 if (activityTask2bucketWords.size() != 0){
 
 
@@ -399,9 +401,7 @@ public class Repository {
                                     for (String word :
                                             activityTask2bucketWords) {
 
-                                        Map<LocalDateTime,LocalDateTime> timeMap = bucketWords.get(word).getTimeRange();
-                                        ArrayList<LocalDateTime> timeArray = new ArrayList<>(timeMap.keySet());
-                                        LocalDateTime time = timeArray.get(0);
+                                        LocalDateTime time = bucketWords.get(word).getTimeRange().get(0);
 
 
                                         if(time.isAfter(act1StartingTime) && time.isBefore(bestChoice)){
@@ -410,30 +410,35 @@ public class Repository {
                                     }
                                     if (bestChoice != act2StartingTime) {
                                         Long changeInTime =  act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
-                                        activityTask2.getTimePack().putTimeRange(bestChoice,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
 
+
+                                        activityTask2.getTimePack().getTimeRange().set(0,act2StartingTime.plus(changeInTime,ChronoUnit.MILLIS));
+                                        activityTask2.getTimePack().getTimeRange().set(1,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
                                         continue;
 
                                     }
                                 }
+
+                                //if bucketwords are the same, try to use priority as a means to resolve.
                                 Map<String , ActivityTask.compareResult> x = activityTask1.compare(activityTask2);
                                         if (x.get("priority").equals(ActivityTask.compareResult.higherPriority)) {
-                                            activityTask1.getTimePack().getTimeRange().forEach((localDateTime, localDateTime2) -> {
+                                            Long delay = (act1EndingTime.atZone(ZoneId.of("Assia/Jerusalem")).toInstant().toEpochMilli() - act1StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()) * ( activityTask2.getPriority() / activityTask1.getPriority());
+                                            activityTask2.getTimePack().getTimeRange().set(0,act2StartingTime.plus(delay,ChronoUnit.MILLIS));
+                                            activityTask2.getTimePack().getTimeRange().set(1,act2EndingTime.plus(delay,ChronoUnit.MILLIS));
 
-                                                Long delay = localDateTime2.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - localDateTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
-
-                                                activityTask2.getTimePack().putTimeRange(
-                                                        localDateTime.plus(delay, ChronoUnit.MILLIS),
-                                                        activityTask2.getTimePack().getTimeRange().get(localDateTime).plus(delay, ChronoUnit.MILLIS)
-                                                );
-                                            });
                                             continue;
+
+
                                         }
 
+
+                                        //if all else fails, try to use NATTY to resolve
                                         if(!activityTask2.getTimePack().getNattyResults().isEqual(act1StartingTime)){
                                             LocalDateTime nattyresults = activityTask2.getTimePack().getNattyResults();
                                             Long delay = act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
-                                            activityTask2.getTimePack().putTimeRange(nattyresults, nattyresults.plus(delay,ChronoUnit.MILLIS));
+                                            activityTask2.getTimePack().getTimeRange().set(0,nattyresults);
+                                            activityTask2.getTimePack().getTimeRange().set(1,nattyresults.plus(delay,ChronoUnit.MILLIS));
+                                            continue;
                                         }
 
                             }
@@ -460,10 +465,9 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
 
-        final LocalDateTime[] nearestTime = new LocalDateTime[1];
-        activityTask.getTimePack().getTimeRange().forEach((localDateTime, localDateTime2) -> nearestTime[0] = localDateTime.isBefore(nearestTime[0])? localDateTime: nearestTime[0]);
 
-        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - nearestTime[0].atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+
+        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - activityTask.getTimePack().getTimeRange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
                 delayInMili,
@@ -476,8 +480,16 @@ public class Repository {
 
     //endregion
 
-    // TODO: 08/07/2021 incorporate MasloCategory and Repetition to the notification system
-    // TODO: 08/07/2021 exclude same ActivityTask comparision in refershNoitifications
-    // TODO: 08/07/2021 add comments to ActivityTask
-    // TODO: 08/07/2021 change return type in javaDocs to appropriate type returned by the methods. instead of general Task<TResult>.
+
+
+
+    // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
+    // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
+    // TODO: 18/07/2021 make activiytaskss with empty timerange to go through NATTY or use current time otherwise(DONE!)
+
+
+    // TODO: 18/07/2021 find a solution to static context memory leak
+    // TODO: 18/07/2021 consider using collectionsRef instead of docref for priotity and bucket words
+
+
 }

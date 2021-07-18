@@ -17,6 +17,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
     buildTypes {
         release {
             minifyEnabled false
@@ -30,10 +31,12 @@ android {
 }
 
 dependencies {
+    //natty
+    implementation files('libs\\natty-0.13.jar')
+    implementation files('libs\\antlr-4.9-complete.jar')
+    implementation files('libs\\slf4j-android-1.7.30.jar')
+    implementation 'org.slf4j:slf4j-api:1.7.30'
 
-    implementation files('libs/natty-0.13.jar')
-    implementation files('libs/antlr-4.9-complete.jar')
-    implementation files('libs/slf4j-android-1.7.30.jar')
 
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'

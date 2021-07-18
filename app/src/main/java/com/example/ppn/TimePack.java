@@ -1,14 +1,21 @@
 package com.example.ppn;
 
+import android.icu.util.Calendar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -20,9 +27,9 @@ import java.util.Set;
 public class TimePack {
 
     /**
-     * the time of day i.e 21:00 to 22:00
+     * the time of day i.e 21:00 to 22:00, only index 0 and 1 are used. if no timeRange is specified (isEmpty is true during activityTask instantiation)natty will be assigned to both index 0 and 1.
      */
-    private Map<LocalDateTime,LocalDateTime> timeRange;
+    private ArrayList<LocalDateTime> timeRange;
     /**
      * January will be 1 February will be 2 and so on... tip: can get current month number with YearMonth.now().getMonth().getValue()
      */
@@ -30,11 +37,7 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-    private Map<LocalDate,Boolean> monthRange;
-    /**
-     * if the TimePack overlaps with the next month, this will have the same purpose as monthRange but for the month after it.
-     */
-    private Map<LocalDateTime,Boolean> overlapedMonth;
+    private ArrayList<LocalDate> relaventDates;
     /**
      * represents the repetition at which the TimePack is relevant to.
      */
@@ -52,6 +55,119 @@ public class TimePack {
      */
     private LocalDateTime nattyResults;
 
+
+
+    public TimePack() {
+    }
+
+    public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<LocalDate> relaventDates) {
+
+        this.timeRange = timeRange;
+        this.monthNumber = monthNumber;
+        this.repetition = repetition;
+        this.relaventDates = relaventDates;
+
+        notificationCounter = notificationCounter +1;
+
+    }
+
+    public ArrayList<LocalDate> getRelaventDates() {
+        return relaventDates;
+    }
+
+    public void setRelaventDates(ArrayList<LocalDate> relaventDates) {
+        this.relaventDates = relaventDates;
+    }
+
+    public void reCalculateReleventDates(){
+        ArrayList<LocalDate> newRelaventDates = new ArrayList<>();
+
+        switch (this.repetition){
+            case No_repeting: return;
+            //region Every_24_hours
+            case Every_24_hours:
+                newRelaventDates.add(timeRange.get(0).toLocalDate());
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(1));
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(2));
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(3));
+                return;
+            //endregion
+            //region every_week
+            case every_week:
+                newRelaventDates.add(timeRange.get(0).toLocalDate());
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(1));
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(2));
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(3));
+                return;
+            //endregion
+            //region every_year
+            case every_year:
+                newRelaventDates.add(timeRange.get(0).toLocalDate());
+                newRelaventDates.add(timeRange.get(0).toLocalDate().plusYears(1));
+                return;
+            //endregion
+            //region every_monday
+            case every_monday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                return;
+            //endregion
+            //region every_satuday
+            case every_satuday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                return;
+            //endregion
+            //region every_friday
+            case every_friday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                return;
+            //endregion
+            //region every_sunday
+            case every_sunday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                return;
+            //endregion
+            //region every_tuesday
+            case every_tuesday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                return;
+            //endregion
+            //region every_thursday
+            case every_thursday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                return;
+            //endregion
+            //region every_wednesday
+            case every_wednesday:
+                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                return;
+            //endregion
+        }
+
+        setRelaventDates(newRelaventDates);
+
+    }
+
     public LocalDateTime getNattyResults() {
         return nattyResults;
     }
@@ -60,63 +176,23 @@ public class TimePack {
         this.nattyResults = nattyResults;
     }
 
-    public TimePack() {
-    }
-
-    public TimePack(Map<LocalDateTime,LocalDateTime> timeRange, int monthNumber, Map<LocalDate, Boolean> monthRange, Map<LocalDateTime, Boolean> overlapedMonth) {
-
-        this.timeRange = timeRange;
-        this.monthNumber = monthNumber;
-        this.monthRange = monthRange;
-        this.overlapedMonth = overlapedMonth;
-
-        notificationCounter = notificationCounter +1;
-
-    }
-
     public void setRepetition(Repetition repetition) {
+
         this.repetition = repetition;
+        reCalculateReleventDates();
     }
 //what does notification need?
 
-    public int size() {
-        return timeRange.size();
-    }
-
-    public boolean containsKey(@Nullable @org.jetbrains.annotations.Nullable Object key) {
-        return timeRange.containsKey(key);
-    }
-
-    public boolean containsValue(@Nullable @org.jetbrains.annotations.Nullable Object value) {
-        return timeRange.containsValue(value);
-    }
-
-    public LocalDateTime putTimeRange(LocalDateTime key, LocalDateTime value) {
-        return timeRange.put(key, value);
-    }
-
-    public void putAll(@NonNull @NotNull Map<? extends LocalDateTime, ? extends LocalDateTime> m) {
-        timeRange.putAll(m);
-    }
-
-    public LocalDateTime getOrDefault(@Nullable @org.jetbrains.annotations.Nullable Object key, @Nullable @org.jetbrains.annotations.Nullable LocalDateTime defaultValue) {
-        return timeRange.getOrDefault(key, defaultValue);
-    }
-
-    public Map<LocalDateTime, LocalDateTime> getTimeRange() {
+    public ArrayList<LocalDateTime> getTimeRange() {
         return timeRange;
+    }
+
+    public void setTimeRange(ArrayList<LocalDateTime> timeRange) {
+        this.timeRange = timeRange;
     }
 
     public int getMonthNumber() {
         return monthNumber;
-    }
-
-    public Map<LocalDate, Boolean> getMonthRange() {
-        return monthRange;
-    }
-
-    public Map<LocalDateTime, Boolean> getOverlapedMonth() {
-        return overlapedMonth;
     }
 
     public Repetition getRepetition() {
@@ -129,5 +205,13 @@ public class TimePack {
 
     public int getNotificationID() {
         return notificationID;
+    }
+
+    public void setMonthNumber(int monthNumber) {
+        this.monthNumber = monthNumber;
+    }
+
+    public static void setNotificationCounter(int notificationCounter) {
+        TimePack.notificationCounter = notificationCounter;
     }
 }
