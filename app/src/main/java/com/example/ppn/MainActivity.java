@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<LocalDateTime> relaventDates = new ArrayList<>();
 
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            relaventDates.add(LocalDate.now().withDayOfMonth(i));
+            relaventDates.add(LocalDateTime.now().withDayOfMonth(i));
         /*for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             monthRange.put(LocalDate.now().withDayOfMonth(i),true);
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
@@ -97,21 +97,22 @@ public class MainActivity extends AppCompatActivity {
         });*/
         //endregion
 
-        //region bucket word test
+        //region bucket word test **** C is working *****
 
-        //TODO <<<<< bucket word test 1 start
-        LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
+        /*LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
         LDT.add(LocalDateTime.now().withHour(23).withMinute(50));
         TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("Bucket1", T); //TODO: crash when trying to set.
-        //TODO <<<<< bucket word test 1 end/**/
+        Repository.createBucketWord("Bucket1", T);*/
 
-        /*LDT.clear(); //TODO: second bucket word **take out of commenting only if the first one worked**
-        LDT.put(LocalDateTime.now().withHour(18).withMinute(00),LocalDateTime.now().withHour(18).withMinute(05));
-        T=new TimePack(LDT,7,monthRange,overlapdMonth);
+        /*LDT.clear();
+        LDT.add(LocalDateTime.now().withHour(19).withMinute(00));
+        LDT.add(LocalDateTime.now().withHour(23).withMinute(55));
+        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
         Repository.createBucketWord("buCKEt222", T);*/
 
-        /*t=Repository.getBucketWords();
+        //Repository.updateBucketWord()
+
+        t=Repository.getBucketWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if(task.isSuccessful())
             {
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText(entry.getKey()+" range: "+entry.getValue());
                 linearLayout.addView(textView);
             }
-        });*/
+        });/**/
         //endregion bucket word test
 
         //region activity task test
