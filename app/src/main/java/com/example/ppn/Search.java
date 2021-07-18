@@ -7,6 +7,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
+import android.widget.Toast;
+
+import com.google.android.material.tabs.TabLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +63,17 @@ public class Search extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        container.removeAllViews(); //this is used to remove the original fragment i came from, else it will ly under the search fragment.
+
+        //since R.id.TabLayout isn't from the fragment we need to inflate the layout where he is.
+        final LayoutInflater factory = getLayoutInflater();
+        final View textEntryView = factory.inflate(R.layout.activity_main, null);
+        TabLayout tabLayout = textEntryView.findViewById(R.id.TabLayout);
+        Toast.makeText(this.getContext(), "this", Toast.LENGTH_SHORT).show();
+        tabLayout.setSelected(false);
+
+
+        return view;
     }
 }

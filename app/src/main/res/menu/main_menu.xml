@@ -10,7 +10,7 @@
         app:showAsAction="always"
         />
     <item
-        android:id="@+id/more_menu"
+        android:id="@+id/user_menu"
         android:icon="@android:drawable/ic_menu_more"
         android:iconTint="#FFFFFF"
         android:title="more"

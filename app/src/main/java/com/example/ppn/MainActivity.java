@@ -4,17 +4,22 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -31,11 +36,17 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    ViewPager2 viewPager;
+    TabLayout tabLayout;
+    TabLayoutMediator tabLayoutMediator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tabLayout = findViewById(R.id.TabLayout);
+        viewPager = findViewById(R.id.viewpager);
 
         Repository.init();
 
@@ -49,20 +60,22 @@ public class MainActivity extends AppCompatActivity {
         Map<String,Integer> m = new HashMap<>();
         Map<String,TimePack> bw = new HashMap<>();
         //ArrayList<ActivityTask> at;
-        Map<LocalDateTime,LocalDateTime> LDT= new HashMap<>();
-        Map<LocalDate, Boolean> monthRange = new HashMap<>();
-        Map<LocalDateTime, Boolean> overlapdMonth = new HashMap<>();
+        ArrayList<LocalDateTime> LDT = new ArrayList<>();
+        ArrayList<LocalDate> relaventDates = new ArrayList<>();
+
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
+            relaventDates.add(LocalDate.now().withDayOfMonth(i));
+        /*for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             monthRange.put(LocalDate.now().withDayOfMonth(i),true);
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);/**/
+            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);*/
 
-        //region priority word test
-        //TODO: adding word is working, no do anything else plz
-        /*Repository.createPriorityWord("XXXXX",1);
-        Repository.createPriorityWord("1111111",50);
+        //region priority word test  ****C R U D  is working, word priority is working as intended.*****
+        /*//Repository.createPriorityWord("XXXXX",1);
+        //Repository.createPriorityWord("1111111",50);
         //Repository.createPriorityWord("2222",42);
-
+        //Repository.updatePriorityWord("XXXXX",17);
+        //Repository.deletePriorityWord("XXXXX");
 
         t=Repository.getAllPriorityWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
@@ -85,12 +98,13 @@ public class MainActivity extends AppCompatActivity {
         //endregion
 
         //region bucket word test
-        
-/*        //TODO <<<<< bucket word test 1 start
-        LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
-        TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
+
+        //TODO <<<<< bucket word test 1 start
+        LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
+        LDT.add(LocalDateTime.now().withHour(23).withMinute(50));
+        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
         Repository.createBucketWord("Bucket1", T); //TODO: crash when trying to set.
-        //TODO <<<<< bucket word test 1 end*/
+        //TODO <<<<< bucket word test 1 end/**/
 
         /*LDT.clear(); //TODO: second bucket word **take out of commenting only if the first one worked**
         LDT.put(LocalDateTime.now().withHour(18).withMinute(00),LocalDateTime.now().withHour(18).withMinute(05));
@@ -119,11 +133,11 @@ public class MainActivity extends AppCompatActivity {
 
         //region activity task test
          //TODO <<<<< activity task test 1 start
-        LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
+        /*LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
         TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
         Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",null,T); //TODO:crash at the constructor of the ActivityTask class
          //TODO <<<<< activity task test 1 end
-        /*try {
+        try {
             t=Repository.getAllUserActivityTasks();
             t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
                 if(task.isSuccessful())
@@ -142,8 +156,28 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
 
-        final ViewPager2 viewPager = findViewById(R.id.viewpager);
+
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
+
+        tabLayoutMediator = new TabLayoutMediator(tabLayout,viewPager,true,
+                (tab,position)->{
+                    switch (position) {
+                        case 0:
+                            tab.setText("Home");
+                            break;
+                        case 1:
+                            tab.setText("Word Management");
+                            break;
+                        case 2:
+                            tab.setText("Group And Points");
+                            break;
+                        default:
+                            return;
+                    }
+                });
+        tabLayoutMediator.attach();
+
+
     }
 
     @Override

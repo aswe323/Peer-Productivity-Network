@@ -15,22 +15,21 @@ public class ViewpagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        //TODO:create fragments:1,2,3,4,5,6
         switch (position) {
             case 0:
                 return new HomePage();
-            /**
+
              case 1:
-             return new keywords();
+                return new KeyWords();
              case 2:
-             return new groups_and_points();
+                return new PointsAndGroups();
              case 3:
-             return new RemindersCollection();
-             case 4:
+             return new Search();
+             /*case 4:
              return new edit_reminder();
              case 5:
              return new RemindersCollection();
-             **/
+             */
             default:
                 return null;
         }
@@ -38,7 +37,7 @@ public class ViewpagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 6;
+        return 3;
     }
 
 }
