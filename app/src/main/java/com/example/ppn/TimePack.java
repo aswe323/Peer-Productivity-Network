@@ -65,7 +65,7 @@ public class TimePack {
     }
 
     public void reCalculateReleventDates(){
-        ArrayList<LocalDate> newRelaventDates = new ArrayList<>();
+        ArrayList<LocalDateTime> newRelaventDates = new ArrayList<>();
 
 
 
@@ -73,29 +73,29 @@ public class TimePack {
             case No_repeting: return;
             //region Every_24_hours
             case Every_24_hours:
-                newRelaventDates.add(timeRange.get(0).toLocalDate());
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(1));
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(2));
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusDays(3));
+                newRelaventDates.add(timeRange.get(0));
+                newRelaventDates.add(timeRange.get(0).plusDays(1));
+                newRelaventDates.add(timeRange.get(0).plusDays(2));
+                newRelaventDates.add(timeRange.get(0).plusDays(3));
                 return;
             //endregion
             //region every_week
             case every_week:
-                newRelaventDates.add(timeRange.get(0).toLocalDate());
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(1));
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(2));
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusWeeks(3));
+                newRelaventDates.add(timeRange.get(0));
+                newRelaventDates.add(timeRange.get(0).plusWeeks(1));
+                newRelaventDates.add(timeRange.get(0).plusWeeks(2));
+                newRelaventDates.add(timeRange.get(0).plusWeeks(3));
                 return;
             //endregion
             //region every_year
             case every_year:
-                newRelaventDates.add(timeRange.get(0).toLocalDate());
-                newRelaventDates.add(timeRange.get(0).toLocalDate().plusYears(1));
+                newRelaventDates.add(timeRange.get(0));
+                newRelaventDates.add(timeRange.get(0).plusYears(1));
                 return;
             //endregion
             //region every_monday
             case every_monday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
@@ -103,7 +103,7 @@ public class TimePack {
             //endregion
             //region every_satuday
             case every_satuday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
@@ -111,7 +111,7 @@ public class TimePack {
             //endregion
             //region every_friday
             case every_friday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
@@ -119,7 +119,7 @@ public class TimePack {
             //endregion
             //region every_sunday
             case every_sunday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
@@ -127,7 +127,7 @@ public class TimePack {
             //endregion
             //region every_tuesday
             case every_tuesday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
@@ -135,7 +135,7 @@ public class TimePack {
             //endregion
             //region every_thursday
             case every_thursday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
@@ -143,7 +143,7 @@ public class TimePack {
             //endregion
             //region every_wednesday
             case every_wednesday:
-                newRelaventDates.add(timeRange.get(0).toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
