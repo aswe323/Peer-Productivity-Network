@@ -1,25 +1,10 @@
 package com.example.ppn;
 
-import android.icu.util.Calendar;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A helper class to centralize time operations.
@@ -37,7 +22,7 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-    private ArrayList<LocalDate> relaventDates;
+    private ArrayList<LocalDateTime> relaventDates;
     /**
      * represents the repetition at which the TimePack is relevant to.
      */
@@ -60,7 +45,7 @@ public class TimePack {
     public TimePack() {
     }
 
-    public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<LocalDate> relaventDates) {
+    public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<LocalDateTime> relaventDates) {
 
         this.timeRange = timeRange;
         this.monthNumber = monthNumber;
@@ -71,16 +56,18 @@ public class TimePack {
 
     }
 
-    public ArrayList<LocalDate> getRelaventDates() {
+    public ArrayList<LocalDateTime> getRelaventDates() {
         return relaventDates;
     }
 
-    public void setRelaventDates(ArrayList<LocalDate> relaventDates) {
+    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
         this.relaventDates = relaventDates;
     }
 
     public void reCalculateReleventDates(){
         ArrayList<LocalDate> newRelaventDates = new ArrayList<>();
+
+
 
         switch (this.repetition){
             case No_repeting: return;

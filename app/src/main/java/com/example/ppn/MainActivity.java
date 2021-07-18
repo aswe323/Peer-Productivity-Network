@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Map<String,TimePack> bw = new HashMap<>();
         //ArrayList<ActivityTask> at;
         ArrayList<LocalDateTime> LDT = new ArrayList<>();
-        ArrayList<LocalDate> relaventDates = new ArrayList<>();
+        ArrayList<LocalDateTime> relaventDates = new ArrayList<>();
 
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             relaventDates.add(LocalDate.now().withDayOfMonth(i));
