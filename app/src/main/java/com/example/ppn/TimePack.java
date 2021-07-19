@@ -2,14 +2,13 @@ package com.example.ppn;
 
 import android.util.Log;
 
+import java.sql.Timestamp;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.PrimitiveIterator;
 
 /**
  * A helper class to centralize time operations.
@@ -25,8 +24,6 @@ public class TimePack {
      *      * a String form of localedatetime, the ending time of the timepack.
      */
     private String endingTime;
-
-    
     /**
      * January will be 1 February will be 2 and so on... tip: can get current month number with YearMonth.now().getMonth().getValue()
      */
@@ -34,11 +31,7 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-
     private ArrayList<String> strigifiedRelaventDates;
-
-
-
     /**
      * represents the repetition at which the TimePack is relevant to.
      */
@@ -54,128 +47,11 @@ public class TimePack {
     /**
      * natty results from parsing the content of the related activityTask
      */
-    public String strigifiedNattyResults;
-
-    public void setStrigifiedNattyResults(String strigifiedNattyResults) {
-        this.strigifiedNattyResults = strigifiedNattyResults;
-    }
-
-    public String getStrigifiedNattyResults() {
-        return strigifiedNattyResults;
-    }
-
-    public LocalDateTime getNattyResults() {
-        return LocalDateTime.parse(strigifiedNattyResults,getFormatter());
-    }
-
-    public void setNattyResults(LocalDateTime nattyResults) {
-        this.strigifiedNattyResults = nattyResults.format(getFormatter());
-    }
+    private String strigifiedNattyResults;
 
 
 
 
-
-
-    public void reCalculateReleventDates(){
-        ArrayList<LocalDateTime> newRelaventDates = new ArrayList<>();
-
-
-
-        switch (this.repetition){
-            case No_repeting: return;
-            //region Every_24_hours
-            case Every_24_hours:
-                newRelaventDates.add(getTimeRange().get(0));
-                newRelaventDates.add(getTimeRange().get(0).plusDays(1));
-                newRelaventDates.add(getTimeRange().get(0).plusDays(2));
-                newRelaventDates.add(getTimeRange().get(0).plusDays(3));
-                return;
-            //endregion
-
-            //region every_week
-            case every_week:
-                newRelaventDates.add(getTimeRange().get(0));
-                newRelaventDates.add(getTimeRange().get(0).plusWeeks(1));
-                newRelaventDates.add(getTimeRange().get(0).plusWeeks(2));
-                newRelaventDates.add(getTimeRange().get(0).plusWeeks(3));
-                return;
-            //endregion
-            //region every_year
-            case every_year:
-                newRelaventDates.add(getTimeRange().get(0));
-                newRelaventDates.add(getTimeRange().get(0).plusYears(1));
-                return;
-            //endregion
-            //region every_monday
-            case every_monday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
-                return;
-            //endregion
-            //region every_satuday
-            case every_satuday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
-                return;
-            //endregion
-            //region every_friday
-            case every_friday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
-                return;
-            //endregion
-            //region every_sunday
-            case every_sunday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
-                return;
-            //endregion
-            //region every_tuesday
-            case every_tuesday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
-                return;
-            //endregion
-            //region every_thursday
-            case every_thursday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
-                return;
-            //endregion
-            //region every_wednesday
-            case every_wednesday:
-                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
-                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
-                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
-                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
-                return;
-            //endregion
-        }
-
-        setRelaventDates(newRelaventDates);
-
-    }
-
-    public ArrayList<LocalDateTime> getTimeRange() {
-        ArrayList<LocalDateTime> timeRange = new ArrayList<>();
-        timeRange.add(LocalDateTime.parse(startingTime,getFormatter()));
-        timeRange.add(LocalDateTime.parse(endingTime,getFormatter()));
-
-        return timeRange;
-    }
 
 
     public TimePack() {
@@ -195,12 +71,144 @@ public class TimePack {
         this.monthNumber = monthNumber;
         this.repetition = repetition;
         this.strigifiedRelaventDates = strigifiedRelaventDates;
+        this.strigifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
 
     }
 
+    public TimePack(HashMap<String ,Object> mappedData) {
 
+
+
+        this.startingTime = (String) mappedData.get("startingTime");
+        this.endingTime = (String) mappedData.get("startingTime");
+        this.monthNumber = ((Long) mappedData.get("monthNumber")).intValue();
+        this.strigifiedRelaventDates = (ArrayList<String>) mappedData.get("strigifiedRelaventDates");
+        this.strigifiedNattyResults = (String) mappedData.get("strigifiedNattyResults");
+        this.repetition = Repetition.valueOf((String) mappedData.get("repetition"));
+        this.notificationID = ((Long) mappedData.get("notificationID")).intValue();
+
+    }
+
+    public void updateNattyResults(LocalDateTime nattyResults) {
+        this.strigifiedNattyResults = nattyResults.format(getFormatter());
+    }
+
+
+
+
+    public void setStrigifiedNattyResults(String strigifiedNattyResults) {
+        this.strigifiedNattyResults = strigifiedNattyResults;
+    }
+
+    public String getStrigifiedNattyResults() {
+        return strigifiedNattyResults;
+    }
+
+    public void reCalculateReleventDates(){
+        ArrayList<LocalDateTime> newRelaventDates = new ArrayList<>();
+
+
+
+        switch (this.repetition){
+            case No_repeting: return;
+            //region Every_24_hours
+            case Every_24_hours:
+                newRelaventDates.add(readTimeTange().get(0));
+                newRelaventDates.add(readTimeTange().get(0).plusDays(1));
+                newRelaventDates.add(readTimeTange().get(0).plusDays(2));
+                newRelaventDates.add(readTimeTange().get(0).plusDays(3));
+                return;
+            //endregion
+
+            //region every_week
+            case every_week:
+                newRelaventDates.add(readTimeTange().get(0));
+                newRelaventDates.add(readTimeTange().get(0).plusWeeks(1));
+                newRelaventDates.add(readTimeTange().get(0).plusWeeks(2));
+                newRelaventDates.add(readTimeTange().get(0).plusWeeks(3));
+                return;
+            //endregion
+            //region every_year
+            case every_year:
+                newRelaventDates.add(readTimeTange().get(0));
+                newRelaventDates.add(readTimeTange().get(0).plusYears(1));
+                return;
+            //endregion
+            //region every_monday
+            case every_monday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
+                return;
+            //endregion
+            //region every_satuday
+            case every_satuday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
+                return;
+            //endregion
+            //region every_friday
+            case every_friday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
+                return;
+            //endregion
+            //region every_sunday
+            case every_sunday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
+                return;
+            //endregion
+            //region every_tuesday
+            case every_tuesday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
+                return;
+            //endregion
+            //region every_thursday
+            case every_thursday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
+                return;
+            //endregion
+            //region every_wednesday
+            case every_wednesday:
+                newRelaventDates.add(readTimeTange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
+                return;
+            //endregion
+        }
+
+        updateRelaventDates(newRelaventDates);
+
+    }
+
+    public ArrayList<LocalDateTime> readTimeTange() {
+        ArrayList<LocalDateTime> timeRange = new ArrayList<>();
+        timeRange.add(LocalDateTime.parse(startingTime,getFormatter()));
+        timeRange.add(LocalDateTime.parse(endingTime,getFormatter()));
+
+        return timeRange;
+    }
+
+    public LocalDateTime readNattyResults() {
+        return LocalDateTime.parse(strigifiedNattyResults,getFormatter());
+    }
     /**
      * used to parse and covert strings into LocalDateTime
      */
@@ -233,8 +241,11 @@ public class TimePack {
     }
 
 
+    public static String getTAG() {
+        return TAG;
+    }
 
-    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
+    public void updateRelaventDates(ArrayList<LocalDateTime> relaventDates) {
 
         ArrayList<String> settedStrings = new ArrayList<>();
 
@@ -246,7 +257,7 @@ public class TimePack {
         setStrigifiedRelaventDates(settedStrings);
 
     }
-    public ArrayList<LocalDateTime> getRelaventDates() {
+    public ArrayList<LocalDateTime> readRelaventDates() {
 
         ArrayList<LocalDateTime> returned = new ArrayList<>();
 

@@ -355,7 +355,7 @@ public class Repository {
                     for (ActivityTask activityTask1 :
                             thisDayActivityTasks) {
 
-                        ArrayList<LocalDateTime> act1time = activityTask1.getTimePack().getTimeRange();
+                        ArrayList<LocalDateTime> act1time = activityTask1.getTimePack().readTimeTange();
                         LocalDateTime act1StartingTime = act1time.get(0);
                         LocalDateTime act1EndingTime = act1time.get(1);
 
@@ -367,13 +367,13 @@ public class Repository {
                             // same goes for AT1 priority < AT2 priority
 
                             //if the activities start at the same time, and act1 maslocategory is more important then act2
-                            if(activityTask1.getTimePack().getTimeRange().get(0).isEqual(activityTask2.getTimePack().getTimeRange().get(0)) &&
+                            if(activityTask1.getTimePack().readTimeTange().get(0).isEqual(activityTask2.getTimePack().readTimeTange().get(0)) &&
                                     activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal()){
 
                                 ArrayList<String> activityTask1bucketWords = new ArrayList<>();
                                 ArrayList<String> activityTask2bucketWords = new ArrayList<>();
 
-                                ArrayList<LocalDateTime> act2TimeRange = activityTask2.getTimePack().getTimeRange();
+                                ArrayList<LocalDateTime> act2TimeRange = activityTask2.getTimePack().readTimeTange();
 
                                 LocalDateTime act2StartingTime = act2TimeRange.get(0);
                                 LocalDateTime act2EndingTime = act2TimeRange.get(1);
@@ -401,7 +401,7 @@ public class Repository {
                                     for (String word :
                                             activityTask2bucketWords) {
 
-                                        LocalDateTime time = bucketWords.get(word).getTimeRange().get(0);
+                                        LocalDateTime time = bucketWords.get(word).readTimeTange().get(0);
 
 
                                         if(time.isAfter(act1StartingTime) && time.isBefore(bestChoice)){
@@ -412,8 +412,8 @@ public class Repository {
                                         Long changeInTime =  act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
 
 
-                                        activityTask2.getTimePack().getTimeRange().set(0,act2StartingTime.plus(changeInTime,ChronoUnit.MILLIS));
-                                        activityTask2.getTimePack().getTimeRange().set(1,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
+                                        activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(changeInTime,ChronoUnit.MILLIS));
+                                        activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
                                         continue;
 
                                     }
@@ -423,8 +423,8 @@ public class Repository {
                                 Map<String , ActivityTask.compareResult> x = activityTask1.compare(activityTask2);
                                         if (x.get("priority").equals(ActivityTask.compareResult.higherPriority)) {
                                             Long delay = (act1EndingTime.atZone(ZoneId.of("Assia/Jerusalem")).toInstant().toEpochMilli() - act1StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()) * ( activityTask2.getPriority() / activityTask1.getPriority());
-                                            activityTask2.getTimePack().getTimeRange().set(0,act2StartingTime.plus(delay,ChronoUnit.MILLIS));
-                                            activityTask2.getTimePack().getTimeRange().set(1,act2EndingTime.plus(delay,ChronoUnit.MILLIS));
+                                            activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(delay,ChronoUnit.MILLIS));
+                                            activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(delay,ChronoUnit.MILLIS));
 
                                             continue;
 
@@ -433,11 +433,11 @@ public class Repository {
 
 
                                         //if all else fails, try to use NATTY to resolve
-                                        if(!activityTask2.getTimePack().getNattyResults().isEqual(act1StartingTime)){
-                                            LocalDateTime nattyresults = activityTask2.getTimePack().getNattyResults();
+                                        if(!activityTask2.getTimePack().readNattyResults().isEqual(act1StartingTime)){
+                                            LocalDateTime nattyresults = activityTask2.getTimePack().readNattyResults();
                                             Long delay = act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
-                                            activityTask2.getTimePack().getTimeRange().set(0,nattyresults);
-                                            activityTask2.getTimePack().getTimeRange().set(1,nattyresults.plus(delay,ChronoUnit.MILLIS));
+                                            activityTask2.getTimePack().readTimeTange().set(0,nattyresults);
+                                            activityTask2.getTimePack().readTimeTange().set(1,nattyresults.plus(delay,ChronoUnit.MILLIS));
                                             continue;
                                         }
 
@@ -467,7 +467,7 @@ public class Repository {
 
 
 
-        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - activityTask.getTimePack().getTimeRange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
                 delayInMili,

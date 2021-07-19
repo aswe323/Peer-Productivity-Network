@@ -3,13 +3,10 @@ package com.example.ppn;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -18,7 +15,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class ActivityTask {
     private int activityTaskID;
@@ -47,10 +43,10 @@ public class ActivityTask {
 
             List dates = groups.get(0).getDates();//get the date that natty created for us
             LocalDateTime localDateTime = ((Date) dates.get(0)).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //convert it to LocalDateTIme
-            this.timePack.setNattyResults(localDateTime);
+            this.timePack.updateNattyResults(localDateTime);
 
         }else{
-            this.timePack.setNattyResults(LocalDateTime.now());
+            this.timePack.updateNattyResults(LocalDateTime.now());
             Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + activityTaskID);
         }
 
@@ -62,9 +58,9 @@ public class ActivityTask {
         }
         this.priority = score;
 
-        if(this.getTimePack().getTimeRange().isEmpty()){
-            this.getTimePack().getTimeRange().set(0,this.timePack.getNattyResults());
-            this.getTimePack().getTimeRange().set(1,this.timePack.getNattyResults());
+        if(this.getTimePack().readTimeTange().isEmpty()){
+            this.getTimePack().readTimeTange().set(0,this.timePack.readNattyResults());
+            this.getTimePack().readTimeTange().set(1,this.timePack.readNattyResults());
         }
         this.timePack.reCalculateReleventDates();
 
@@ -140,7 +136,7 @@ public class ActivityTask {
         if(this.priority == activityTask.getPriority()) results.put("priority",compareResult.samePriority);
 
 
-        if(this.getTimePack().getNattyResults().isEqual(activityTask.getTimePack().getNattyResults())) results.put("natty",compareResult.sameNattyResult);
+        if(this.getTimePack().readNattyResults().isEqual(activityTask.getTimePack().readNattyResults())) results.put("natty",compareResult.sameNattyResult);
 
         results.putIfAbsent("content",compareResult.none);
         results.putIfAbsent("natty",compareResult.none);

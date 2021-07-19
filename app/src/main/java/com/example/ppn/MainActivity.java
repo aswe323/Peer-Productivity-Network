@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -36,6 +37,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     ViewPager2 viewPager;
     TabLayout tabLayout;
     TabLayoutMediator tabLayoutMediator;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         Task t;
 
         Map<String,Integer> m = new HashMap<>();
-        Map<String,Object> bw = new HashMap<>();
+        Map<String,TimePack> bw = new HashMap<>();
         //ArrayList<ActivityTask> at;
         ArrayList<LocalDateTime> LDT = new ArrayList<>();
         ArrayList<String> relaventDates = new ArrayList<>();
@@ -118,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
         Repository.createBucketWord("TestBucket333", T);
 
-        //Repository.updateBucketWord()
 
        t=Repository.getBucketWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
@@ -126,18 +127,19 @@ public class MainActivity extends AppCompatActivity {
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-                    bw.put(entry.getKey(),entry.getValue());
+                    Log.d(TAG, "onCreate: " + entry.getKey());
+                    bw.put(entry.getKey(), new TimePack((HashMap<String, Object>) entry.getValue()));
 
                 }
             }
-             /*for( Map.Entry<String,TimePack> entry:bw.entrySet())
+             for( Map.Entry<String,TimePack> entry:bw.entrySet())
             {
                 TextView textView= new TextView(getApplication());
                 LinearLayout linearLayout = findViewById(R.id.linearlayout);
                 textView.setTextSize(25);
                 textView.setText(entry.getKey()+" range: "+entry.getValue());
                 linearLayout.addView(textView);
-            }*/
+            }
         });
         //endregion bucket word test
 
