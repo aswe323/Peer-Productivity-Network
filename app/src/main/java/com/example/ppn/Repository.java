@@ -215,7 +215,7 @@ public class Repository {
                         }
 
                     }
-                    updatedActivityTask.update("content",newPriority);
+                    updatedActivityTask.update("priority",newPriority);
                 });
 
         return task;
