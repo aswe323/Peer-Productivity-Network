@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PrimitiveIterator;
 
 /**
  * A helper class to centralize time operations.
@@ -34,29 +35,6 @@ public class TimePack {
      * the dates at which the TimePack instance is relevant to.
      */
 
-    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
-
-        ArrayList<String> settedStrings = new ArrayList<>();
-
-        for (LocalDateTime localDateTime :
-        relaventDates) {
-            settedStrings.add(localDateTime.format(getFormatter()));
-        }
-
-        setStrigifiedRelaventDates(settedStrings);
-    
-    }
-    public ArrayList<LocalDateTime> getRelaventDates() {
-
-        ArrayList<LocalDateTime> returned = new ArrayList<>();
-
-        for (String strigifiedLocalDateTime :
-                strigifiedRelaventDates) {
-            returned.add(LocalDateTime.parse(strigifiedLocalDateTime,getFormatter()));
-        }
-
-        return returned;    }
-    
     private ArrayList<String> strigifiedRelaventDates;
 
 
@@ -76,7 +54,24 @@ public class TimePack {
     /**
      * natty results from parsing the content of the related activityTask
      */
-    private LocalDateTime nattyResults;
+    public String strigifiedNattyResults;
+
+    public void setStrigifiedNattyResults(String strigifiedNattyResults) {
+        this.strigifiedNattyResults = strigifiedNattyResults;
+    }
+
+    public String getStrigifiedNattyResults() {
+        return strigifiedNattyResults;
+    }
+
+    public LocalDateTime getNattyResults() {
+        return LocalDateTime.parse(strigifiedNattyResults,getFormatter());
+    }
+
+    public void setNattyResults(LocalDateTime nattyResults) {
+        this.strigifiedNattyResults = nattyResults.format(getFormatter());
+    }
+
 
 
 
@@ -239,15 +234,31 @@ public class TimePack {
 
 
 
+    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
 
+        ArrayList<String> settedStrings = new ArrayList<>();
 
-    public LocalDateTime getNattyResults() {
-        return nattyResults;
+        for (LocalDateTime localDateTime :
+                relaventDates) {
+            settedStrings.add(localDateTime.format(getFormatter()));
+        }
+
+        setStrigifiedRelaventDates(settedStrings);
+
     }
+    public ArrayList<LocalDateTime> getRelaventDates() {
 
-    public void setNattyResults(LocalDateTime nattyResults) {
-        this.nattyResults = nattyResults;
-    }
+        ArrayList<LocalDateTime> returned = new ArrayList<>();
+
+        for (String strigifiedLocalDateTime :
+                strigifiedRelaventDates) {
+            returned.add(LocalDateTime.parse(strigifiedLocalDateTime,getFormatter()));
+        }
+
+        return returned;    }
+
+
+
 
     public void setRepetition(Repetition repetition) {
 

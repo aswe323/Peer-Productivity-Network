@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         Task t;
 
         Map<String,Integer> m = new HashMap<>();
-        Map<String,TimePack> bw = new HashMap<>();
+        Map<String,Object> bw = new HashMap<>();
         //ArrayList<ActivityTask> at;
         ArrayList<LocalDateTime> LDT = new ArrayList<>();
         ArrayList<String> relaventDates = new ArrayList<>();
@@ -126,9 +126,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-                    bw.put(entry.getKey(),new TimePack(
-                            entry.getValue()
-                    ));
+                    bw.put(entry.getKey(),entry.getValue());
+
                 }
             }
              /*for( Map.Entry<String,TimePack> entry:bw.entrySet())
