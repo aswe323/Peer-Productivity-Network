@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
         Map<String,TimePack> bw = new HashMap<>();
         //ArrayList<ActivityTask> at;
         ArrayList<LocalDateTime> LDT = new ArrayList<>();
-        ArrayList<LocalDateTime> relaventDates = new ArrayList<>();
+        ArrayList<String> relaventDates = new ArrayList<>();
 
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            relaventDates.add(LocalDateTime.now().withDayOfMonth(i));
+            relaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         /*for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             monthRange.put(LocalDate.now().withDayOfMonth(i),true);
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
         //endregion
 
-        //region bucket word test **** C is working *****
+        //region bucket word test **** C D is working *****
 
         /*LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
         LDT.add(LocalDateTime.now().withHour(23).withMinute(50));
@@ -110,26 +110,36 @@ public class MainActivity extends AppCompatActivity {
         TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
         Repository.createBucketWord("buCKEt222", T);*/
 
+        //Repository.deleteBucketWord("Bucket1");
+        //Repository.deleteBucketWord("buCKEt222");
+
+        LDT.add(LocalDateTime.now().withHour(20).withMinute(00));
+        LDT.add(LocalDateTime.now().withHour(21).withMinute(30));
+        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
+        Repository.createBucketWord("TestBucket333", T);
+
         //Repository.updateBucketWord()
 
-        t=Repository.getBucketWords();
+       t=Repository.getBucketWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if(task.isSuccessful())
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-                //    bw.put(entry.getKey(),new TimePack((HashMap<String, Object>) entry.getValue()));
+                    bw.put(entry.getKey(),new TimePack(
+                            entry.getValue()
+                    ));
                 }
             }
-            for( Map.Entry<String,TimePack> entry:bw.entrySet())
+             /*for( Map.Entry<String,TimePack> entry:bw.entrySet())
             {
                 TextView textView= new TextView(getApplication());
                 LinearLayout linearLayout = findViewById(R.id.linearlayout);
                 textView.setTextSize(25);
-                textView.setText(entry.getKey()+" range: "+ LocalDateTime.parse (entry.getValue().getTimeRange().get(0).toString()));
+                textView.setText(entry.getKey()+" range: "+entry.getValue());
                 linearLayout.addView(textView);
-            }
-        });/**/
+            }*/
+        });
         //endregion bucket word test
 
         //region activity task test
@@ -154,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         //endregion activity task test
 
-        Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
 
 
