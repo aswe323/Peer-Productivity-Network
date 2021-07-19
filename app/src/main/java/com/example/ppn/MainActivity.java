@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 for (Map.Entry<String ,Object> entry:
                         task.getResult().getData().entrySet()) {
-                    bw.put(entry.getKey(),new TimePack((HashMap<String, Object>) entry.getValue()));
+                //    bw.put(entry.getKey(),new TimePack((HashMap<String, Object>) entry.getValue()));
                 }
             }
             for( Map.Entry<String,TimePack> entry:bw.entrySet())
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView textView= new TextView(getApplication());
                 LinearLayout linearLayout = findViewById(R.id.linearlayout);
                 textView.setTextSize(25);
-                textView.setText(entry.getKey()+" range: "+entry.getValue());
+                textView.setText(entry.getKey()+" range: "+ LocalDateTime.parse (entry.getValue().getTimeRange().get(0).toString()));
                 linearLayout.addView(textView);
             }
         });/**/

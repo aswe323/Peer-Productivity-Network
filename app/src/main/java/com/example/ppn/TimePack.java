@@ -1,8 +1,11 @@
 package com.example.ppn;
 
+import android.util.Log;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,10 +15,17 @@ import java.util.HashMap;
  */
 public class TimePack {
 
+    private static final String TAG = "TimePack";
     /**
-     * the time of day i.e 21:00 to 22:00, only index 0 and 1 are used. if no timeRange is specified (isEmpty is true during activityTask instantiation)natty will be assigned to both index 0 and 1.
+     * a String form of localedatetime, the starting time of the timepack.
      */
-    private ArrayList<LocalDateTime> timeRange;
+    private String startingTime;
+    /**
+     *      * a String form of localedatetime, the ending time of the timepack.
+     */
+    private String endingTime;
+
+    
     /**
      * January will be 1 February will be 2 and so on... tip: can get current month number with YearMonth.now().getMonth().getValue()
      */
@@ -23,7 +33,34 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-    private ArrayList<LocalDateTime> relaventDates;
+
+    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
+
+        ArrayList<String> settedStrings = new ArrayList<>();
+
+        for (LocalDateTime localDateTime :
+        relaventDates) {
+            settedStrings.add(localDateTime.format(getFormatter()));
+        }
+
+        setStrigifiedRelaventDates(settedStrings);
+    
+    }
+    public ArrayList<LocalDateTime> getRelaventDates() {
+
+        ArrayList<LocalDateTime> returned = new ArrayList<>();
+
+        for (String strigifiedLocalDateTime :
+                strigifiedRelaventDates) {
+            returned.add(LocalDateTime.parse(strigifiedLocalDateTime,getFormatter()));
+        }
+
+        return returned;    }
+    
+    private ArrayList<String> strigifiedRelaventDates;
+
+
+
     /**
      * represents the repetition at which the TimePack is relevant to.
      */
@@ -43,39 +80,7 @@ public class TimePack {
 
 
 
-    public TimePack() {
-    }
 
-    public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<LocalDateTime> relaventDates) {
-
-        this.timeRange = timeRange;
-        this.monthNumber = monthNumber;
-        this.repetition = repetition;
-        this.relaventDates = relaventDates;
-
-        notificationCounter = notificationCounter +1;
-
-    }
-    public TimePack(HashMap<String ,Object> mappedData) {
-
-        this.timeRange = (ArrayList<LocalDateTime>) mappedData.get("timeTange");
-        this.monthNumber = ((Long) mappedData.get("monthNumber")).intValue();
-        this.repetition = Repetition.valueOf((String) mappedData.get("repetition"));
-        this.relaventDates = (ArrayList<LocalDateTime>) mappedData.get("relaventDates");
-        this.notificationID = ((Long) mappedData.get("notificationID")).intValue();
-
-    }
-
-
-
-
-    public ArrayList<LocalDateTime> getRelaventDates() {
-        return relaventDates;
-    }
-
-    public void setRelaventDates(ArrayList<LocalDateTime> relaventDates) {
-        this.relaventDates = relaventDates;
-    }
 
     public void reCalculateReleventDates(){
         ArrayList<LocalDateTime> newRelaventDates = new ArrayList<>();
@@ -86,29 +91,30 @@ public class TimePack {
             case No_repeting: return;
             //region Every_24_hours
             case Every_24_hours:
-                newRelaventDates.add(timeRange.get(0));
-                newRelaventDates.add(timeRange.get(0).plusDays(1));
-                newRelaventDates.add(timeRange.get(0).plusDays(2));
-                newRelaventDates.add(timeRange.get(0).plusDays(3));
+                newRelaventDates.add(getTimeRange().get(0));
+                newRelaventDates.add(getTimeRange().get(0).plusDays(1));
+                newRelaventDates.add(getTimeRange().get(0).plusDays(2));
+                newRelaventDates.add(getTimeRange().get(0).plusDays(3));
                 return;
             //endregion
+
             //region every_week
             case every_week:
-                newRelaventDates.add(timeRange.get(0));
-                newRelaventDates.add(timeRange.get(0).plusWeeks(1));
-                newRelaventDates.add(timeRange.get(0).plusWeeks(2));
-                newRelaventDates.add(timeRange.get(0).plusWeeks(3));
+                newRelaventDates.add(getTimeRange().get(0));
+                newRelaventDates.add(getTimeRange().get(0).plusWeeks(1));
+                newRelaventDates.add(getTimeRange().get(0).plusWeeks(2));
+                newRelaventDates.add(getTimeRange().get(0).plusWeeks(3));
                 return;
             //endregion
             //region every_year
             case every_year:
-                newRelaventDates.add(timeRange.get(0));
-                newRelaventDates.add(timeRange.get(0).plusYears(1));
+                newRelaventDates.add(getTimeRange().get(0));
+                newRelaventDates.add(getTimeRange().get(0).plusYears(1));
                 return;
             //endregion
             //region every_monday
             case every_monday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.MONDAY)));
@@ -116,7 +122,7 @@ public class TimePack {
             //endregion
             //region every_satuday
             case every_satuday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SATURDAY)));
@@ -124,7 +130,7 @@ public class TimePack {
             //endregion
             //region every_friday
             case every_friday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.FRIDAY)));
@@ -132,7 +138,7 @@ public class TimePack {
             //endregion
             //region every_sunday
             case every_sunday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.SUNDAY)));
@@ -140,7 +146,7 @@ public class TimePack {
             //endregion
             //region every_tuesday
             case every_tuesday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.TUESDAY)));
@@ -148,7 +154,7 @@ public class TimePack {
             //endregion
             //region every_thursday
             case every_thursday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.THURSDAY)));
@@ -156,7 +162,7 @@ public class TimePack {
             //endregion
             //region every_wednesday
             case every_wednesday:
-                newRelaventDates.add(timeRange.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
+                newRelaventDates.add(getTimeRange().get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(0).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(1).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
                 newRelaventDates.add(newRelaventDates.get(2).with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY)));
@@ -167,6 +173,73 @@ public class TimePack {
         setRelaventDates(newRelaventDates);
 
     }
+
+    public ArrayList<LocalDateTime> getTimeRange() {
+        ArrayList<LocalDateTime> timeRange = new ArrayList<>();
+        timeRange.add(LocalDateTime.parse(startingTime,getFormatter()));
+        timeRange.add(LocalDateTime.parse(endingTime,getFormatter()));
+
+        return timeRange;
+    }
+
+
+    public TimePack() {
+    }
+
+    public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<String> strigifiedRelaventDates) {
+
+        try {
+            this.startingTime = timeRange.get(0).format(getFormatter());
+            this.endingTime = timeRange.get(1).format(getFormatter());
+
+        }catch (Exception e){
+            Log.d(TAG, "TimePack: wrong LocalDateTime format, use TimePack.getFormatter() to make sure it's the right one.");
+        }
+        
+
+        this.monthNumber = monthNumber;
+        this.repetition = repetition;
+        this.strigifiedRelaventDates = strigifiedRelaventDates;
+
+        notificationCounter = notificationCounter +1;
+
+    }
+
+
+    /**
+     * used to parse and covert strings into LocalDateTime
+     */
+    public static DateTimeFormatter getFormatter(){
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    }
+
+    public String getStartingTime() {
+        return startingTime;
+    }
+
+    public String getEndingTime() {
+        return endingTime;
+    }
+
+    /**
+     * !!DO NOT USE!!. is required for firebase to work with the class.
+     * @param notificationID
+     */
+    public void setNotificationID(int notificationID) {
+        this.notificationID = notificationID;
+    }
+
+    public void setStartingTime(String startingTime) {
+        this.startingTime = startingTime;
+    }
+
+    public void setEndingTime(String endingTime) {
+        this.endingTime = endingTime;
+    }
+
+
+
+
 
     public LocalDateTime getNattyResults() {
         return nattyResults;
@@ -183,13 +256,7 @@ public class TimePack {
     }
 //what does notification need?
 
-    public ArrayList<LocalDateTime> getTimeRange() {
-        return timeRange;
-    }
 
-    public void setTimeRange(ArrayList<LocalDateTime> timeRange) {
-        this.timeRange = timeRange;
-    }
 
     public int getMonthNumber() {
         return monthNumber;
@@ -214,4 +281,13 @@ public class TimePack {
     public static void setNotificationCounter(int notificationCounter) {
         TimePack.notificationCounter = notificationCounter;
     }
+
+    public ArrayList<String> getStrigifiedRelaventDates() {
+        return strigifiedRelaventDates;
+    }
+
+    public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
+        this.strigifiedRelaventDates = strigifiedRelaventDates;
+    }
+    
 }
