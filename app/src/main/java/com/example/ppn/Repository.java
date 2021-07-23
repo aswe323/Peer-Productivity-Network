@@ -61,14 +61,13 @@ public class Repository {
      * indicates what activity should be returned to by default when notifications are clicked/tapped.
      */
     private static Activity defaultActivity;
+    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
-
 
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
-    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     /**
      * effectively the collection name for the current user.
      */
@@ -76,7 +75,6 @@ public class Repository {
 
     static private DocumentReference priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
     static private DocumentReference bucketWordsRef = db.collection(Repository.userName).document("BucketWords");
-
 
     public static String setUserName(String userName) {
         Repository.userName = userName;
@@ -182,13 +180,10 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task getThisDayActivityTasks(){
 
-        Map<LocalDate,Boolean> today = new HashMap<>();
-        today.put(LocalDate.now(),true);
-
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
         Task task = db.collection(Repository.userName + "ActivityTasks")
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
-                .whereArrayContains("monthRange",today)
+                .whereArrayContains("relaventDatesNumbered",LocalDateTime.now().getDayOfMonth())
                 .get();
 
          return task;
@@ -480,16 +475,12 @@ public class Repository {
 
     //endregion
 
-
-
-
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
     // TODO: 18/07/2021 make activiytaskss with empty timerange to go through NATTY or use current time otherwise(DONE!)
 
-
+// TODO: 23/07/2021  
     // TODO: 18/07/2021 find a solution to static context memory leak
-    // TODO: 18/07/2021 consider using collectionsRef instead of docref for priotity and bucket words
-
+    // TODO: 18/07/2021 consider using collectionsRef instead of docref for priority and bucket words
 
 }

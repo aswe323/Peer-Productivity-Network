@@ -2,7 +2,6 @@ package com.example.ppn;
 
 import android.util.Log;
 
-import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +48,7 @@ public class TimePack {
      */
     private String strigifiedNattyResults;
 
+    private ArrayList<Integer> relaventDatesNumbered;
 
 
 
@@ -94,9 +94,6 @@ public class TimePack {
     public void updateNattyResults(LocalDateTime nattyResults) {
         this.strigifiedNattyResults = nattyResults.format(getFormatter());
     }
-
-
-
 
     public void setStrigifiedNattyResults(String strigifiedNattyResults) {
         this.strigifiedNattyResults = strigifiedNattyResults;
@@ -240,9 +237,16 @@ public class TimePack {
         this.endingTime = endingTime;
     }
 
-
     public static String getTAG() {
         return TAG;
+    }
+
+    public ArrayList<Integer> getRelaventDatesNumbered() {
+        return relaventDatesNumbered;
+    }
+
+    public void setRelaventDatesNumbered(ArrayList<Integer> relaventDatesNumbered) {
+        this.relaventDatesNumbered = relaventDatesNumbered;
     }
 
     public void updateRelaventDates(ArrayList<LocalDateTime> relaventDates) {
@@ -252,6 +256,7 @@ public class TimePack {
         for (LocalDateTime localDateTime :
                 relaventDates) {
             settedStrings.add(localDateTime.format(getFormatter()));
+            relaventDatesNumbered.add(localDateTime.getDayOfMonth());
         }
 
         setStrigifiedRelaventDates(settedStrings);
@@ -267,6 +272,15 @@ public class TimePack {
         }
 
         return returned;    }
+
+
+    public ArrayList<String> getStrigifiedRelaventDates() {
+        return strigifiedRelaventDates;
+    }
+
+    public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
+        this.strigifiedRelaventDates = strigifiedRelaventDates;
+    }
 
 
 
@@ -304,12 +318,5 @@ public class TimePack {
         TimePack.notificationCounter = notificationCounter;
     }
 
-    public ArrayList<String> getStrigifiedRelaventDates() {
-        return strigifiedRelaventDates;
-    }
 
-    public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
-        this.strigifiedRelaventDates = strigifiedRelaventDates;
-    }
-    
 }
