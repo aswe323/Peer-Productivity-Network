@@ -70,7 +70,7 @@ public class TimePack {
 
         this.monthNumber = monthNumber;
         this.repetition = repetition;
-        this.strigifiedRelaventDates = strigifiedRelaventDates;
+        setStrigifiedRelaventDates(strigifiedRelaventDates);
         this.strigifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
