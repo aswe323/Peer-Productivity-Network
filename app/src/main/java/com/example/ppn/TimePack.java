@@ -257,9 +257,6 @@ public class TimePack {
                 relaventDates) {
             settedStrings.add(localDateTime.format(getFormatter()));
         }
-
-        setStrigifiedRelaventDates(settedStrings);
-
     }
     public ArrayList<LocalDateTime> readRelaventDates() {
 
@@ -279,10 +276,6 @@ public class TimePack {
 
     public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
         this.strigifiedRelaventDates = strigifiedRelaventDates;
-        for (LocalDateTime localDateTime :
-                readRelaventDates()) {
-            relaventDatesNumbered.add(localDateTime.getDayOfMonth());
-        }
     }
 
 
