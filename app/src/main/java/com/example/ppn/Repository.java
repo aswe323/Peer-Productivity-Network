@@ -2,20 +2,18 @@ package com.example.ppn;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,6 +33,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -57,6 +56,7 @@ import java.util.Map;
  */
 public class Repository {
 
+    private static final String TAG = "Repository";
     private static boolean created = false;
 
     /**
@@ -70,19 +70,19 @@ public class Repository {
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseUser user;
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
-
+    private static Task dbd = db.disableNetwork();
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
     /**
      * effectively the collection name for the current user.
      */
-    private static String userName = "default";
+    private static String userName;;
 
-    static private DocumentReference priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
-    static private DocumentReference bucketWordsRef = db.collection(Repository.userName).document("BucketWords");
+    static private DocumentReference priorityWordsRef;
+    static private DocumentReference bucketWordsRef;
 
-    public static String setUserName(String userName) {
+    private static String setUserName(String userName) {
         Repository.userName = userName;
         bucketWordsRef = db.collection(Repository.userName).document("BucketWords");
         priorityWordsRef = db.collection(Repository.userName).document("PriorityWords");
@@ -99,41 +99,54 @@ public class Repository {
      * <p>initializes the prioritywords and bucketwords document.</p>
      * <p>note: to access a users collection, {@link Repository#setUserName(String) Repository.setUserName()} should be used with the desired name to be given the collection.</p>
      */
-    public static void init(){
+    public static void init(FirebaseUser firebaseUser){
 
         if(created) return;
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+            if(firebaseAuth.getPendingAuthResult().isSuccessful() && firebaseAuth.getPendingAuthResult().getResult() != null) {
+                db.enableNetwork();
+                Repository.userName = firebaseUser.getDisplayName();
+                Log.d(TAG, "init: confirmed logged in");
+                priorityWordsRef = db.collection(getUser().getDisplayName()).document("PriorityWords");
+                bucketWordsRef = db.collection(getUser().getDisplayName()).document("BucketWords");
 
-        Task taskPriorityWords = getAllPriorityWords();
-        Task taskBucketWords = getBucketWords();
 
-        taskPriorityWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-            if (task.isSuccessful()) {
-                try {
 
-                    for (Map.Entry<String, Object> entry:
-                    task.getResult().getData().entrySet()){
-                        priorityWords.put(entry.getKey(), ((Long) entry.getValue()).intValue());
+                Task taskPriorityWords = getAllPriorityWords();
+                Task taskBucketWords = getBucketWords();
+
+                taskPriorityWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+                    if (task.isSuccessful()) {
+                        try {
+
+                            for (Map.Entry<String, Object> entry:
+                                    task.getResult().getData().entrySet()){
+                                priorityWords.put(entry.getKey(), ((Long) entry.getValue()).intValue());
+                            }
+                        } catch (Throwable throwable) {
+                            Log.d("firestore,Repository", "onComplete: failed at adding PriorityWords to HashMap");
+                            throwable.printStackTrace();
+                        }
                     }
-                } catch (Throwable throwable) {
-                    Log.d("firestore,Repository", "onComplete: failed at adding PriorityWords to HashMap");
-                    throwable.printStackTrace();
-                }
-            }
-        });
-        taskBucketWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-            if (task.isSuccessful()) {
-                try {
-                    for(Map.Entry<String, Object> entry:
-                    task.getResult().getData().entrySet()){
-                        bucketWords.put(entry.getKey(), (TimePack) entry.getValue());
+                });
+                taskBucketWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+                    if (task.isSuccessful()) {
+                        try {
+                            for(Map.Entry<String, Object> entry:
+                                    task.getResult().getData().entrySet()){
+                                bucketWords.put(entry.getKey(), (TimePack) entry.getValue());
+                            }
+                        } catch (Throwable throwable) {
+                            Log.d("firestore,Repository", "onComplete: failed at adding BucketWords to HashMap");
+                            throwable.printStackTrace();
+                        }
                     }
-                } catch (Throwable throwable) {
-                    Log.d("firestore,Repository", "onComplete: failed at adding BucketWords to HashMap");
-                    throwable.printStackTrace();
-                }
-            }
-        });
+                });
 
+            }
+
+        });
+        created = true;
         return;
     }
 
@@ -155,10 +168,9 @@ public class Repository {
 
     //region ActivityTask
     public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack){
-
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
-        Task task = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID)
+        Task task = db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID)
                 .set(activityTask)
                 .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
                 .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
@@ -168,7 +180,7 @@ public class Repository {
 
     public static Task getAllUserActivityTasks() throws Throwable {
 
-       Task task = db.collection(Repository.userName + "ActivityTasks")
+       Task task = db.collection(getUser().getDisplayName() + "ActivityTasks")
                .get()
                .addOnSuccessListener(queryDocumentSnapshots -> Log.d("firestore", "getAllUserActivityTasks: success"))
                .addOnFailureListener(e -> Log.d("firestore", "getAllUserActivityTasks: failure"));
@@ -189,7 +201,7 @@ public class Repository {
     public static Task getThisDayActivityTasks(){
 
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
-        Task task = db.collection(Repository.userName + "ActivityTasks")
+        Task task = db.collection(getUser().getDisplayName() + "ActivityTasks")
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
                 .whereArrayContains("relaventDatesNumbered",LocalDateTime.now().getDayOfMonth())
                 .get();
@@ -201,7 +213,7 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static Task updateActivityTask(int activityTaskID, String fieldToUpdate, String newValue) {
 
-        DocumentReference updatedActivityTask = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID);
+        DocumentReference updatedActivityTask = db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID);
 
 
 
@@ -225,14 +237,25 @@ public class Repository {
     }
 
     public static Task deleteActivivtyTask(int activityTaskID){
+        Task task = null;
 
-        Task task = db.collection(Repository.userName + "ActivityTasks").document("ActivityTask" + activityTaskID)
+/*            FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+                if(firebaseAuth.getPendingAuthResult().isComplete())
+                  task = db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID)
+                         .delete()
+                         .addOnFailureListener(ea -> Log.d("firestore", "deleteActivivtyTask: failed to delete | " + ea.getCause()))
+                         .addOnSuccessListener(unused -> Log.d("firestore", "deleteActivivtyTask: success")));
+
+            });*/
+        task = db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID)
                 .delete()
-                .addOnFailureListener(e -> Log.d("firestore", "deleteActivivtyTask: failed to delete | " + e.getCause()))
+                .addOnFailureListener(ea -> Log.d("firestore", "deleteActivivtyTask: failed to delete | " + ea.getCause()))
                 .addOnSuccessListener(unused -> Log.d("firestore", "deleteActivivtyTask: success"));
 
-        return task;
 
+
+
+        return task;
     }
 
 

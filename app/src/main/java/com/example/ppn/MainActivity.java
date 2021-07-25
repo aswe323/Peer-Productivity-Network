@@ -74,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.TabLayout);
         viewPager = findViewById(R.id.viewpager);
 
-        Repository.init();
-        startSignInFlow();
+/*
+            signOut();
+*/
         signOut();
+        //Repository.init(FirebaseAuth.getInstance().getCurrentUser());
+
 
         //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
 
@@ -176,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
         //region activity task test **** C R U D working ****
 
-        Repository.deleteActivivtyTask(2);
+        //Repository.deleteActivivtyTask(2);
 
         /*LDT.add(LocalDateTime.now().withHour(18).withMinute(03));
         LDT.add(LocalDateTime.now().withHour(18).withMinute(06));
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         SubActivity subActivity=new SubActivity("subdog",1);
         ArrayList<SubActivity> sa=new ArrayList<>();
         sa.add(subActivity);
-        Repository.createActivityTask(2,MasloCategory.Esteem,"thisActivityTaskTest",sa,T);
+        //Repository.createActivityTask(2,MasloCategory.Esteem,"thisActivityTaskTest",sa,T);
 
         //Repository.updateActivityTask(1,"content","WWW");
         //Repository.deleteActivivtyTask(1);
@@ -304,9 +307,8 @@ public class MainActivity extends AppCompatActivity {
         if (result.getResultCode() == RESULT_OK) {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            Repository.setUser(user);
-            finish();
-
+            //Repository.init(FirebaseAuth.getInstance().getCurrentUser());
+            Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
             // ...
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -322,7 +324,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
                         // ...
-                        finish();
                     }
                 });
     }
