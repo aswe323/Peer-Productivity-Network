@@ -68,9 +68,29 @@ public class TimePack {
         }
         
 
-        this.monthNumber = monthNumber;
-        this.repetition = repetition;
+        setMonthNumber(monthNumber);
+        setRepetition(repetition);
         setStrigifiedRelaventDates(strigifiedRelaventDates);
+        this.strigifiedNattyResults = LocalDateTime.now().format(getFormatter());
+
+        notificationCounter = notificationCounter +1;
+        for (String string:
+                strigifiedRelaventDates) {
+            relaventDatesNumbered.add(LocalDateTime.parse(string,getFormatter()).getDayOfMonth());
+        }
+
+    }
+
+    public TimePack(LocalDateTime startingTime,LocalDateTime endingTime, int monthNumber,Repetition repetition,ArrayList<LocalDateTime> relaventDates) {
+
+        setStartingTime(startingTime.format(getFormatter()));
+        setEndingTime(endingTime.format(getFormatter()));
+
+
+
+        this.monthNumber = monthNumber;
+        setRepetition(repetition);
+        updateRelaventDates(relaventDates);
         this.strigifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
@@ -254,12 +274,15 @@ public class TimePack {
     }
 
     public void updateRelaventDates(ArrayList<LocalDateTime> relaventDates) {
+        if (relaventDates != null) {
 
-        ArrayList<String> settedStrings = new ArrayList<>();
 
-        for (LocalDateTime localDateTime :
-                relaventDates) {
-            settedStrings.add(localDateTime.format(getFormatter()));
+            ArrayList<String> settedStrings = new ArrayList<>();
+
+            for (LocalDateTime localDateTime :
+                    relaventDates) {
+                settedStrings.add(localDateTime.format(getFormatter()));
+            }
         }
     }
     public ArrayList<LocalDateTime> readRelaventDates() {

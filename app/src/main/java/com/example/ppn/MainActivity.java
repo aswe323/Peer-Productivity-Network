@@ -42,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,176 +78,7 @@ public class MainActivity extends AppCompatActivity {
 /*
             signOut();
 */
-        signOut();
-        //Repository.init(FirebaseAuth.getInstance().getCurrentUser());
 
-
-        //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
-
-        Task t;
-
-        Map<String,Integer> m = new HashMap<>();
-        Map<String,TimePack> bw = new HashMap<>();
-        final ArrayList<ActivityTask> at = new ArrayList<>();
-        ArrayList<LocalDateTime> LDT = new ArrayList<>();
-        ArrayList<String> relaventDates = new ArrayList<>();
-
-        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            relaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        /*for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            monthRange.put(LocalDate.now().withDayOfMonth(i),true);
-        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            overlapdMonth.put(LocalDateTime.now().withDayOfMonth(i),true);*/
-
-        //region priority word test  ****C R U D  is working, word priority is working as intended.*****
-        /*//Repository.createPriorityWord("XXXXX",1);
-        //Repository.createPriorityWord("1111111",50);
-        //Repository.createPriorityWord("2222",42);
-        //Repository.updatePriorityWord("XXXXX",17);
-        //Repository.deletePriorityWord("XXXXX");
-
-        t=Repository.getAllPriorityWords();
-        t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-            if(task.isSuccessful())
-            {
-                for (Map.Entry<String ,Object> entry:
-                     task.getResult().getData().entrySet()) {
-                    m.put(entry.getKey(),((Long) entry.getValue()).intValue());
-                }
-            }
-            for( Map.Entry<String,Integer> entry:m.entrySet())
-            {
-                TextView textView= new TextView(getApplication());
-                LinearLayout linearLayout = findViewById(R.id.linearlayout);
-                textView.setTextSize(25);
-                textView.setText(entry.getKey()+" priority:"+entry.getValue());
-                linearLayout.addView(textView);
-            }
-        });*/
-        //endregion
-
-        //region bucket word test **** C R D is working *****
-
-        /*LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
-        LDT.add(LocalDateTime.now().withHour(23).withMinute(50));
-        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("Bucket1", T);*/
-
-        /*LDT.clear();
-        LDT.add(LocalDateTime.now().withHour(19).withMinute(00));
-        LDT.add(LocalDateTime.now().withHour(23).withMinute(55));
-        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("buCKEt222", T);
-
-        //Repository.deleteBucketWord("Bucket1");
-        //Repository.deleteBucketWord("buCKEt222");
-
-        LDT.clear();
-        LDT.add(LocalDateTime.now().withHour(20).withMinute(00));
-        LDT.add(LocalDateTime.now().withHour(21).withMinute(30));
-        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("TestBucket333", T);*/
-
-        /*LDT.clear();
-        LDT.add(LocalDateTime.now().withHour(10).withMinute(00));
-        LDT.add(LocalDateTime.now().withHour(16).withMinute(30));
-        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.updateBucketWord("TestBucket333",T);*/
-
-        /*Repository.deleteBucketWord("TestBucket333");
-
-       t=Repository.getBucketWords();
-        t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-            if(task.isSuccessful())
-            {
-                for (Map.Entry<String ,Object> entry:
-                        task.getResult().getData().entrySet()) {
-                    Log.d(TAG, "onCreate: " + entry.getKey());
-                    bw.put(entry.getKey(), new TimePack((HashMap<String, Object>) entry.getValue()));
-
-                }
-            }
-            for( Map.Entry<String,TimePack> entry:bw.entrySet())
-            {
-                TextView textView= new TextView(getApplication());
-                LinearLayout linearLayout = findViewById(R.id.linearlayout);
-                textView.setTextSize(25);
-                textView.setText(entry.getKey()+" range: "+entry.getValue().getStartingTime());
-                linearLayout.addView(textView);
-            }
-        });*/
-        //endregion bucket word test
-
-        //region activity task test **** C R U D working ****
-
-        //Repository.deleteActivivtyTask(2);
-
-        /*LDT.add(LocalDateTime.now().withHour(18).withMinute(03));
-        LDT.add(LocalDateTime.now().withHour(18).withMinute(06));
-        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        SubActivity subActivity=new SubActivity("sub1AT1",1);
-        ArrayList<SubActivity> sa=new ArrayList<>();
-        sa.add(subActivity);
-        Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",sa,T);*/
-
-        LDT.add(LocalDateTime.now().withHour(14).withMinute(24));
-        LDT.add(LocalDateTime.now().withHour(14).withMinute(26));
-        TimePack T=new TimePack(LDT,7,Repetition.every_friday,relaventDates);
-        SubActivity subActivity=new SubActivity("subdog",1);
-        ArrayList<SubActivity> sa=new ArrayList<>();
-        sa.add(subActivity);
-        //Repository.createActivityTask(2,MasloCategory.Esteem,"thisActivityTaskTest",sa,T);
-
-        //Repository.updateActivityTask(1,"content","WWW");
-        //Repository.deleteActivivtyTask(1);
-
-        /*try {
-            //t=Repository.getAllUserActivityTasks();
-            t=Repository.getThisDayActivityTasks();
-            t.addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
-                if(task.isSuccessful())
-                {
-                    for(DocumentSnapshot entry:
-                            task.getResult().getDocuments())
-                        at.add(entry.toObject(ActivityTask.class));
-
-                    for( ActivityTask activity:at)
-                    {
-                        TextView textView= new TextView(getApplication());
-                        LinearLayout linearLayout = findViewById(R.id.linearlayout);
-                        textView.setTextSize(25);
-                        textView.setText(activity.getContent()+" sub: "+activity.getSubActivitys().get(0).getContent());
-                        linearLayout.addView(textView);
-                    }
-                }
-            });
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }*/
-
-
-        //endregion activity task test
-
-        //region notification test
-
-        try {
-            t=Repository.getAllUserActivityTasks();
-            t.addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
-                if(task.isSuccessful())
-                {
-                    for(DocumentSnapshot entry:
-                            task.getResult().getDocuments())
-                        at.add(entry.toObject(ActivityTask.class));
-                }
-            });
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }/**/
-
-        //endregion
-
-        //Toast.makeText(getApplication(), ""+at.isEmpty(), Toast.LENGTH_SHORT).show();
-        //endregion
 
 
 
@@ -272,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         tabLayoutMediator.attach();
+
+        Repository.init(FirebaseAuth.getInstance());
+        startSignInFlow();
+
 
 
 
@@ -307,9 +143,31 @@ public class MainActivity extends AppCompatActivity {
         if (result.getResultCode() == RESULT_OK) {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            //Repository.init(FirebaseAuth.getInstance().getCurrentUser());
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
             // ...
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            Repository.createPriorityWord("hello",10);
+            LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
+            LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
+            ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
+            localDateTimes.add(startingTime);
+            localDateTimes.add(endingTime);
+            ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
+            for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
+                nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
+            Repository.createBucketWord("hello",new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.Every_24_hours,nonStirigifiedRelaventDates));
+            Repository.deletePriorityWord("hello");
+            Repository.deleteBucketWord("hello");
+
+            Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+            Repository.deleteActivivtyTask(69);
+            Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+
+            Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
+                task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
+
+            });
+
         } else {
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
