@@ -1,14 +1,15 @@
 package com.example.ppn;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     TabLayoutMediator tabLayoutMediator;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         Map<String,Integer> m = new HashMap<>();
         Map<String,TimePack> bw = new HashMap<>();
-        //ArrayList<ActivityTask> at;
+        final ArrayList<ActivityTask> at = new ArrayList<>();
         ArrayList<LocalDateTime> LDT = new ArrayList<>();
         ArrayList<String> relaventDates = new ArrayList<>();
 
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
         //endregion
 
-        //region bucket word test **** C D is working *****
+        //region bucket word test **** C R D is working *****
 
         /*LDT.add(LocalDateTime.now().withHour(22).withMinute(23));
         LDT.add(LocalDateTime.now().withHour(23).withMinute(50));
@@ -111,16 +113,24 @@ public class MainActivity extends AppCompatActivity {
         LDT.add(LocalDateTime.now().withHour(19).withMinute(00));
         LDT.add(LocalDateTime.now().withHour(23).withMinute(55));
         TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("buCKEt222", T);*/
+        Repository.createBucketWord("buCKEt222", T);
 
         //Repository.deleteBucketWord("Bucket1");
         //Repository.deleteBucketWord("buCKEt222");
 
+        LDT.clear();
         LDT.add(LocalDateTime.now().withHour(20).withMinute(00));
         LDT.add(LocalDateTime.now().withHour(21).withMinute(30));
         TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
-        Repository.createBucketWord("TestBucket333", T);
+        Repository.createBucketWord("TestBucket333", T);*/
 
+        /*LDT.clear();
+        LDT.add(LocalDateTime.now().withHour(10).withMinute(00));
+        LDT.add(LocalDateTime.now().withHour(16).withMinute(30));
+        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
+        Repository.updateBucketWord("TestBucket333",T);*/
+
+        /*Repository.deleteBucketWord("TestBucket333");
 
        t=Repository.getBucketWords();
         t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
@@ -133,51 +143,88 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             }
-             for( Map.Entry<String,TimePack> entry:bw.entrySet())
+            for( Map.Entry<String,TimePack> entry:bw.entrySet())
             {
                 TextView textView= new TextView(getApplication());
                 LinearLayout linearLayout = findViewById(R.id.linearlayout);
                 textView.setTextSize(25);
-                textView.setText(entry.getKey()+" range: "+entry.getValue());
+                textView.setText(entry.getKey()+" range: "+entry.getValue().getStartingTime());
                 linearLayout.addView(textView);
             }
-        });
+        });*/
         //endregion bucket word test
 
-        //region activity task test
-         //TODO <<<<< activity task test 1 start
-        Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",null,T); //TODO:crash at the constructor of the ActivityTask class
-         //TODO <<<<< activity task test 1 end
-        try {
-            t=Repository.getAllUserActivityTasks();
-            t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+        //region activity task test **** C R U D working ****
+
+        Repository.deleteActivivtyTask(2);
+
+        /*LDT.add(LocalDateTime.now().withHour(18).withMinute(03));
+        LDT.add(LocalDateTime.now().withHour(18).withMinute(06));
+        TimePack T=new TimePack(LDT,7,Repetition.No_repeting,relaventDates);
+        SubActivity subActivity=new SubActivity("sub1AT1",1);
+        ArrayList<SubActivity> sa=new ArrayList<>();
+        sa.add(subActivity);
+        Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",sa,T);*/
+
+        LDT.add(LocalDateTime.now().withHour(14).withMinute(24));
+        LDT.add(LocalDateTime.now().withHour(14).withMinute(26));
+        TimePack T=new TimePack(LDT,7,Repetition.every_friday,relaventDates);
+        SubActivity subActivity=new SubActivity("subdog",1);
+        ArrayList<SubActivity> sa=new ArrayList<>();
+        sa.add(subActivity);
+        Repository.createActivityTask(2,MasloCategory.Esteem,"thisActivityTaskTest",sa,T);
+
+        //Repository.updateActivityTask(1,"content","WWW");
+        //Repository.deleteActivivtyTask(1);
+
+        /*try {
+            //t=Repository.getAllUserActivityTasks();
+            t=Repository.getThisDayActivityTasks();
+            t.addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
                 if(task.isSuccessful())
                 {
-                    //ArrayList<ActivityTask> at = ((ArrayList<ActivityTask>) task.getResult().get("matan" + "ActivityTasks")); //idk if this will crash, should get arraylist
-                    Log.d(TAG, "onCreate: 111");
-                }
+                    for(DocumentSnapshot entry:
+                            task.getResult().getDocuments())
+                        at.add(entry.toObject(ActivityTask.class));
 
+                    for( ActivityTask activity:at)
+                    {
+                        TextView textView= new TextView(getApplication());
+                        LinearLayout linearLayout = findViewById(R.id.linearlayout);
+                        textView.setTextSize(25);
+                        textView.setText(activity.getContent()+" sub: "+activity.getSubActivitys().get(0).getContent());
+                        linearLayout.addView(textView);
+                    }
+                }
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
-        }
-
-
-       NotificationSystem.scheduleNotification(getApplicationContext(),100,1,MainActivity.class,"Notification","I am gay");
-/*
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
-                .setContentTitle("gay")
-                .setContentText("bisexual")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-*/
+        }*/
 
 
         //endregion activity task test
 
-        //Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
+        //region notification test
+
+        try {
+            t=Repository.getAllUserActivityTasks();
+            t.addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
+                if(task.isSuccessful())
+                {
+                    for(DocumentSnapshot entry:
+                            task.getResult().getDocuments())
+                        at.add(entry.toObject(ActivityTask.class));
+                }
+                Repository.setNotification(getApplication(),at.get(1),this);
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }/**/
+
         //endregion
 
-
+        //Toast.makeText(getApplication(), ""+at.isEmpty(), Toast.LENGTH_SHORT).show();
+        //endregion
 
 
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));

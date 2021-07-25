@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -463,7 +464,7 @@ public class Repository {
 
 
 
-        long delayInMili = LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        long delayInMili = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
                 delayInMili,
@@ -471,6 +472,8 @@ public class Repository {
                 activity.getClass(),
                 activityTask.getMasloCategory().toString(),
                 activityTask.getContent());
+
+        Toast.makeText(context, ""+delayInMili, Toast.LENGTH_LONG).show();
     }
 
 
