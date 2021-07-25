@@ -1,5 +1,7 @@
 package com.example.ppn;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,10 +21,19 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,7 +44,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -43,7 +56,15 @@ public class MainActivity extends AppCompatActivity {
     ViewPager2 viewPager;
     TabLayout tabLayout;
     TabLayoutMediator tabLayoutMediator;
-
+    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+            new FirebaseAuthUIActivityResultContract(),
+            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
+                @Override
+                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+                    onSignInResult(result);
+                }
+            }
+    );
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +75,8 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager);
 
         Repository.init();
-
-
-        Repository.setUserName("matan");
+        startSignInFlow();
+        signOut();
 
         //region test insert and get word priority, TODO:NON CANON CODE DELETE!!!!
 
@@ -215,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
                             task.getResult().getDocuments())
                         at.add(entry.toObject(ActivityTask.class));
                 }
-                Repository.setNotification(getApplication(),at.get(1),this);
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -225,6 +244,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Toast.makeText(getApplication(), ""+at.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
+
+
+
+        //region google sign in test
 
 
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
@@ -248,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayoutMediator.attach();
 
 
+
     }
 
     @Override
@@ -260,5 +284,46 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void startSignInFlow() {
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.GoogleBuilder().build());
+
+
+        // Create and launch sign-in intent
+        Intent signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build();
+        signInLauncher.launch(signInIntent);
+    }
+    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
+        IdpResponse response = result.getIdpResponse();
+        if (result.getResultCode() == RESULT_OK) {
+            // Successfully signed in
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            Repository.setUser(user);
+            finish();
+
+            // ...
+        } else {
+            // Sign in failed. If response is null the user canceled the
+            // sign-in flow using the back button. Otherwise check
+            // response.getError().getErrorCode() and handle the error.
+            // ...
+        }
+    }
+
+    public void signOut() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                        finish();
+                    }
+                });
     }
 }

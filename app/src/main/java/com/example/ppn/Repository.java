@@ -2,16 +2,21 @@ package com.example.ppn;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -63,7 +68,7 @@ public class Repository {
      */
     private static Activity defaultActivity;
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    private static FirebaseUser user;
     private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
 
     private static Map<String, Integer> priorityWords = new HashMap<>();
@@ -95,6 +100,7 @@ public class Repository {
      * <p>note: to access a users collection, {@link Repository#setUserName(String) Repository.setUserName()} should be used with the desired name to be given the collection.</p>
      */
     public static void init(){
+
         if(created) return;
 
         Task taskPriorityWords = getAllPriorityWords();
@@ -477,6 +483,17 @@ public class Repository {
     }
 
 
+    //endregion
+
+    //region firebase User
+    public static FirebaseUser getUser() {
+        return Repository.user;
+    }
+
+    public static void setUser(FirebaseUser user) {
+        Repository.user = user;
+        setUserName(user.getDisplayName());
+    }
     //endregion
 
     //priority one:
