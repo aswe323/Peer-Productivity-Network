@@ -95,6 +95,7 @@ public class Repository {
      */
     public static void init(){
         if(created) return;
+
         Task taskPriorityWords = getAllPriorityWords();
         Task taskBucketWords = getBucketWords();
 
@@ -475,11 +476,17 @@ public class Repository {
 
     //endregion
 
+    //priority one:
+    // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore
+    // TODO: 25/07/2021 is it ok to use javadocs as a project book?
+
+
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
     // TODO: 18/07/2021 make activiytaskss with empty timerange to go through NATTY or use current time otherwise(DONE!)
 
-// TODO: 23/07/2021  
+    // TODO: 23/07/2021  create a number array in timepack representing the days of the current month that are relavent to the activityTask
+
     // TODO: 18/07/2021 find a solution to static context memory leak
     // TODO: 18/07/2021 consider using collectionsRef instead of docref for priority and bucket words
 

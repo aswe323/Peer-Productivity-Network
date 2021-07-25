@@ -2,6 +2,7 @@ package com.example.ppn;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.FragmentTransaction;
@@ -145,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
 
         //region activity task test
          //TODO <<<<< activity task test 1 start
-        /*LDT.put(LocalDateTime.now().withHour(22).withMinute(23),LocalDateTime.now().withHour(23).withMinute(50));
-        TimePack T=new TimePack(LDT,7,monthRange,overlapdMonth);
         Repository.createActivityTask(1,MasloCategory.Esteem,"testing activity task",null,T); //TODO:crash at the constructor of the ActivityTask class
          //TODO <<<<< activity task test 1 end
         try {
@@ -154,19 +153,31 @@ public class MainActivity extends AppCompatActivity {
             t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
                 if(task.isSuccessful())
                 {
-                    ArrayList<ActivityTask> at = ((ArrayList<ActivityTask>) task.getResult().get("matan" + "ActivityTasks")); //idk if this will crash, should get arraylist
+                    //ArrayList<ActivityTask> at = ((ArrayList<ActivityTask>) task.getResult().get("matan" + "ActivityTasks")); //idk if this will crash, should get arraylist
+                    Log.d(TAG, "onCreate: 111");
                 }
 
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();
-        }*/
+        }
+
+
+       NotificationSystem.scheduleNotification(getApplicationContext(),100,1,MainActivity.class,"Notification","I am gay");
+/*
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
+                .setContentTitle("gay")
+                .setContentText("bisexual")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+*/
 
 
         //endregion activity task test
 
         //Toast.makeText(getApplication(), ""+m.isEmpty(), Toast.LENGTH_SHORT).show();
         //endregion
+
+
 
 
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));

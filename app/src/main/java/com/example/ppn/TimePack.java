@@ -48,7 +48,7 @@ public class TimePack {
      */
     private String strigifiedNattyResults;
 
-    private ArrayList<Integer> relaventDatesNumbered;
+    private ArrayList<Integer> relaventDatesNumbered = new ArrayList<>();// FIXME: 25/07/2021 is not inserted into firebase correctly. Possible issue with flow of setter/getter.
 
 
 
@@ -74,6 +74,10 @@ public class TimePack {
         this.strigifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
+        for (String string:
+                strigifiedRelaventDates) {
+            relaventDatesNumbered.add(LocalDateTime.parse(string,getFormatter()).getDayOfMonth());
+        }
 
     }
 

@@ -14,13 +14,13 @@ import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationSystem extends BroadcastReceiver { //create and scedual notification
 
     public static String NOTIFICATION_ID = "ID";
     public static String NOTIFICATION = "notification";
 
-    @Override
     public void onReceive(final Context context, Intent intent) {
 
         //Before you can deliver the notification on Android 8.0 and higher, you must register your app's notification channel with the system by passing an instance of NotificationChannel.
@@ -41,6 +41,7 @@ public class NotificationSystem extends BroadcastReceiver { //create and scedual
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
         int notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
         notificationManager.notify(notificationId, notification);
+
     }
 
     public static void scheduleNotification(Context context, long delay, int notificationRequestCode, Class notificationReciver, String contentTitle, String contentText) {//this method creates notification,delay is after how much time(in millis) from current time you want to schedule the notification
@@ -56,7 +57,7 @@ public class NotificationSystem extends BroadcastReceiver { //create and scedual
         //making the notification clickable, when clicked the app will open
         Intent intent = new Intent(context, notificationReciver);
         PendingIntent activity = PendingIntent.getActivity(context, notificationRequestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT); //PendingIntent.FLAG_CANCEL_CURRENT = if i insert new notification with same notificationId then cancel the former
-        builder.setContentIntent(activity);
+        //builder.setContentIntent(activity);
 
         Notification notification = builder.build();
 
