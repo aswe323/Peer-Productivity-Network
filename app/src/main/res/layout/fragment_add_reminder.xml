@@ -60,13 +60,13 @@
                 android:text="time from:\nclick to choose" />
 
             <TextView
-                android:id="@+id/TextView_too_time"
+                android:id="@+id/TextView_to_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="20dp"
                 android:textColor="@color/black"
-                android:text="time too:\nclick to choose" />
+                android:text="time to:\nclick to choose" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

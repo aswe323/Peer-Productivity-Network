@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link HomePage#newInstance} factory method to
@@ -80,7 +82,8 @@ public class HomePage extends Fragment {
                 //getChildFragmentManager().beginTransaction().add(R.id.Fragment_Search,)
                 return true;
             case R.id.user_menu: //TODO:this will allow the user to login\logout of the google user
-                Toast.makeText(this.getContext(), "this is not a bug... it's a feature, read comment to learn more", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this.getContext(), "this is not a bug... it's a feature, read comment to learn more", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), ""+ FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

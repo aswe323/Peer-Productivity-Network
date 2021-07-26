@@ -378,7 +378,7 @@ public class Repository {
      * @throws Throwable
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void refreshNotifications() {
+    public static void refreshNotifications() {
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
         ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();

@@ -54,9 +54,9 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    ViewPager2 viewPager;
-    TabLayout tabLayout;
-    TabLayoutMediator tabLayoutMediator;
+    private ViewPager2 viewPager;
+    private TabLayout tabLayout;
+    private TabLayoutMediator tabLayoutMediator;
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
     );
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +76,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.TabLayout);
         viewPager = findViewById(R.id.viewpager);
 
-/*
-            signOut();
-*/
-
-
-
-
-        //region google sign in test
+        //signOut();
 
 
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
@@ -107,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         Repository.init(FirebaseAuth.getInstance());
         startSignInFlow();
-
 
 
 
@@ -144,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
-            // ...
+
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             Repository.createPriorityWord("hello",10);
             LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
