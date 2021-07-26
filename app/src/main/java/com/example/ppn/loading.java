@@ -51,13 +51,7 @@ public class loading extends AppCompatActivity {
             }
         });
         startingThread.start();
-        try {
-            startActivity(new Intent(loading.this,MainActivity.class));
-            finish();
-            startingThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        
 
     }
 
@@ -80,30 +74,9 @@ public class loading extends AppCompatActivity {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
+            startActivity(new Intent(loading.this,MainActivity.class));
+            finish();
 
-            /*/ ...
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            Repository.createPriorityWord("hello",10);
-            LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
-            LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
-            ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
-            localDateTimes.add(startingTime);
-            localDateTimes.add(endingTime);
-            ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
-            for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-                nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
-            Repository.createBucketWord("hello",new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.Every_24_hours,nonStirigifiedRelaventDates));
-            Repository.deletePriorityWord("hello");
-            Repository.deleteBucketWord("hello");
-
-            Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-            Repository.deleteActivivtyTask(69);
-            Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-
-            Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
-                task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
-
-            });*/
 
         } else {
             // Sign in failed. If response is null the user canceled the
