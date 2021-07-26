@@ -76,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.TabLayout);
         viewPager = findViewById(R.id.viewpager);
 
-        //signOut();
-
-
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
 
         tabLayoutMediator = new TabLayoutMediator(tabLayout,viewPager,true,
@@ -100,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayoutMediator.attach();
 
         Repository.init(FirebaseAuth.getInstance());
-        startSignInFlow();
 
+        //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not
 
 
     }
@@ -138,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
 
+            /*/ ...
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             Repository.createPriorityWord("hello",10);
             LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
@@ -159,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
                 task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
 
-            });
+            });*/
 
         } else {
             // Sign in failed. If response is null the user canceled the
