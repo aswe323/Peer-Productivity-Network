@@ -36,22 +36,8 @@ public class loading extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
 
-        Thread startingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("logging", "running log in thread");
-                if (FirebaseAuth.getInstance().getCurrentUser()==null) {
-                    Log.d("logging", "required to log in ");
-                    startSignInFlow();
-                }
-                else{
-                    Log.d("logging", "logged");
-                }
+        startSignInFlow();
 
-            }
-        });
-        startingThread.start();
-        
 
     }
 
