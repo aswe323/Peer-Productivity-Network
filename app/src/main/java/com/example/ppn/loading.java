@@ -60,6 +60,8 @@ public class loading extends AppCompatActivity {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
+
+            Repository.init(FirebaseAuth.getInstance());
             startActivity(new Intent(loading.this,MainActivity.class));
             finish();
 

@@ -96,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
                 });
         tabLayoutMediator.attach();
 
-        Repository.init(FirebaseAuth.getInstance());
+        //Repository.init(FirebaseAuth.getInstance());
+
+
 
         //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not
 
