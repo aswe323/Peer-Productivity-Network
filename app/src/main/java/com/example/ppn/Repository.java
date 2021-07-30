@@ -107,8 +107,13 @@ public class Repository {
     }
 
 
-    public static DocumentReference getBucketWordsRef() {
+    private static DocumentReference getBucketWordsRef() {
         return db.collection(getUser().getDisplayName()).document("BucketWords");
+    }
+
+
+    private static DocumentReference getUserGroupRef(){
+        return db.collection("groups").document(getUser().getDisplayName());
     }
 
     /**
@@ -533,16 +538,36 @@ public class Repository {
     }
     //endregion
 
+    //region groups
+
+    public static Task readGroup(){
+
+        Task task;
+        task = getUserGroupRef().get();
+        return task;
+    }
+
+
+
+    //endregion
+
     //priority one:
-    // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore
+    // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore(Time consuming)
     // TODO: 25/07/2021 is it ok to use javadocs as a project book?
 
+// TODO: 30/07/2021 facilitate groups, a collection of user names with each Documant having a map of username:score.
+//  create: automatic.
+//  read: read the all documant relevant to getuser().userdisplayname inside collection "groups".
+//  update: each Documant updated if it has the current user name inside it. so where(username,FieldValue.incrament(1)).
+//  delete: in the relavent documant delete(String removedUser) from the map.
+//  group action "Add User To My group": simply add a key:value to the user group documant. if the user exists it will be updated with the "complete" c.r.u.d method of the added user.
+// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Score map(username:String)
 
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
     // TODO: 18/07/2021 make activiytaskss with empty timerange to go through NATTY or use current time otherwise(DONE!)
+    // TODO: 23/07/2021  create a number array in timepack representing the days of the current month that are relavent to the activityTask(DONE!)
 
-    // TODO: 23/07/2021  create a number array in timepack representing the days of the current month that are relavent to the activityTask
 
     // TODO: 18/07/2021 find a solution to static context memory leak
     // TODO: 18/07/2021 consider using collectionsRef instead of docref for priority and bucket words

@@ -18,6 +18,7 @@ import java.util.Map;
 
 public class ActivityTask {
     private int activityTaskID;
+    private ArrayList<String > comments;
     private MasloCategory masloCategory;
     private String content;
     private ArrayList<SubActivity> subActivitys;
@@ -73,6 +74,15 @@ public class ActivityTask {
         return true;
     }
 
+    public void setComments(ArrayList<String> comments) {
+        this.comments = comments;
+    }
+
+
+
+    public ArrayList<String> getComments() {
+        return comments;
+    }
 
     public ArrayList<SubActivity> getSubActivitys() {
         return subActivitys;
