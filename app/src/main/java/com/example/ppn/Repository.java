@@ -561,7 +561,7 @@ public class Repository {
 //  update: each Documant updated if it has the current user name inside it. so where(username,FieldValue.incrament(1)).
 //  delete: in the relavent documant delete(String removedUser) from the map.
 //  group action "Add User To My group": simply add a key:value to the user group documant. if the user exists it will be updated with the "complete" c.r.u.d method of the added user.
-// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Score map(username:String)
+// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Comments map(username:String)
 
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
