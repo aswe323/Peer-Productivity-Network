@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,6 +82,7 @@ public class Repository {
      * effectively the collection name for the current user.
      */
     private static String userName;;
+    private Class<ActivityTask> activityTaskClass;
 
 
     private static String setUserName(String userName) {
@@ -141,10 +145,10 @@ public class Repository {
                 }};
                 FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get().addOnSuccessListener(documentSnapshot -> {
                     if(!documentSnapshot.contains("comments")){
-                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
+                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit,SetOptions.merge());
                     }
                     if(!documentSnapshot.contains("groupMembers")){
-                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
+                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit,SetOptions.merge());
 
                     }
                 });
@@ -203,14 +207,29 @@ public class Repository {
     }
 
     //region ActivityTask
-    public static Task<Void> createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack) {
+    public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack) {
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
+        return getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().continueWithTask(task -> {
+            return task.addOnCompleteListener(queryDocumentSnapshots -> {
+                List<DocumentSnapshot> documentSnapshot = queryDocumentSnapshots.getResult().getDocuments();
+                if(!documentSnapshot.isEmpty()) {
+                    int nextID = documentSnapshot.get(0).toObject(ActivityTask.class).getActivityTaskID() + 1;
 
-        return getActivityTaskCollection().document("ActivityTask" + activityTaskID)
-                .set(activityTask)
-                .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
-                .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
+                    getActivityTaskCollection().document("ActivityTask" + nextID).set(activityTask)
+                            .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
+                            .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
+
+                }else {
+                    getActivityTaskCollection().document("ActivityTask" + activityTaskID).set(activityTask)
+                            .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
+                            .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
+                }
+            });
+
+        });
+
+
 
     }
 
@@ -284,7 +303,8 @@ public class Repository {
     updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
         getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
-            if(!documentSnapshot.toObject(ActivityTask.class).isComplete()){
+            ActivityTask activityTask = documentSnapshot.toObject(ActivityTask.class);
+            if(activityTask != null && !activityTask.getComplete()){
                 getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).continueWith(task -> {
                     if(task.isSuccessful()) {
                         FirebaseFirestore.getInstance().collection("groups").get()

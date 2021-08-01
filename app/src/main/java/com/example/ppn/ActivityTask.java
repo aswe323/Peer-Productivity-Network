@@ -26,6 +26,7 @@ public class ActivityTask {
     private boolean complete;
 
 
+
     public ActivityTask() {
     }
 
@@ -70,9 +71,10 @@ public class ActivityTask {
         this.complete = complete;
     }
 
-    public boolean isComplete() {
+    public boolean getComplete(){
         return complete;
     }
+
 
     public boolean editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
         setMasloCategory(newMasloCategory);
