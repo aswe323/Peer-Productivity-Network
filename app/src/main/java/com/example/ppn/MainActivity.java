@@ -112,9 +112,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+/*
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.deleteActivivtyTask(69);
         Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+*/
 
 
         Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
@@ -122,13 +124,18 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        Repository.addUserToMyGroup(firebaseUser.getDisplayName());
+        //Repository.addUserToMyGroup(firebaseUser.getDisplayName());
         Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is a comment");
         Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
 
         Repository.completeActivityTask(70);
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+
         //endregion
 
         //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not

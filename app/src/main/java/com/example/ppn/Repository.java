@@ -278,24 +278,32 @@ public class Repository {
 
     }
 
-    public static Task completeActivityTask(int activityTaskID){
+    public static void completeActivityTask(int activityTaskID){
 
     HashMap<String,FieldValue> updates = new HashMap<>();
     updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
-        FirebaseFirestore.getInstance().collection("groups").get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    task.getResult().getDocuments().forEach(documentSnapshot -> {
-                        documentSnapshot.getReference().update("groupMembers." + getUser().getDisplayName(), FieldValue.increment(1));
-                    });
+        getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
+            if(!documentSnapshot.toObject(ActivityTask.class).isComplete()){
+                getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).continueWith(task -> {
+                    if(task.isSuccessful()) {
+                        FirebaseFirestore.getInstance().collection("groups").get()
+                                .addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
+                                            documentSnapshot1.getReference().update("groupMembers." + getUser().getDisplayName(), FieldValue.increment(1));
+                                        });
 
-                } else {
-                    Log.d(TAG, "completeActivityTask: failed");
-                }
-            });
-        
-        return getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true);
+                                    } else {
+                                        Log.d(TAG, "completeActivityTask: failed");
+                                    }
+                                });
+                    }
+                    return null;
+                });
+            }
+        });
+
     };
 
 
