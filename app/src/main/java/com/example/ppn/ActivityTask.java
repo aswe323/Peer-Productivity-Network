@@ -18,24 +18,24 @@ import java.util.Map;
 
 public class ActivityTask {
     private int activityTaskID;
-    private ArrayList<String > comments;
     private MasloCategory masloCategory;
     private String content;
     private ArrayList<SubActivity> subActivitys;
     private int priority;
     private TimePack timePack;
+    private boolean complete;
+
 
     public ActivityTask() {
     }
 
     public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
-        this.activityTaskID = activityTaskID;
-        this.masloCategory = masloCategory;
-        this.subActivitys = subActivitys;
-        this.content = content;
-        this.timePack = timePack;
-
-
+        setActivityTaskID(activityTaskID);
+        setMasloCategory(masloCategory);
+        setSubActivitys(subActivitys);
+        setContent(content);
+        setTimePack(timePack);
+        setComplete(false);
         
         List<DateGroup> groups;
         Parser parser = new Parser();
@@ -44,10 +44,9 @@ public class ActivityTask {
 
             List dates = groups.get(0).getDates();//get the date that natty created for us
             LocalDateTime localDateTime = ((Date) dates.get(0)).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //convert it to LocalDateTIme
-            this.timePack.updateNattyResults(localDateTime);
-
+            getTimePack().updateNattyResults(localDateTime);
         }else{
-            this.timePack.updateNattyResults(LocalDateTime.now());
+            getTimePack().updateNattyResults(LocalDateTime.now());
             Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + activityTaskID);
         }
 
@@ -57,31 +56,29 @@ public class ActivityTask {
                 words) {
             score +=  priorityWords.getOrDefault(word,0);
         }
-        this.priority = score;
+        setPriority(score);
 
         if(this.getTimePack().readTimeTange().isEmpty()){
-            this.getTimePack().readTimeTange().set(0,this.timePack.readNattyResults());
-            this.getTimePack().readTimeTange().set(1,this.timePack.readNattyResults());
+            getTimePack().readTimeTange().set(0,timePack.readNattyResults());
+            getTimePack().readTimeTange().set(1,timePack.readNattyResults());
         }
-        this.timePack.reCalculateReleventDates();
+        getTimePack().reCalculateReleventDates();
 
     }
 
-    public boolean editReminder(String newContent,MasloCategory newMasloCategory,Repetition newRepetition){
-        this.timePack.setRepetition(newRepetition);
-        this.content = newContent;
-        this.masloCategory = newMasloCategory;
+    public void setComplete(boolean complete) {
+        this.complete = complete;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public boolean editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
+        setMasloCategory(newMasloCategory);
+        setContent(newContent);
+        getTimePack().setRepetition(newRepetition);
         return true;
-    }
-
-    public void setComments(ArrayList<String> comments) {
-        this.comments = comments;
-    }
-
-
-
-    public ArrayList<String> getComments() {
-        return comments;
     }
 
     public ArrayList<SubActivity> getSubActivitys() {

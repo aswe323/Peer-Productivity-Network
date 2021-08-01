@@ -15,12 +15,16 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class loading extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "loading";
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
@@ -62,6 +66,8 @@ public class loading extends AppCompatActivity {
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
 
             Repository.init(FirebaseAuth.getInstance());
+
+
             startActivity(new Intent(loading.this,MainActivity.class));
             finish();
 

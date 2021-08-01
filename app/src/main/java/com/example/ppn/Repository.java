@@ -15,11 +15,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -32,15 +32,15 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
  * <h4>a service class.</h3>
  * <p>main access to data and firestore operations. puts together critical compunents for ease of use.
- * {@link Repository#init() Repository.init()} should be called at least once before any use of the class to recive priorityWords and bucketWords from firestore. i.e: in the first activity called/it's view model.
  *</p>
  *
  * <p> {@link com.example.ppn.Repository#userName userName} should be set by the coder, otherwise "default" will be used as a collection across all devices.</p>
@@ -116,6 +116,11 @@ public class Repository {
         return db.collection("groups").document(getUser().getDisplayName());
     }
 
+    @NonNull
+    private static DocumentReference getAnotherUserGroup(String userName) {
+        return db.collection("groups").document(userName);
+    }
+
     /**
      * <p>initializes the prioritywords and bucketwords document.</p>
      * <p>note: to access a users collection, {@link Repository#setUserName(String) Repository.setUserName()} should be used with the desired name to be given the collection.</p>
@@ -128,7 +133,14 @@ public class Repository {
                 Repository.userName = firebaseAuth1.getCurrentUser().getDisplayName();
                 Log.d(TAG, "init: confirmed logged in");
                 setUser(firebaseAuth1.getCurrentUser());
-
+                HashMap<String, Object> commetnsInit = new HashMap<String, Object>(){{
+                    put("comments",FieldValue.arrayUnion());
+                }};
+                HashMap<String, Object> groupMembersInit = new HashMap<String, Object>(){{
+                    put("groupMembers",FieldValue.arrayUnion());
+                }};
+                db.collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
+                db.collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
 
                 Task taskPriorityWords = getAllPriorityWords();
                 Task taskBucketWords = getBucketWords();
@@ -189,7 +201,7 @@ public class Repository {
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
 
-        return db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID)
+        return getActivityTaskCollection().document("ActivityTask" + activityTaskID)
                 .set(activityTask)
                 .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
                 .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
@@ -198,7 +210,7 @@ public class Repository {
 
     public static Task<QuerySnapshot> getAllUserActivityTasks(){
 
-       Task task = db.collection(getUser().getDisplayName() + "ActivityTasks")
+       Task task = getActivityTaskCollection()
                .get()
                .addOnSuccessListener(queryDocumentSnapshots -> Log.d("firestore", "getAllUserActivityTasks: success"))
                .addOnFailureListener(e -> Log.d("firestore", "getAllUserActivityTasks: failure"));
@@ -206,11 +218,16 @@ public class Repository {
         return task;
     }
 
+    @NonNull
+    private static CollectionReference getActivityTaskCollection() {
+        return db.collection(getUser().getDisplayName() + "ActivityTasks");
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task<QuerySnapshot> getThisDayActivityTasks(){
 
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
-        Task task = db.collection(getUser().getDisplayName() + "ActivityTasks")
+        Task task = getActivityTaskCollection()
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
                 .whereArrayContains("relaventDatesNumbered",LocalDateTime.now().getDayOfMonth())
                 .get();
@@ -222,7 +239,7 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static Task<Void> updateActivityTask(int activityTaskID, String fieldToUpdate, String newValue) {
 
-        DocumentReference updatedActivityTask = db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID);
+        DocumentReference updatedActivityTask = getActivityTaskCollection().document("ActivityTask" + activityTaskID);
 
 
 
@@ -248,11 +265,27 @@ public class Repository {
     public static Task<Void> deleteActivivtyTask(int activityTaskID){
 
 
-        return db.collection(getUser().getDisplayName() + "ActivityTasks").document("ActivityTask" + activityTaskID)
+        return getActivityTaskCollection().document("ActivityTask" + activityTaskID)
                 .delete()
                 .addOnFailureListener(ea -> Log.d("firestore", "deleteActivivtyTask: failed to delete | " + ea.getCause()))
                 .addOnSuccessListener(unused -> Log.d("firestore", "deleteActivivtyTask: success"));
 
+    }
+
+    public static Task completeActivityTask(int activityTaskID){
+
+        db.collection("groups").whereArrayContains("groupMembers",getUser().getDisplayName())
+                .whereGreaterThan(getUser().getDisplayName(),-1).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                task.getResult().getDocuments().forEach(documentSnapshot -> {
+                    documentSnapshot.getReference().update(getUser().getDisplayName(), FieldValue.increment(1));
+                });
+            }else{
+                Log.d(TAG, "completeActivityTask: failed");
+            }
+        });
+        
+        return getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true);
     }
 
 
@@ -539,13 +572,73 @@ public class Repository {
     //endregion
 
     //region groups
+// TODO: 30/07/2021 facilitate groups, a collection of user names with each Documant having a map of username:score.
+//  create: automatic.
+//  read: read the all documant relevant to getuser().userdisplayname inside collection "groups".(DONE!)
+//  update: each Documant updated if it has the current user name inside it. so where(username,FieldValue.incrament(1)).
+//  delete: in the relavent documant delete(String removedUser) from the map.(DONE!)
+//  group action "Add User To My group": simply add a key:value to the user group documant. if the user exists it will be updated with the "complete" c.r.u.d method of the added user.(DONE!)
+// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Comments map(username:String)
 
-    public static Task readGroup(){
+    // TODO: 01/08/2021 facilitate ActivityTask completion and score updates
 
-        Task task;
+    public static Task<DocumentSnapshot> readGroup(){
+
+        Task<DocumentSnapshot> task;
         task = getUserGroupRef().get();
         return task;
     }
+
+    public static Task<Void> deleteUserFromMyGroup(String targetedUser){
+
+        Task<Void> task;
+
+        task = getUserGroupRef().update("groupMembers",targetedUser,FieldValue.delete());
+
+        return task;
+
+    }
+
+    public static Task<Void> addUserToMyGroup(String addedUser){
+        Map<String,Object> newMember = new HashMap<String,Object>(){{
+            put(addedUser,0);
+        }};
+        Map<String,Object> init = new HashMap<String,Object>(){{
+            put("groupMembers",new HashMap<String,Integer>());
+        }};
+
+
+            getUserGroupRef().set(init,SetOptions.merge());
+
+        Task<Void> set = getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
+        return set;
+
+    }
+
+    public static Task<Void> addCommentToAnotherUser(String targetedUser, String comment){
+        Task<Void> task = null;
+        HashMap<String,String> addedField = new HashMap<>();
+        addedField.put(getUser().getDisplayName(),comment);
+
+        getAnotherUserGroup(targetedUser).update("comments",FieldValue.arrayUnion(addedField));
+
+        return task;
+    }
+
+
+    public static Task deleteCommentFromMyProfile(String comment,String targetedUserName){
+
+        Task<Void> task = null;
+        Map<String,Object> updates = new HashMap<String,Object>(){
+            {
+                put(targetedUserName, comment);
+            }};
+        getUserGroupRef().update("comments",updates);
+
+        return task;
+
+    }
+
 
 
 
@@ -555,13 +648,6 @@ public class Repository {
     // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore(Time consuming)
     // TODO: 25/07/2021 is it ok to use javadocs as a project book?
 
-// TODO: 30/07/2021 facilitate groups, a collection of user names with each Documant having a map of username:score.
-//  create: automatic.
-//  read: read the all documant relevant to getuser().userdisplayname inside collection "groups".
-//  update: each Documant updated if it has the current user name inside it. so where(username,FieldValue.incrament(1)).
-//  delete: in the relavent documant delete(String removedUser) from the map.
-//  group action "Add User To My group": simply add a key:value to the user group documant. if the user exists it will be updated with the "complete" c.r.u.d method of the added user.
-// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Comments map(username:String)
 
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)

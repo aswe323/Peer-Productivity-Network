@@ -96,9 +96,34 @@ public class MainActivity extends AppCompatActivity {
                 });
         tabLayoutMediator.attach();
 
-        //Repository.init(FirebaseAuth.getInstance());
+
+        Log.d(TAG, "onCreate: rached here");
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Repository.createPriorityWord("hello",10);
+        LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
+        LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
+        ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
+        localDateTimes.add(startingTime);
+        localDateTimes.add(endingTime);
+        ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
+        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
+            nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
 
 
+        Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+        Repository.deleteActivivtyTask(69);
+        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+
+        Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
+            task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
+
+        });
+
+        Repository.addUserToMyGroup(firebaseUser.getDisplayName());
+        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is a comment");
+        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
+
+        Repository.completeActivityTask(70);
 
         //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not
 
@@ -137,29 +162,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
 
-            /*/ ...
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            Repository.createPriorityWord("hello",10);
-            LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
-            LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
-            ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
-            localDateTimes.add(startingTime);
-            localDateTimes.add(endingTime);
-            ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
-            for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-                nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
-            Repository.createBucketWord("hello",new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.Every_24_hours,nonStirigifiedRelaventDates));
-            Repository.deletePriorityWord("hello");
-            Repository.deleteBucketWord("hello");
 
-            Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-            Repository.deleteActivivtyTask(69);
-            Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-
-            Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
-                task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
-
-            });*/
 
         } else {
             // Sign in failed. If response is null the user canceled the
