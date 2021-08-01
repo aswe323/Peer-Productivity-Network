@@ -3,17 +3,21 @@ package com.example.ppn;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link KeyWords#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class KeyWords extends Fragment {
+public class KeyWords extends Fragment implements View.OnClickListener{
+
+    private Button addWord;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -56,9 +60,34 @@ public class KeyWords extends Fragment {
     }
 
     @Override
+    public void onClick(View v) {
+        switch (v.getId()) {//recognizing what button was pushed
+            case R.id.Btn_add_word:
+                //region add reminder
+
+                AddWord addWord = new AddWord();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(((ViewGroup)(getView().getParent())).getId(), addWord)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("addWord") // name can be null
+                        .commit();
+                //endregion
+                break;
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_key_words, container, false);
+        View view = inflater.inflate(R.layout.fragment_key_words, container, false);
+
+        addWord = view.findViewById(R.id.Btn_add_word);
+        addWord.setOnClickListener(this);
+
+        return view;
     }
+
+
 }

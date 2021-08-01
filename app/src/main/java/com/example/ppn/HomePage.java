@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,7 +22,9 @@ import com.google.firebase.auth.FirebaseAuth;
  * Use the {@link HomePage#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomePage extends Fragment {
+public class HomePage extends Fragment implements View.OnClickListener{
+
+    private Button addReminder;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -62,13 +66,37 @@ public class HomePage extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+    }
+
+    @Override
+    public void onClick(View v){
+        switch (v.getId()) {//recognizing what button was pushed
+            case R.id.Btn_add_reminder:
+                //region add reminder
+
+                AddReminder addReminder = new AddReminder();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(((ViewGroup)(getView().getParent())).getId(), addReminder)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("addReminder") // name can be null
+                        .commit();
+                //endregion
+                break;
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home_page, container, false);
+        View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+
+        addReminder = view.findViewById(R.id.Btn_add_reminder);
+        addReminder.setOnClickListener(this);
+
+        return view;
     }
 
     @Override
