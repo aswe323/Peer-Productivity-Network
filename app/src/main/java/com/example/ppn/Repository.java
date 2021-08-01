@@ -686,6 +686,8 @@ public class Repository {
     // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore(Time consuming)
     // TODO: 25/07/2021 is it ok to use javadocs as a project book?
 
+    // TODO: 01/08/2021 check out the activityTaskID incrmentation 
+    // TODO: 01/08/2021 look into the async issue  
 
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
