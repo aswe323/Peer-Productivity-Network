@@ -70,7 +70,8 @@ public class Repository {
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseUser user;
     private static FirebaseAuth firebaseAuth;
-    private static WordPriority wordPriority;// TODO: 27/06/2021 DO WE EVEN NEEDS THAT?
+
+
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
@@ -103,22 +104,22 @@ public class Repository {
 
 
     private static DocumentReference getPriorityWordsRef(){
-        return db.collection(getUser().getDisplayName()).document("PriorityWords");
+        return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("PriorityWords");
     }
 
 
     private static DocumentReference getBucketWordsRef() {
-        return db.collection(getUser().getDisplayName()).document("BucketWords");
+        return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("BucketWords");
     }
 
 
     private static DocumentReference getUserGroupRef(){
-        return db.collection("groups").document(getUser().getDisplayName());
+        return FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName());
     }
 
     @NonNull
     private static DocumentReference getAnotherUserGroup(String userName) {
-        return db.collection("groups").document(userName);
+        return FirebaseFirestore.getInstance().collection("groups").document(userName);
     }
 
     /**
@@ -139,8 +140,8 @@ public class Repository {
                 HashMap<String, Object> groupMembersInit = new HashMap<String, Object>(){{
                     put("groupMembers",FieldValue.arrayUnion());
                 }};
-                db.collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
-                db.collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
+                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
+                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
 
                 Task taskPriorityWords = getAllPriorityWords();
                 Task taskBucketWords = getBucketWords();
@@ -220,7 +221,7 @@ public class Repository {
 
     @NonNull
     private static CollectionReference getActivityTaskCollection() {
-        return db.collection(getUser().getDisplayName() + "ActivityTasks");
+        return FirebaseFirestore.getInstance().collection(getUser().getDisplayName() + "ActivityTasks");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -274,8 +275,10 @@ public class Repository {
 
     public static Task completeActivityTask(int activityTaskID){
 
-        db.collection("groups").whereArrayContains("groupMembers",getUser().getDisplayName())
-                .whereGreaterThan(getUser().getDisplayName(),-1).get().addOnCompleteListener(task -> {
+
+
+        FirebaseFirestore.getInstance().collection("groups").get()
+    .addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 task.getResult().getDocuments().forEach(documentSnapshot -> {
                     documentSnapshot.getReference().update(getUser().getDisplayName(), FieldValue.increment(1));
