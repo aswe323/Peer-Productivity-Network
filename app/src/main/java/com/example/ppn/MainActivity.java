@@ -97,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayoutMediator.attach();
 
 
-        Log.d(TAG, "onCreate: rached here");
+        //region testing
+
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         Repository.createPriorityWord("hello",10);
         LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
@@ -110,9 +111,11 @@ public class MainActivity extends AppCompatActivity {
             nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
 
 
+
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.deleteActivivtyTask(69);
         Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+
 
         Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
             task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
         Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
 
         Repository.completeActivityTask(70);
+        Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+        Repository.completeActivityTask(69);
+        //endregion
 
         //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not
 

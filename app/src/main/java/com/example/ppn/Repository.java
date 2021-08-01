@@ -67,7 +67,6 @@ public class Repository {
      * indicates what activity should be returned to by default when notifications are clicked/tapped.
      */
     private static Activity defaultActivity;
-    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseUser user;
     private static FirebaseAuth firebaseAuth;
 
@@ -140,9 +139,15 @@ public class Repository {
                 HashMap<String, Object> groupMembersInit = new HashMap<String, Object>(){{
                     put("groupMembers",FieldValue.arrayUnion());
                 }};
-                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
-                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
+                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get().addOnSuccessListener(documentSnapshot -> {
+                    if(!documentSnapshot.contains("comments")){
+                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit);
+                    }
+                    if(!documentSnapshot.contains("groupMembers")){
+                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit);
 
+                    }
+                });
                 Task taskPriorityWords = getAllPriorityWords();
                 Task taskBucketWords = getBucketWords();
 
@@ -275,21 +280,23 @@ public class Repository {
 
     public static Task completeActivityTask(int activityTaskID){
 
-
+    HashMap<String,FieldValue> updates = new HashMap<>();
+    updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
         FirebaseFirestore.getInstance().collection("groups").get()
-    .addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                task.getResult().getDocuments().forEach(documentSnapshot -> {
-                    documentSnapshot.getReference().update(getUser().getDisplayName(), FieldValue.increment(1));
-                });
-            }else{
-                Log.d(TAG, "completeActivityTask: failed");
-            }
-        });
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    task.getResult().getDocuments().forEach(documentSnapshot -> {
+                        documentSnapshot.getReference().update("groupMembers." + getUser().getDisplayName(), FieldValue.increment(1));
+                    });
+
+                } else {
+                    Log.d(TAG, "completeActivityTask: failed");
+                }
+            });
         
         return getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true);
-    }
+    };
 
 
     //endregion
