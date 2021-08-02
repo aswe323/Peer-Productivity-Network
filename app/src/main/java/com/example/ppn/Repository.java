@@ -210,24 +210,22 @@ public class Repository {
     public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack) {
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
-        return getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().continueWithTask(task -> {
-            return task.addOnCompleteListener(queryDocumentSnapshots -> {
-                List<DocumentSnapshot> documentSnapshot = queryDocumentSnapshots.getResult().getDocuments();
-                if(!documentSnapshot.isEmpty()) {
-                    int nextID = documentSnapshot.get(0).toObject(ActivityTask.class).getActivityTaskID() + 1;
+        return getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().continueWithTask(task ->
+                task.addOnCompleteListener(queryDocumentSnapshots -> {
+            List<DocumentSnapshot> documentSnapshot = queryDocumentSnapshots.getResult().getDocuments();
+            if(!documentSnapshot.isEmpty()) {
+                int nextID = documentSnapshot.get(0).toObject(ActivityTask.class).getActivityTaskID() + 1;
+                activityTask.setActivityTaskID(nextID);
+                getActivityTaskCollection().document("ActivityTask" + nextID).set(activityTask)
+                        .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
+                        .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
 
-                    getActivityTaskCollection().document("ActivityTask" + nextID).set(activityTask)
-                            .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
-                            .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
-
-                }else {
-                    getActivityTaskCollection().document("ActivityTask" + activityTaskID).set(activityTask)
-                            .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
-                            .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
-                }
-            });
-
-        });
+            }else {
+                getActivityTaskCollection().document("ActivityTask" + activityTaskID).set(activityTask)
+                        .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
+                        .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
+            }
+        }));
 
 
 
@@ -686,8 +684,8 @@ public class Repository {
     // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore(Time consuming)
     // TODO: 25/07/2021 is it ok to use javadocs as a project book?
 
-    // TODO: 01/08/2021 check out the activityTaskID incrmentation 
-    // TODO: 01/08/2021 look into the async issue  
+    // TODO: 01/08/2021 check out the activityTaskID incrmentation(DONE!)
+    // TODO: 01/08/2021 look into the async issue
 
     // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
     // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
