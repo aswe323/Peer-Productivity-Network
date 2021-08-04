@@ -129,12 +129,10 @@ public class MainActivity extends AppCompatActivity {
         Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
 
         Repository.completeActivityTask(70);
+/*        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
+       */ Repository.completeActivityTask(69);
+
 
         //endregion
 

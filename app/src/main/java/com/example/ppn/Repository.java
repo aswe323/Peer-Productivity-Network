@@ -482,7 +482,8 @@ public class Repository {
 
                             //if the activities start at the same time, and act1 maslocategory is more important then act2
                             if(activityTask1.getTimePack().readTimeTange().get(0).isEqual(activityTask2.getTimePack().readTimeTange().get(0)) &&
-                                    activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal()){
+                                    activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal() &&
+                                    !activityTask1.getComplete()) {
 
                                 ArrayList<String> activityTask1bucketWords = new ArrayList<>();
                                 ArrayList<String> activityTask2bucketWords = new ArrayList<>();
