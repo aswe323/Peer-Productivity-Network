@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         //region testing
 
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+/*        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         Repository.createPriorityWord("hello",10);
         LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
         LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
@@ -112,26 +112,31 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-/*
+
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.deleteActivivtyTask(69);
         Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-*/
+
 
 
         Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
             task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
 
-        });
+        });*/
 
         //Repository.addUserToMyGroup(firebaseUser.getDisplayName());
-        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is a comment");
+/*        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is a comment");
         Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
 
         Repository.completeActivityTask(70);
-/*        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
+        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
         Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-       */ Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+        Repository.completeActivityTask(69);
+       Repository.completeActivityTask(69); */
 
 
         //endregion

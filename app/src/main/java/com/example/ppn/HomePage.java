@@ -5,17 +5,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class HomePage extends Fragment implements View.OnClickListener{
 
     private Button addReminder;
+    private RecyclerView recyclerView;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -92,8 +90,13 @@ public class HomePage extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
-
+        recyclerView = view.findViewById(R.id.recycleView_home);
         addReminder = view.findViewById(R.id.Btn_add_reminder);
+
+        RecycleAdapter recycleAdapter = new RecycleAdapter(getActivity());
+        recyclerView.setAdapter(recycleAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         addReminder.setOnClickListener(this);
 
         return view;
