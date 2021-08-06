@@ -82,8 +82,6 @@ public class Repository {
      * effectively the collection name for the current user.
      */
     private static String userName;;
-    private Class<ActivityTask> activityTaskClass;
-
 
     private static String setUserName(String userName) {
         Repository.userName = userName;
@@ -95,16 +93,6 @@ public class Repository {
 
         created = true;
     }
-
-    private static Task<AuthResult> waitForSignIn() {
-
-        Task task = null;
-
-            task = firebaseAuth.getPendingAuthResult();
-        return task;
-
-    }
-
 
     private static DocumentReference getPriorityWordsRef(){
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("PriorityWords");
