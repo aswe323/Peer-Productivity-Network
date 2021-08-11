@@ -71,8 +71,6 @@ public class Repository {
      */
     private static Activity defaultActivity;
     private static FirebaseUser user;
-    private static FirebaseAuth firebaseAuth;
-
 
     private static Map<String, Integer> priorityWords = new HashMap<>();
     private static Map<String, TimePack> bucketWords = new HashMap<>();
@@ -113,12 +111,15 @@ public class Repository {
         return FirebaseFirestore.getInstance().collection("groups").document(userName);
     }
 
-    /**
-     * <p>initializes the prioritywords and bucketwords document.</p>
-     * <p>note: to access a users collection, {@link Repository#setUserName(String) Repository.setUserName()} should be used with the desired name to be given the collection.</p>
-     */
+
     public static void init(FirebaseAuth firebaseAuth){
-        Repository.firebaseAuth = firebaseAuth;
+        init();
+    }
+    /**
+     * <p>responsible for initializing a stateChangeListener that then requests data required for {@link com.example.ppn.Repository} to access the users personal data.</p>
+     * <p>should be used before operations with the Repository, repeated requests do nothing.</p>
+     */
+    public static void init(){
         if(created) return;
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth1 -> {
             if(firebaseAuth1.getCurrentUser() != null) {
@@ -444,114 +445,111 @@ public class Repository {
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
         ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();
-        getThisDayActivityTasks().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    for (QueryDocumentSnapshot document :
-                            task.getResult()) {
-                        thisDayActivityTasks.add(document.toObject(ActivityTask.class));
-                    }
+        getThisDayActivityTasks().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                for (QueryDocumentSnapshot document :
+                        task.getResult()) {
+                    thisDayActivityTasks.add(document.toObject(ActivityTask.class));
+                }
 
 
-                    for (ActivityTask activityTask1 :
+                for (ActivityTask activityTask1 :
+                        thisDayActivityTasks) {
+
+                    ArrayList<LocalDateTime> act1time = activityTask1.getTimePack().readTimeTange();
+                    LocalDateTime act1StartingTime = act1time.get(0);
+                    LocalDateTime act1EndingTime = act1time.get(1);
+
+                    for (ActivityTask activityTask2 :
                             thisDayActivityTasks) {
 
-                        ArrayList<LocalDateTime> act1time = activityTask1.getTimePack().readTimeTange();
-                        LocalDateTime act1StartingTime = act1time.get(0);
-                        LocalDateTime act1EndingTime = act1time.get(1);
+                        // if AT1 start time ==  AT2 start time
+                        // if AT1 priority > AT2 priority: (AT2 priority / AT1 priority) * (AT1endtimeInFromEpocInMili - AT1startTimeFromEpoc) -> push AT2
+                        // same goes for AT1 priority < AT2 priority
 
-                        for (ActivityTask activityTask2 :
-                                thisDayActivityTasks) {
+                        //if the activities start at the same time, and act1 maslocategory is more important then act2
+                        boolean sameStartTime = activityTask1.getTimePack().readTimeTange().get(0).isEqual(activityTask2.getTimePack().readTimeTange().get(0));
+                        boolean act1MasloHigher = activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal();
+                        if(sameStartTime && act1MasloHigher && !activityTask1.getComplete()) {
 
-                            // if AT1 start time ==  AT2 start time
-                            // if AT1 priority > AT2 priority: (AT2 priority / AT1 priority) * (AT1endtimeInFromEpocInMili - AT1startTimeFromEpoc) -> push AT2
-                            // same goes for AT1 priority < AT2 priority
+                            ArrayList<String> activityTask1bucketWords = new ArrayList<>();
+                            ArrayList<String> activityTask2bucketWords = new ArrayList<>();
 
-                            //if the activities start at the same time, and act1 maslocategory is more important then act2
-                            if(activityTask1.getTimePack().readTimeTange().get(0).isEqual(activityTask2.getTimePack().readTimeTange().get(0)) &&
-                                    activityTask1.getMasloCategory().ordinal() > activityTask2.getMasloCategory().ordinal() &&
-                                    !activityTask1.getComplete()) {
+                            ArrayList<LocalDateTime> act2TimeRange = activityTask2.getTimePack().readTimeTange();
 
-                                ArrayList<String> activityTask1bucketWords = new ArrayList<>();
-                                ArrayList<String> activityTask2bucketWords = new ArrayList<>();
-
-                                ArrayList<LocalDateTime> act2TimeRange = activityTask2.getTimePack().readTimeTange();
-
-                                LocalDateTime act2StartingTime = act2TimeRange.get(0);
-                                LocalDateTime act2EndingTime = act2TimeRange.get(1);
-                                for (String word :
-                                        activityTask1.getContent().split(" ")) {
-                                    if(bucketWords.containsKey(word)) activityTask1bucketWords.add(word);
-                                }
-                                for (String word :
-                                        activityTask2.getContent().split(" ")) {
-                                    if(bucketWords.containsKey(word)) activityTask2bucketWords.add(word);
-
-                                }
-
-                                //removing buckets words that exists in both activities.
-                                activityTask2bucketWords.removeAll(activityTask1bucketWords);
-
-
-
-                                LocalDateTime bestChoice = act2StartingTime;
-                                //if there are buckets words that don't exist, try to use them to reassign the start time of act2
-                                if (activityTask2bucketWords.size() != 0){
-
-
-
-                                    for (String word :
-                                            activityTask2bucketWords) {
-
-                                        LocalDateTime time = bucketWords.get(word).readTimeTange().get(0);
-
-
-                                        if(time.isAfter(act1StartingTime) && time.isBefore(bestChoice)){
-                                            bestChoice = time;
-                                        }
-                                    }
-                                    if (bestChoice != act2StartingTime) {
-                                        Long changeInTime =  act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
-
-
-                                        activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(changeInTime,ChronoUnit.MILLIS));
-                                        activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
-                                        continue;
-
-                                    }
-                                }
-
-                                //if bucketwords are the same, try to use priority as a means to resolve.
-                                Map<String , ActivityTask.compareResult> x = activityTask1.compare(activityTask2);
-                                        if (x.get("priority").equals(ActivityTask.compareResult.higherPriority)) {
-                                            Long delay = (act1EndingTime.atZone(ZoneId.of("Assia/Jerusalem")).toInstant().toEpochMilli() - act1StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()) * ( activityTask2.getPriority() / activityTask1.getPriority());
-                                            activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(delay,ChronoUnit.MILLIS));
-                                            activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(delay,ChronoUnit.MILLIS));
-
-                                            continue;
-
-
-                                        }
-
-
-                                        //if all else fails, try to use NATTY to resolve
-                                        if(!activityTask2.getTimePack().readNattyResults().isEqual(act1StartingTime)){
-                                            LocalDateTime nattyresults = activityTask2.getTimePack().readNattyResults();
-                                            Long delay = act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
-                                            activityTask2.getTimePack().readTimeTange().set(0,nattyresults);
-                                            activityTask2.getTimePack().readTimeTange().set(1,nattyresults.plus(delay,ChronoUnit.MILLIS));
-                                            continue;
-                                        }
+                            LocalDateTime act2StartingTime = act2TimeRange.get(0);
+                            LocalDateTime act2EndingTime = act2TimeRange.get(1);
+                            for (String word :
+                                    activityTask1.getContent().split(" ")) {
+                                if(bucketWords.containsKey(word)) activityTask1bucketWords.add(word);
+                            }
+                            for (String word :
+                                    activityTask2.getContent().split(" ")) {
+                                if(bucketWords.containsKey(word)) activityTask2bucketWords.add(word);
 
                             }
+
+                            //removing buckets words that exists in both activities.
+                            activityTask2bucketWords.removeAll(activityTask1bucketWords);
+
+
+
+                            LocalDateTime bestChoice = act2StartingTime;
+                            //if there are buckets words that don't exist, try to use them to reassign the start time of act2
+                            if (activityTask2bucketWords.size() != 0){
+
+
+
+                                for (String word :
+                                        activityTask2bucketWords) {
+
+                                    LocalDateTime time = bucketWords.get(word).readTimeTange().get(0);
+
+
+                                    if(time.isAfter(act1StartingTime) && time.isBefore(bestChoice)){
+                                        bestChoice = time;
+                                    }
+                                }
+                                if (bestChoice != act2StartingTime) {
+                                    Long changeInTime =  act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toEpochSecond();
+
+
+                                    activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(changeInTime,ChronoUnit.MILLIS));
+                                    activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(changeInTime,ChronoUnit.MILLIS));
+                                    continue;
+
+                                }
+                            }
+
+                            //if bucketwords are the same, try to use priority as a means to resolve.
+                            Map<String , ActivityTask.compareResult> x = activityTask1.compare(activityTask2);
+                                    if (x.get("priority").equals(ActivityTask.compareResult.higherPriority)) {
+                                        Long delay = (act1EndingTime.atZone(ZoneId.of("Assia/Jerusalem")).toInstant().toEpochMilli() - act1StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()) * ( activityTask2.getPriority() / activityTask1.getPriority());
+                                        activityTask2.getTimePack().readTimeTange().set(0,act2StartingTime.plus(delay,ChronoUnit.MILLIS));
+                                        activityTask2.getTimePack().readTimeTange().set(1,act2EndingTime.plus(delay,ChronoUnit.MILLIS));
+
+                                        continue;
+
+
+                                    }
+
+
+                                    //if all else fails, try to use NATTY to resolve
+                                    if(!activityTask2.getTimePack().readNattyResults().isEqual(act1StartingTime)){
+                                        LocalDateTime nattyresults = activityTask2.getTimePack().readNattyResults();
+                                        Long delay = act2EndingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - act2StartingTime.atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+                                        activityTask2.getTimePack().readTimeTange().set(0,nattyresults);
+                                        activityTask2.getTimePack().readTimeTange().set(1,nattyresults.plus(delay,ChronoUnit.MILLIS));
+                                        continue;
+                                    }
+
                         }
                     }
+                }
 
-                    for (ActivityTask activityTask :
-                            thisDayActivityTasks) {
-                        setNotification(defaultContext,activityTask,defaultActivity);
-                    }
+                for (ActivityTask activityTask :
+                        thisDayActivityTasks) {
+                    setNotification(defaultContext,activityTask,defaultActivity);
                 }
             }
         });
