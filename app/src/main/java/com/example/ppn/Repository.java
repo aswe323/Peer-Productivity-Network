@@ -42,88 +42,99 @@ import java.util.Map;
 
 /**
  *
- * <h4>a service class.</h3>
- * <p>main access to data and firestore operations. puts together critical compunents for ease of use.
- *</p>
- *
- * <p> {@link com.example.ppn.Repository#userName userName} should be set by the coder, otherwise "default" will be used as a collection across all devices.</p>
- * <p>  {@link com.example.ppn.Repository#defaultActivity defaultActivity } should be assign to a default activity to be return to when a notification is clicked/tapped</p>
- * <p> {@link com.example.ppn.Repository#defaultContext defaultContext} should be assign to pass a context which can be used for creating a notification. </p>
- 
- * <p>  methods are structured in a c.r.u.d manner, and return a Task object. Task is an object representing an async operation.</p>
- *
- * <h4>refrence to Task and it's uses:</h4>
  * @see <a href="https://developer.android.com/reference/com/google/android/play/core/tasks/Task">Tasks Android Reference</a>
  * @see <a href="https://cloud.google.com/firestore/docs/query-data/get-data">Getting Data with Firestore</a>
  *
  *
  */
 public class Repository {
-
+    /**
+     * Used for debugging
+     */
     private static final String TAG = "Repository";
+    /**
+     * <p>indicated if {@link #init()} was run</p>
+     */
     private static boolean created = false;
     /**
-     * indicates default context to be used when creating a new notification.
+     * <p>default context to be used when creating a new notification.</p>
+     * <p>use {@link #setDefaultContext(Context)} to initiate</p>
      */
     private static Context defaultContext;
     /**
      * indicates what activity should be returned to by default when notifications are clicked/tapped.
      */
     private static Activity defaultActivity;
+    /**
+     * the currently signin user object
+     */
     private static FirebaseUser user;
-
+    /**
+     * priority words of the user. should not be used outside {@link Repository}
+     */
     private static Map<String, Integer> priorityWords = new HashMap<>();
+    /**
+     * bucket words of the user. should not be used outside {@link Repository}
+     */
     private static Map<String, TimePack> bucketWords = new HashMap<>();
 
-
     /**
-     * effectively the collection name for the current user.
+     *
+     * @return {@link DocumentReference} refrencing the current {@link #user} priority words.
      */
-    private static String userName;;
-
-    private static String setUserName(String userName) {
-        Repository.userName = userName;
-        return Repository.userName;
-    }
-
-    private Repository(){
-
-
-        created = true;
-    }
-
     private static DocumentReference getPriorityWordsRef(){
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("PriorityWords");
     }
 
-
+    /**
+     *
+     * @return {@link DocumentReference} refrencing the current {@link #user} bucket words.
+     */
     private static DocumentReference getBucketWordsRef() {
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("BucketWords");
     }
 
-
+    /**
+     *
+     * @return {@link DocumentReference} refrencing the current {@link #user} group.
+     */
     private static DocumentReference getUserGroupRef(){
         return FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName());
     }
 
+    /**
+     *
+     * @param userName the user name of the request user, should be the same as if the requested user's {@link FirebaseUser#getDisplayName()} result
+     * @return {@link DocumentReference} referencing the group corresponding to the userName passed.
+     */
     @NonNull
     private static DocumentReference getAnotherUserGroup(String userName) {
         return FirebaseFirestore.getInstance().collection("groups").document(userName);
     }
 
-
+    /**
+     * @deprecated
+     * <p> should use {@link #init()}, as fireBaseAuth parameter is no longer needed.</p>
+     * <p>calls {@link #init()}</p>
+     * @param firebaseAuth not used.
+     */
     public static void init(FirebaseAuth firebaseAuth){
         init();
     }
     /**
-     * <p>responsible for initializing a stateChangeListener that then requests data required for {@link com.example.ppn.Repository} to access the users personal data.</p>
-     * <p>should be used before operations with the Repository, repeated requests do nothing.</p>
+     * <p>if {@link #created} is true, returns</p>
+     * <p>uses a {@link FirebaseAuth.AuthStateListener}, when the state changed and a user is logged in does the following:</p>
+     * <lo>
+     *     <li>calls {@link #setUser(FirebaseUser)}</li>
+     *     <li>makes sure both the current user group and user comments fields are initialized in firestore, if not, initializes them</li>
+     *     <li>initializes {@link #priorityWords} and {@link #bucketWords} from firestore</li>
+     *     <li>sets {@link #created} to true, <b>regardless of success</b></li>
+     * </lo>
      */
     public static void init(){
         if(created) return;
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth1 -> {
             if(firebaseAuth1.getCurrentUser() != null) {
-                Repository.userName = firebaseAuth1.getCurrentUser().getDisplayName();
                 Log.d(TAG, "init: confirmed logged in");
                 setUser(firebaseAuth1.getCurrentUser());
                 HashMap<String, Object> commetnsInit = new HashMap<String, Object>(){{
@@ -132,7 +143,8 @@ public class Repository {
                 HashMap<String, Object> groupMembersInit = new HashMap<String, Object>(){{
                     put("groupMembers",FieldValue.arrayUnion());
                 }};
-                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get().addOnSuccessListener(documentSnapshot -> {
+                FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get()
+                        .addOnSuccessListener(documentSnapshot -> {
                     if(!documentSnapshot.contains("comments")){
                         FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit,SetOptions.merge());
                     }
@@ -590,7 +602,6 @@ public class Repository {
 
     public static void setUser(FirebaseUser user) {
         Repository.user = user;
-        setUserName(user.getDisplayName());
     }
     //endregion
 
