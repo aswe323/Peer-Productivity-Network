@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,10 +43,41 @@ import java.util.Map;
 
 /**
  *
+ * <p>A control class giving access to system components and operation in firestore</p>
+ *
+ *
+ * <p>{@link #init()} should be called <b>before</b> logging into firestore, to make sure the {@link FirebaseAuth.AuthStateListener} is listening to a login otherwise {@link Repository} will not be initialized properly</p>
+ * <p>some members should be set by the front end:</p>
+ * <lo>
+ *     <li>{@link Repository#defaultContext} and {@link Repository#defaultActivity} in order to make sure {@link Repository#refreshNotifications()} can run, as it does not accept a context</li>
+ * </lo>
+ * <p> a use of a method might look like this</p>
+ *<pre> ArrayList<ActivityTask> activityTask = new ArrayList<>();
+ *        Repository.getAllUserActivityTasks().addOnSuccessListener(queryDocumentSnapshots -> {
+ *            List<DocumentSnapshot> activityTasks = queryDocumentSnapshots.getDocuments();
+ *            activityTasks.forEach(documentSnapshot -> {
+ *                 activityTask.add(documentSnapshot.toObject(ActivityTask.class));
+ *            });
+ *        });
+ * </pre>
+ *
+ * <p>sense {@link Task} is an asynchronous operation, it is reccomanded to use {@link Task#continueWithTask(Continuation)} to synchronise multiple operations one after the other:</p>
+ * <pre>
+ *     ArrayList<ActivityTask> activityTask = new ArrayList<>();
+ *     Repository.getAllUserActivityTasks().addOnSuccessListener(queryDocumentSnapshots -> {
+ *            List<DocumentSnapshot> activityTasks = queryDocumentSnapshots.getDocuments();
+ *            activityTasks.forEach(documentSnapshot -> {
+ *            activityTask.add(documentSnapshot.toObject(ActivityTask.class));
+ *                });
+ *            }).continueWithTask(task ->{
+ *                    task.addOnSuccessListener(task1 -> {
+ *                          //update UI here
+ *                        }
+ *                });
+ * </pre>
+ * <p> most methods return a {@link Task} representing a asynchronous operation, for more information read the google/firestore documentation </p>
  * @see <a href="https://developer.android.com/reference/com/google/android/play/core/tasks/Task">Tasks Android Reference</a>
  * @see <a href="https://cloud.google.com/firestore/docs/query-data/get-data">Getting Data with Firestore</a>
- *
- *
  */
 public class Repository {
     /**
@@ -208,6 +240,17 @@ public class Repository {
     }
 
     //region ActivityTask
+
+    /**
+     * <p>resolves a new {@link ActivityTask} into the {@link #user} ActivityTask collection</p>
+     * <p>the ID given may change if already taken.</p>
+     * @param activityTaskID the candidate ID for the ActivityTask
+     * @param masloCategory {@link MasloCategory}
+     * @param content the description of the ActivityTask
+     * @param subActivitys an array of {@link SubActivity}, can be null.
+     * @param timePack {@link TimePack}
+     * @return {@link Task} the upload process to firestore
+     */
     public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack) {
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
@@ -227,11 +270,12 @@ public class Repository {
                         .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));
             }
         }));
-
-
-
     }
 
+    /**
+     *
+     * @return {@link Task<QuerySnapshot>} resolving into a {@link QuerySnapshot} with all of the activityTasks of the user
+     */
     public static Task<QuerySnapshot> getAllUserActivityTasks(){
 
        Task task = getActivityTaskCollection()
@@ -242,11 +286,19 @@ public class Repository {
         return task;
     }
 
+    /**
+     *
+     * @return {@link CollectionReference} of the user activityTasks collection.
+     */
     @NonNull
     private static CollectionReference getActivityTaskCollection() {
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName() + "ActivityTasks");
     }
 
+    /**
+     *
+     * @return {@link Task<QuerySnapshot>} that resolves into {@link QuerySnapshot} containing activityTasks relevant to the current date.
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task<QuerySnapshot> getThisDayActivityTasks(){
 
@@ -259,14 +311,16 @@ public class Repository {
          return task;
     }
 
-
+    /**
+     *
+     * @param activityTaskID the ID of the {@link ActivityTask} to update in firestore
+     * @param fieldToUpdate one of {@link ActivityTask} members.
+     * @param newValue the new value for the field to hold.
+     * @return {@link Task<Void>} of the operation
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static Task<Void> updateActivityTask(int activityTaskID, String fieldToUpdate, String newValue) {
-
         DocumentReference updatedActivityTask = getActivityTaskCollection().document("ActivityTask" + activityTaskID);
-
-
-
         Task task = updatedActivityTask
                 .update(fieldToUpdate, newValue)
                 .addOnSuccessListener(unused -> {
@@ -286,6 +340,11 @@ public class Repository {
         return task;
     }
 
+    /**
+     *
+     * @param activityTaskID the ID of the {@link ActivityTask} to be deleted from firestore
+     * @return {@link Task} of the operation.
+     */
     public static Task<Void> deleteActivivtyTask(int activityTaskID){
 
 
@@ -296,8 +355,11 @@ public class Repository {
 
     }
 
+    /**
+     * marks the {@link ActivityTask} with the activityTaskID as complete, and updates score across groups.
+     * @param activityTaskID the ID of the {@link ActivityTask} to mark as completed.
+     */
     public static void completeActivityTask(int activityTaskID){
-
     HashMap<String,FieldValue> updates = new HashMap<>();
     updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
@@ -330,7 +392,12 @@ public class Repository {
 
     //region PriorityWords
 
-
+    /**
+     *
+     * @param word the word to attack a priority to
+     * @param priorty the number value of the word.
+     * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> createPriorityWord(String word,int priorty) {
         Map<String,Integer> newWord = new HashMap<>();
         newWord.put(word,priorty);
@@ -345,15 +412,22 @@ public class Repository {
         return task;
     }
 
+    /**
+     *
+     * @return {@link Task<DocumentSnapshot>} that resolves into {@link DocumentSnapshot} containing all the priority words of the current {@link #user}
+     */
     public static Task<DocumentSnapshot> getAllPriorityWords() {
         Task task;
-
             task =getPriorityWordsRef().get();
-
-
         return task;
     }
 
+    /**
+     * updates a priority word with new priority value.
+     * @param word the words to be updated
+     * @param priority the new value of the word
+     * @return {@link Task<Void> } of the operation.
+     */
     public static Task<Void> updatePriorityWord(String word, int priority){
         Task task;
 
@@ -366,6 +440,11 @@ public class Repository {
         return task;
     }
 
+    /**
+     * removes a priority word from the {@link #user} firestore documant.
+     * @param word the word to be deleted
+     * @return {@link Task<Void>}
+     */
     public static Task<Void> deletePriorityWord(String word){
 
         Map<String,Object> updates = new HashMap<>();
@@ -386,7 +465,12 @@ public class Repository {
 
     //region BucketWords
 
-
+    /**
+     *
+     * @param word the word to create
+     * @param timePack the {@link TimePack} corresponding to the word
+     * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> createBucketWord(String word, TimePack timePack){
         Map<String, TimePack> newSet = new HashMap<>();
         newSet.put(word,timePack);
@@ -401,6 +485,10 @@ public class Repository {
         return task;
     }
 
+    /**
+     *
+     * @return {@link Task<DocumentSnapshot>} resolves into {@link DocumentSnapshot} holding the {@link #user} bucket words
+     */
     public static Task<DocumentSnapshot> getBucketWords(){ //TODO: this was privet, changed it to public - from Lior
 
         Task task;
@@ -416,6 +504,12 @@ public class Repository {
 
     }
 
+    /**
+     *
+     * @param word the word to be updated
+     * @param timePack the new {@link TimePack} that word will represent
+     * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> updateBucketWord(String word,TimePack timePack){
         Task task;
 
@@ -429,6 +523,11 @@ public class Repository {
         return task;
     }
 
+    /**
+     *
+     * @param word the word to be removed from firestore
+     * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> deleteBucketWord(String word){
         Map<String ,Object> updates = new HashMap<>();
         updates.put(word,FieldValue.delete());
@@ -569,11 +668,11 @@ public class Repository {
     }
 
     /**
-     * <p>set a notification for a specific activity task. uses the notificationID in the TimePack of the activity task as a requestCode.</p>
+     * <p>set a notification for a specific {@link ActivityTask}. uses the {@link TimePack#notificationID} in the {@link ActivityTask#timePack} as a requestCode.</p>
      *
-     * @param context context of which the notification was created. if non given, {@link Repository#defaultContext defaultContext} will be used.
-     * @param activityTask the activity task which the notification is created for.
-     * @param activity the activity to open when the notification is tapped on.  if non given, {@link Repository#defaultActivity defaultActivity} will be used.
+     * @param context context of which the notification was created. if non given, {@link Repository#defaultContext} will be used.
+     * @param activityTask the {@link ActivityTask} which the notification is created for.
+     * @param activity the activity to open when the notification is tapped on.  if non given, {@link Repository#defaultActivity} will be used.
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
@@ -596,10 +695,19 @@ public class Repository {
     //endregion
 
     //region firebase User
+
+    /**
+     *
+     * @return the current {@link FirebaseUser} the {@link Repository} is using for it's operations.
+     */
     public static FirebaseUser getUser() {
         return Repository.user;
     }
 
+    /**
+     *
+     * @param user the {@link FirebaseUser} the {@link Repository} will use for it's operations
+     */
     public static void setUser(FirebaseUser user) {
         Repository.user = user;
     }
@@ -616,6 +724,10 @@ public class Repository {
 
     // TODO: 01/08/2021 facilitate ActivityTask completion and score updates
 
+    /**
+     *
+     * @return {@link Task<DocumentSnapshot>} that resolves into a {@link DocumentSnapshot} with the {@link #user} group document.
+     */
     public static Task<DocumentSnapshot> readGroup(){
 
         Task<DocumentSnapshot> task;
@@ -623,6 +735,11 @@ public class Repository {
         return task;
     }
 
+    /**
+     * deletes a user from the user's tracked users group.
+     * @param targetedUser the targeted user, as will be given if they called {@link FirebaseUser#getDisplayName()}, and present in the current {@link #user} group.
+      * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> deleteUserFromMyGroup(String targetedUser){
 
         Task<Void> task;
@@ -633,6 +750,11 @@ public class Repository {
 
     }
 
+    /**
+     * adds a user to track the score of in the {@link #user} group.
+     * @param addedUser the name of the user to be added as will be seen if they called {@link FirebaseUser#getDisplayName()}.
+     * @return {@link Task<Void>} of the operation
+     */
     public static Task<Void> addUserToMyGroup(String addedUser){
         Map<String,Object> newMember = new HashMap<String,Object>(){{
             put(addedUser,0);
@@ -649,6 +771,12 @@ public class Repository {
 
     }
 
+    /**
+     * adds a comment to the targetedUser comment field in his relavent group documant.
+     * @param targetedUser the name of the user as it will be return from {@link FirebaseUser#getDisplayName()}
+     * @param comment the comment to add to the user
+     * @return  {@link Task<Void>} of the operation
+     */
     public static Task<Void> addCommentToAnotherUser(String targetedUser, String comment){
         Task<Void> task = null;
         HashMap<String,String> addedField = new HashMap<>();
@@ -659,8 +787,13 @@ public class Repository {
         return task;
     }
 
-
-    public static Task deleteCommentFromMyProfile(String comment,String targetedUserName){
+    /**
+     * deletes a comment from the {@link #user} comment section in his group documant
+     * @param comment the comment content
+     * @param targetedUserName the display name of the user that commented on the current {@link #user}
+     * @return {@link Task<Void>} of the operation
+     */
+    public static Task<Void> deleteCommentFromMyProfile(String comment,String targetedUserName){
 
         Task<Void> task = null;
         Map<String,Object> updates = new HashMap<String,Object>(){
