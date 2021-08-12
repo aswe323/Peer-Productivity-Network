@@ -348,6 +348,11 @@ public class TimePack {
             strigifiedRelaventDates.addAll(settedStrings);
         }
     }
+
+    /**
+     *
+     * @return an {@link ArrayList} of {@link LocalDateTime} , containing the relavant dates for the {@link TimePack}
+     */
     public ArrayList<LocalDateTime> readRelaventDates() {
 
         ArrayList<LocalDateTime> returned = new ArrayList<>();
@@ -359,18 +364,26 @@ public class TimePack {
 
         return returned;    }
 
-
+    /**
+     *
+     * @return an {@link ArrayList} of {@link String}s, each is a product of a {@link LocalDateTime } formatted with {@link #getFormatter()}, of a relevant date to this {@link TimePack}
+     */
     public ArrayList<String> getStrigifiedRelaventDates() {
         return strigifiedRelaventDates;
     }
 
+    /**
+     *  !SHOULD NOT BE USED! firebase requires setters and getted in order to use classes.
+     * @param strigifiedRelaventDates
+     */
     public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
         this.strigifiedRelaventDates = strigifiedRelaventDates;
     }
 
-
-
-
+    /**
+     * calls {@link #reCalculateReleventDates()} whenever used, to make sure the relevant dates are updated.
+     * @param repetition the {@link Repetition} indicating how the {@link TimePack} is to be repeated.
+     */
     public void setRepetition(Repetition repetition) {
 
         this.repetition = repetition;
@@ -378,28 +391,50 @@ public class TimePack {
     }
 //what does notification need?
 
-
-
+    /**
+     *
+     * @return the number of the month, 1-12.
+     */
     public int getMonthNumber() {
         return monthNumber;
     }
 
+    /**
+     *
+     * @return {@link #repetition}
+     */
     public Repetition getRepetition() {
         return repetition;
     }
 
+    /**
+     * used by firestore.
+     * @return {@link #notificationCounter}
+     */
     public static int getNotificationCounter() {
         return notificationCounter;
     }
 
+    /**
+     *
+     * @return {@link #notificationID}
+     */
     public int getNotificationID() {
         return notificationID;
     }
 
+    /**
+     *
+     * @param monthNumber the month number relevant for this {@link TimePack}, 1-12.
+     */
     public void setMonthNumber(int monthNumber) {
         this.monthNumber = monthNumber;
     }
 
+    /**
+     * !SHOULD NOT BE USED! firestore requires setters and getters to construct a class.
+     * @param notificationCounter {@link #notificationCounter}
+     */
     public static void setNotificationCounter(int notificationCounter) {
         TimePack.notificationCounter = notificationCounter;
     }

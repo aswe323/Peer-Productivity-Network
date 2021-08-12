@@ -489,19 +489,13 @@ public class Repository {
      *
      * @return {@link Task<DocumentSnapshot>} resolves into {@link DocumentSnapshot} holding the {@link #user} bucket words
      */
-    public static Task<DocumentSnapshot> getBucketWords(){ //TODO: this was privet, changed it to public - from Lior
-
+    public static Task<DocumentSnapshot> getBucketWords(){
         Task task;
-
-
            task = getBucketWordsRef()
                     .get()
                     .addOnSuccessListener(documentSnapshot -> Log.d("firestore", "getBucketWords: success"))
                     .addOnFailureListener(e -> Log.d("firestore", "getBucketWords: failed"));
-
-
         return task;
-
     }
 
     /**
@@ -714,15 +708,6 @@ public class Repository {
     //endregion
 
     //region groups
-// TODO: 30/07/2021 facilitate groups, a collection of user names with each Documant having a map of username:score.
-//  create: automatic.
-//  read: read the all documant relevant to getuser().userdisplayname inside collection "groups".(DONE!)
-//  update: each Documant updated if it has the current user name inside it. so where(username,FieldValue.incrament(1)).
-//  delete: in the relavent documant delete(String removedUser) from the map.(DONE!)
-//  group action "Add User To My group": simply add a key:value to the user group documant. if the user exists it will be updated with the "complete" c.r.u.d method of the added user.(DONE!)
-// TODO: 30/07/2021 STRUCUTRE: "groups" -> username -> Score map(username:int),Comments map(username:String)
-
-    // TODO: 01/08/2021 facilitate ActivityTask completion and score updates
 
     /**
      *
@@ -810,21 +795,4 @@ public class Repository {
 
 
     //endregion
-
-    //priority one:
-    // TODO: 25/07/2021 learn to test. possible: tests with android studio.(DONE!) follow up: learn to test with firestore(Time consuming)
-    // TODO: 25/07/2021 is it ok to use javadocs as a project book?
-
-    // TODO: 01/08/2021 check out the activityTaskID incrmentation(DONE!)
-    // TODO: 01/08/2021 look into the async issue
-
-    // TODO: 18/07/2021 implament auto assignment to timerange in timepack (DONE!)
-    // TODO: 18/07/2021 auto fill releventDates with Repetition enum(DONE!)
-    // TODO: 18/07/2021 make activiytaskss with empty timerange to go through NATTY or use current time otherwise(DONE!)
-    // TODO: 23/07/2021  create a number array in timepack representing the days of the current month that are relavent to the activityTask(DONE!)
-
-
-    // TODO: 18/07/2021 find a solution to static context memory leak
-    // TODO: 18/07/2021 consider using collectionsRef instead of docref for priority and bucket words
-
 }

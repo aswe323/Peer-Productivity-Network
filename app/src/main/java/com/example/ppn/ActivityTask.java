@@ -17,19 +17,54 @@ import java.util.List;
 import java.util.Map;
 
 public class ActivityTask {
+    /**
+     * used to identify particular {@link ActivityTask}s on firestore, using {@link Repository}'s methods.
+     */
     private int activityTaskID;
+    /**
+     * indicates the human need this Task is related to.
+     * @see <a href="https://carrothealth.com/wp-content/uploads/2020/06/20191223-Maslow.png">maslow's pyramid of needs infographic</a>
+     */
     private MasloCategory masloCategory;
+    /**
+     * the description of what the user what's to do.
+     */
     private String content;
+    /**
+     * an {@link ArrayList} of {@link SubActivity}s. allowing to break what the user want's into multiple actions.
+     */
     private ArrayList<SubActivity> subActivitys;
+    /**
+     * the calculated priority of the {@link ActivityTask}, calculated by parsing {@link #content} for priority words and adding their value.
+     */
     private int priority;
+    /**
+     * {@link TimePack}, holding the {@link ActivityTask} time related information.
+     */
     private TimePack timePack;
+    /**
+     * indicates if the task was completed or not.
+     */
     private boolean complete;
 
 
-
+    /**
+     * firestore requires an empty constructor in order to use {@link com.google.firebase.firestore.DocumentSnapshot#toObject(Class) toObject(Class)}.
+     */
     public ActivityTask() {
     }
 
+    /**
+     * <p>should only be called from {@link Repository} in order to sync the {@link #activityTaskID} with firestore.</p>
+     * <p>if natty is not able to parse {@link #content} for a {@link LocalDateTime}, {@link LocalDateTime#now()} will be used instead.</p>
+     * <p>uses the passed priorityWords parameter to set the {@link #priority}</p>
+     * @param activityTaskID {@link #activityTaskID}
+     * @param masloCategory {@link #masloCategory}
+     * @param content {@link #content}
+     * @param subActivitys {@link #subActivitys}
+     * @param timePack {@link #timePack}
+     * @param priorityWords makes sure the constructor is only called from {@link Repository}.
+     */
     public ActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack,@NonNull Map<String, Integer> priorityWords) {
         setActivityTaskID(activityTaskID);
         setMasloCategory(masloCategory);
@@ -37,19 +72,9 @@ public class ActivityTask {
         setContent(content);
         setTimePack(timePack);
         setComplete(false);
-        
-        List<DateGroup> groups;
-        Parser parser = new Parser();
-        groups = parser.parse(content);
-        if (groups.size()>0){//check if i got a date
 
-            List dates = groups.get(0).getDates();//get the date that natty created for us
-            LocalDateTime localDateTime = ((Date) dates.get(0)).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //convert it to LocalDateTIme
-            getTimePack().updateNattyResults(localDateTime);
-        }else{
-            getTimePack().updateNattyResults(LocalDateTime.now());
-            Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + activityTaskID);
-        }
+        parseContent(content);
+
 
         String[] words = content.split(" ");
         int  score = 0;
@@ -67,6 +92,21 @@ public class ActivityTask {
 
     }
 
+    private void parseContent(String content) {
+        List<DateGroup> groups;
+        Parser parser = new Parser();
+        groups = parser.parse(content);
+        if (groups.size()>0){//check if i got a date
+
+            List dates = groups.get(0).getDates();//get the date that natty created for us
+            LocalDateTime localDateTime = ((Date) dates.get(0)).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //convert it to LocalDateTIme
+            getTimePack().updateNattyResults(localDateTime);
+        }else{
+            getTimePack().updateNattyResults(LocalDateTime.now());
+            Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + this.activityTaskID);
+        }
+    }
+
     public void setComplete(boolean complete) {
         this.complete = complete;
     }
@@ -75,10 +115,16 @@ public class ActivityTask {
         return complete;
     }
 
-
+    /**
+     *  updates the all
+     * @param newContent
+     * @param newMasloCategory
+     * @param newRepetition
+     * @return
+     */
     public boolean editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
         setMasloCategory(newMasloCategory);
-        setContent(newContent);
+        setContent(newContent);// FIXME: 12/08/2021 make sure priority is also being updated.
         getTimePack().setRepetition(newRepetition);
         return true;
     }
@@ -96,6 +142,7 @@ public class ActivityTask {
     }
 
     public void setContent(String content) {
+        parseContent(content);
         this.content = content;
     }
 
