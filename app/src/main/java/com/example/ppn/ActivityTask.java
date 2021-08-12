@@ -5,6 +5,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
@@ -116,17 +118,28 @@ public class ActivityTask {
     }
 
     /**
-     *  updates the all
-     * @param newContent
-     * @param newMasloCategory
-     * @param newRepetition
-     * @return
+     *  <p>if natty is not able to parse newContent, {@link LocalDateTime#now()} will be used.</p>
+     *  <p>note that the task returned is the operation updating the {@link ActivityTask} {@link #priority}</p>
+     * @param newContent will be the new {@link #content}
+     * @param newMasloCategory will be the new {@link #masloCategory}
+     * @param newRepetition will be this {@link ActivityTask} {@link TimePack#repetition}
+     * @return true
      */
-    public boolean editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
+    public Task<DocumentSnapshot> editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
         setMasloCategory(newMasloCategory);
         setContent(newContent);// FIXME: 12/08/2021 make sure priority is also being updated.
         getTimePack().setRepetition(newRepetition);
-        return true;
+
+        return Repository.getAllPriorityWords().addOnSuccessListener(documentSnapshot -> {
+            int newScore = 0;
+            Map<String, Object> data = documentSnapshot.getData();
+
+            for (String word :
+                        newContent.split(" ")) {
+                                if(data.containsKey(word))
+                            newScore += (int) data.get(word);
+                }
+        });
     }
 
     public ArrayList<SubActivity> getSubActivitys() {
