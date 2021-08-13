@@ -123,11 +123,11 @@ public class ActivityTask {
      * @param newContent will be the new {@link #content}
      * @param newMasloCategory will be the new {@link #masloCategory}
      * @param newRepetition will be this {@link ActivityTask} {@link TimePack#repetition}
-     * @return true
+     * @return {@link Task<DocumentSnapshot>} of the operation
      */
     public Task<DocumentSnapshot> editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
         setMasloCategory(newMasloCategory);
-        setContent(newContent);// FIXME: 12/08/2021 make sure priority is also being updated.
+        setContent(newContent);//
         getTimePack().setRepetition(newRepetition);
 
         return Repository.getAllPriorityWords().addOnSuccessListener(documentSnapshot -> {
