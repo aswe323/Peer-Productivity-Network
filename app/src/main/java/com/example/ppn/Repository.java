@@ -302,6 +302,7 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task<QuerySnapshot> getThisDayActivityTasks(){
 
+        getActivityTaskCollection().orderBy("activityTaskID");
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
         Task task = getActivityTaskCollection()
                 .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
@@ -790,6 +791,7 @@ public class Repository {
         return task;
 
     }
+
 
 
 

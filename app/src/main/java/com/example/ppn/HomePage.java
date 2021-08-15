@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -25,28 +24,24 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
  * create an instance of this fragment.
  */
 public class HomePage extends Fragment implements View.OnClickListener{
-
-    private Button addReminder;
-    private RecyclerView recyclerView;
     private FirestoreRecyclerOptions<ActivityTask> options = new FirestoreRecyclerOptions.Builder<ActivityTask>()
             .setQuery(Repository.getActivityTaskCollection().orderBy("activityTaskID"), ActivityTask.class)
             .build();
-    private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask, ActivityTaskHolder>(options) {
-        @Override
-        public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
-            // Bind the Chat object to the ChatHolder
-            // ...
 
+
+    private Button addReminder;
+    private RecyclerView recyclerView;
+
+    private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter(options) {
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return null;
         }
 
-        @Override
-        public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
-            // Create a new instance of the ViewHolder, in this case we are using a custom
-            // layout called R.layout.message for each item
-            View view = LayoutInflater.from(group.getContext())
-                    .inflate(R.layout.activitytask_recycleview, group, false);
+        protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull Object model) {
 
-            return new ActivityTaskHolder(view);
         }
     };
 
@@ -91,6 +86,9 @@ public class HomePage extends Fragment implements View.OnClickListener{
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        adapter.startListening();
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -181,27 +179,5 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     }
 
-    /**/public class ActivityTaskHolder extends RecyclerView.ViewHolder{
 
-        TextView textTask;
-
-        public ActivityTaskHolder(@NonNull View itemView) {
-            super(itemView);
-            textTask=itemView.findViewById(R.id.textTask);
-        }
-
-        public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
-            // Bind the Chat object to the ChatHolder
-            // ...
-        }
-
-        public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
-            // Create a new instance of the ViewHolder, in this case we are using a custom
-            // layout called R.layout.message for each item
-            View view = LayoutInflater.from(group.getContext())
-                    .inflate(R.layout.activitytask_recycleview, group, false);
-
-            return new ActivityTaskHolder(view);
-        }
-    }
 }

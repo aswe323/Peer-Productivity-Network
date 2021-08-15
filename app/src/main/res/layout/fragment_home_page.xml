@@ -12,11 +12,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ScrollView
-            android:id="@+id/scroll_Homepage"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycleView_home"
             android:layout_width="match_parent"
-            android:layout_height="490dp"
-            tools:ignore="SpeakableTextPresentCheck" />
+            android:layout_height="490dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
 
         <Button
             android:id="@+id/Btn_add_reminder"
