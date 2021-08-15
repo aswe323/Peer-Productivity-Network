@@ -13,6 +13,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +28,27 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     private Button addReminder;
     private RecyclerView recyclerView;
+    private FirestoreRecyclerOptions<ActivityTask> options = new FirestoreRecyclerOptions.Builder<ActivityTask>()
+            .setQuery(Repository.getActivityTaskCollection().orderBy("activityTaskID"), ActivityTask.class)
+            .build();
+    private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask, ActivityTaskHolder>(options) {
+        @Override
+        public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
+            // Bind the Chat object to the ChatHolder
+            // ...
+
+        }
+
+        @Override
+        public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
+            // Create a new instance of the ViewHolder, in this case we are using a custom
+            // layout called R.layout.message for each item
+            View view = LayoutInflater.from(group.getContext())
+                    .inflate(R.layout.activitytask_recycleview, group, false);
+
+            return new ActivityTaskHolder(view);
+        }
+    };
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -93,13 +119,46 @@ public class HomePage extends Fragment implements View.OnClickListener{
         recyclerView = view.findViewById(R.id.recycleView_home);
         addReminder = view.findViewById(R.id.Btn_add_reminder);
 
-        RecycleAdapter recycleAdapter = new RecycleAdapter(getActivity());
+        /*RecycleAdapter recycleAdapter = new RecycleAdapter(getActivity());
         recyclerView.setAdapter(recycleAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));*/
+
+
+
+        /*FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,ActivityTaskHolder>(options) {
+            @Override
+            public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
+                // Bind the Chat object to the ChatHolder
+                // ...
+            }
+
+            @NonNull
+            @Override
+            public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.message for each item
+                View view = LayoutInflater.from(group.getContext())
+                        .inflate(R.layout.activitytask_recycleview, group, false);
+
+                return new ActivityTaskHolder(view);
+            }
+
+        };*/
 
         addReminder.setOnClickListener(this);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 
     @Override
@@ -120,5 +179,29 @@ public class HomePage extends Fragment implements View.OnClickListener{
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    /**/public class ActivityTaskHolder extends RecyclerView.ViewHolder{
+
+        TextView textTask;
+
+        public ActivityTaskHolder(@NonNull View itemView) {
+            super(itemView);
+            textTask=itemView.findViewById(R.id.textTask);
+        }
+
+        public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
+            // Bind the Chat object to the ChatHolder
+            // ...
+        }
+
+        public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
+            // Create a new instance of the ViewHolder, in this case we are using a custom
+            // layout called R.layout.message for each item
+            View view = LayoutInflater.from(group.getContext())
+                    .inflate(R.layout.activitytask_recycleview, group, false);
+
+            return new ActivityTaskHolder(view);
+        }
     }
 }

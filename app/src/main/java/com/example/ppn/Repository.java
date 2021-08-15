@@ -291,7 +291,7 @@ public class Repository {
      * @return {@link CollectionReference} of the user activityTasks collection.
      */
     @NonNull
-    private static CollectionReference getActivityTaskCollection() {
+    public static CollectionReference getActivityTaskCollection() {
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName() + "ActivityTasks");
     }
 

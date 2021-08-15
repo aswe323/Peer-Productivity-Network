@@ -70,7 +70,13 @@ dependencies {
     // Also declare the dependency for the Google Play services library and specify its version
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
 
+    // Dependency FirebaseUI for Firebase Realtime Database
+    implementation 'com.firebaseui:firebase-ui-database:8.0.0'
+    implementation 'com.firebaseui:firebase-ui-firestore:8.0.0'
 
+
+    // Dependency for Firebase Realtime Database
+    implementation 'com.google.firebase:firebase-database:19.3.1'
 
 }
 apply plugin: 'com.google.gms.google-services'
