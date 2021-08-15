@@ -75,16 +75,7 @@ public class ActivityTask {
         setTimePack(timePack);
         setComplete(false);
 
-        parseContent(content);
-
-
-        String[] words = content.split(" ");
-        int  score = 0;
-        for (String word :
-                words) {
-            score +=  priorityWords.getOrDefault(word,0);
-        }
-        setPriority(score);
+        parseContent(content,priorityWords);
 
         if(this.getTimePack().readTimeTange().isEmpty()){
             getTimePack().readTimeTange().set(0,timePack.readNattyResults());
@@ -94,7 +85,7 @@ public class ActivityTask {
 
     }
 
-    private void parseContent(String content) {
+    private void parseContent(String content,@NonNull Map<String, Integer> priorityWords) {
         List<DateGroup> groups;
         Parser parser = new Parser();
         groups = parser.parse(content);
@@ -107,6 +98,13 @@ public class ActivityTask {
             getTimePack().updateNattyResults(LocalDateTime.now());
             Log.d("activityTask", "ActivityTask: natty was not able to parse activityTask with ID:" + this.activityTaskID);
         }
+        String[] words = content.split(" ");
+        int  score = 0;
+        for (String word :
+                words) {
+            score +=  priorityWords.getOrDefault(word,0);
+        }
+        setPriority(score);
     }
 
     public void setComplete(boolean complete) {
@@ -155,7 +153,6 @@ public class ActivityTask {
     }
 
     public void setContent(String content) {
-        parseContent(content);
         this.content = content;
     }
 

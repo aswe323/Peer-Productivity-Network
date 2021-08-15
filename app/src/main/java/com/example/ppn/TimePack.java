@@ -84,10 +84,7 @@ public class TimePack {
         this.stringifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
-        for (String string:
-                strigifiedRelaventDates) {
-            relaventDatesNumbered.add(LocalDateTime.parse(string,getFormatter()).getDayOfMonth());
-        }
+
 
     }
 
@@ -107,18 +104,12 @@ public class TimePack {
         setStartingTime(startingTime.format(getFormatter()));
         setEndingTime(endingTime.format(getFormatter()));
 
-
-
         this.monthNumber = monthNumber;
         setRepetition(repetition);
         updateRelaventDates(relaventDates);
         this.stringifiedNattyResults = LocalDateTime.now().format(getFormatter());
 
         notificationCounter = notificationCounter +1;
-        for (String string:
-                strigifiedRelaventDates) {
-            relaventDatesNumbered.add(LocalDateTime.parse(string,getFormatter()).getDayOfMonth());
-        }
 
     }
 
@@ -346,6 +337,12 @@ public class TimePack {
                 settedStrings.add(localDateTime.format(getFormatter()));
             }
             strigifiedRelaventDates.addAll(settedStrings);
+
+
+            for (String string :
+                    strigifiedRelaventDates) {
+                relaventDatesNumbered.add(LocalDateTime.parse(string, getFormatter()).getDayOfMonth());
+            }
         }
     }
 
@@ -378,6 +375,10 @@ public class TimePack {
      */
     public void setStrigifiedRelaventDates(ArrayList<String> strigifiedRelaventDates) {
         this.strigifiedRelaventDates = strigifiedRelaventDates;
+        for (String string:
+                strigifiedRelaventDates) {
+            relaventDatesNumbered.add(LocalDateTime.parse(string,getFormatter()).getDayOfMonth());
+        }
     }
 
     /**
