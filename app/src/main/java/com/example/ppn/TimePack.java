@@ -32,7 +32,7 @@ public class TimePack {
     /**
      * the dates at which the TimePack instance is relevant to.
      */
-    private ArrayList<String> strigifiedRelaventDates;
+    private ArrayList<String> strigifiedRelaventDates = new ArrayList<>();
     /**
      * represents the repetition at which the TimePack is relevant to.
      */

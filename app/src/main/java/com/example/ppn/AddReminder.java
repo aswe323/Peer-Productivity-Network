@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.Query;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -32,7 +41,7 @@ import java.util.Calendar;
  */
 public class AddReminder extends Fragment implements View.OnClickListener {
 
-    private int activitytaskID; //TODO: fix it to get the last id and increment
+    private int activitytaskID;
     private AlertDialog.Builder subActivityDialogBox;
     private String subactivitytext="";
     private EditText inputForSubActivityDialog;
@@ -53,6 +62,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
     private RecyclerView relevantDatesRecyclerView;
     private RelevantDateAdapter relevantDateAdapter;
     private SubActivityAdapter recycleAdapter;
+    private String fromDate,toDate;
 
     //for time dialog picker
     private DatePickerDialog datePickerDialog;
@@ -118,6 +128,49 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         Toast.makeText(getActivity(), "make sure to write a description to the reminder", Toast.LENGTH_LONG).show();
                         break;
                     }
+                    //make sure that the time from and time to is a relevant date to prevent bugs with TimePack
+                    if(dates.indexOf(fromDate)==-1)
+                    {
+                        dates.add(fromDate);
+                        relevantDateAdapter.notifyDataSetChanged();
+                    }
+                    if(dates.indexOf(toDate)==-1)
+                    {
+                        dates.add(toDate);
+                        relevantDateAdapter.notifyDataSetChanged();
+                    }
+
+                    //convert dates from string to localDateTime for the TimePack
+                    ArrayList<LocalDateTime> relevantDatesForTimePack=new ArrayList<>();
+                    DateTimeFormatter relevantDateFormatter =  new DateTimeFormatterBuilder()
+                            .appendPattern("yyyy-MM-dd[ HH:mm:ss]")
+                            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                            .toFormatter();
+                    //DateTimeFormatter relevantDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    for (String date:dates){
+                        relevantDatesForTimePack.add(LocalDateTime.parse(
+                                date,
+                                relevantDateFormatter));
+                    }
+
+                    //convert the starting time (from) and ending time (to) for TimePack
+                    DateTimeFormatter formatter=TimePack.getFormatter();
+                    Log.d("TAG", "timetotext: "+timeFromText.getText().toString());
+                    LocalDateTime timeFrom = LocalDateTime.parse(
+                            timeFromText.getText().toString(),
+                            formatter);
+                    LocalDateTime timeTo = LocalDateTime.parse(
+                            timeToText.getText().toString(),
+                            formatter);
+
+                    time = new TimePack(timeFrom,
+                            timeTo,
+                            timeFrom.getMonthValue(),
+                            Repetition.valueOf(repetitionSpinner.getSelectedItem().toString()),
+                            relevantDatesForTimePack);
+
                     Repository.createActivityTask(activitytaskID,
                             MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
                             editText.getText().toString(),
@@ -138,10 +191,13 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 subActivityDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         subactivitytext = inputForSubActivityDialog.getText().toString();
-                        if(!isEditFlag)
-                            subActivities.add(new SubActivity(subactivitytext,activitytaskID)); //TODO: add activitytaskID of the soon to be created
-                        //else TODO: add editing
-                            //subActivities.add(new SubActivity(0,EditedActivityTask.getActivityTaskID(),subactivitytext));
+                        if(!isEditFlag) {
+                            Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
+                                    queryDocumentSnapshots ->{
+                                         activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
+                                        subActivities.add(new SubActivity(subactivitytext, activitytaskID));
+                                    });
+                        }
                         Toast.makeText(getActivity(), "sub reminder was added: "+subactivitytext, Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -168,9 +224,30 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
 
-                                timeChecker=""+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
-                                dates.add(timeChecker);
-                                relevantDateAdapter.notifyDataSetChanged();
+                                timeChecker=""+ year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+
+                                String timeForIf;
+                                if (monthOfYear<10)
+                                    timeForIf=""+year + "-0" + (monthOfYear + 1);
+                                else
+                                    timeForIf=""+year + "-" + (monthOfYear + 1);
+
+                                if(dayOfMonth<10)
+                                    timeForIf+="-0"+dayOfMonth;
+                                else
+                                    timeForIf+="-"+dayOfMonth;
+
+                                if(LocalDate.now().isAfter(LocalDate.parse(timeForIf)))
+                                {
+                                    Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
+                                }
+                                else if(dates.indexOf(timeChecker)==-1) //check if the date exist add, if not toast
+                                {
+                                    dates.add(timeChecker);
+                                    relevantDateAdapter.notifyDataSetChanged();
+                                }
+                                else
+                                    Toast.makeText(getActivity(),"this date is already exist",Toast.LENGTH_SHORT).show();
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -197,7 +274,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         else
                             timeChecker+=minute;
 
-                        timeFromText.setText("time from:\n" + timeChecker);
+                        timeFromText.setText(timeChecker);
                     }
                 },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
                 timePickerDialog.show();
@@ -209,8 +286,25 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
 
-                                timeChecker=""+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year+" ";
+                                String timeForIf;
+                                if (monthOfYear<10)
+                                    timeForIf=""+year + "-0" + (monthOfYear + 1);
+                                else
+                                    timeForIf=""+year + "-" + (monthOfYear + 1);
 
+                                if(dayOfMonth<10)
+                                    timeForIf+="-0"+dayOfMonth;
+                                else
+                                    timeForIf+="-"+dayOfMonth;
+
+                                if(LocalDate.now().isAfter(LocalDate.parse(timeForIf)))
+                                {
+                                    Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    timeChecker = timeForIf+" ";
+                                    fromDate = timeForIf;
+                                }
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -235,7 +329,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         else
                             timeChecker+=minute;
 
-                        timeToText.setText("time to:\n" + timeChecker);
+                        timeToText.setText(timeChecker);
                     }
                 },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
                 timePickerDialog.show();
@@ -247,8 +341,25 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
 
-                                timeChecker=""+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year+" ";
+                                String timeForIf;
+                                if (monthOfYear<10)
+                                    timeForIf=""+year + "-0" + (monthOfYear + 1);
+                                else
+                                    timeForIf=""+year + "-" + (monthOfYear + 1);
 
+                                if(dayOfMonth<10)
+                                    timeForIf+="-0"+dayOfMonth;
+                                else
+                                    timeForIf+="-"+dayOfMonth;
+
+                                if(LocalDate.now().isAfter(LocalDate.parse(timeForIf)))
+                                {
+                                    Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    timeChecker = timeForIf+" ";
+                                    toDate = timeForIf;
+                                }
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -294,6 +405,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         timeToText.setOnClickListener(this);
         save.setOnClickListener(this);
         addDate.setOnClickListener(this);
+
 
         //endregion
 
