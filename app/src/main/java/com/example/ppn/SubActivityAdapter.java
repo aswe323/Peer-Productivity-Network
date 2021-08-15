@@ -1,5 +1,6 @@
 package com.example.ppn;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +32,14 @@ public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.
     public void onBindViewHolder(@NonNull SubActivityRecycleHolder holder, int position) {
         //sub holder
         holder.subtext.setText(subActivities.get(position).getContent());
-        holder.DeleteSub.setId(position);
         holder.DeleteSub.setOnClickListener(v -> {
-            subActivities.remove(holder.DeleteSub.getId());
-            notifyItemRemoved(position);
+            for (SubActivity subActivity: subActivities)
+                if (subActivity.getContent()==holder.subtext.getText().toString()) {
+                    subActivities.remove(subActivity);
+                    int deletedPosition = holder.getAbsoluteAdapterPosition();
+                    notifyItemRemoved(deletedPosition);
+                    break;
+                }
         });
     }
 

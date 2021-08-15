@@ -1,5 +1,6 @@
 package com.example.ppn;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +31,10 @@ public class RelevantDateAdapter extends RecyclerView.Adapter<RelevantDateAdapte
     @Override
     public void onBindViewHolder(@NonNull RelevantDateRecycleHolder holder, int position) {
         holder.subtext.setText(dates.get(position));
-        holder.DeleteSub.setId(position);
         holder.DeleteSub.setOnClickListener(v -> {
-            dates.remove(holder.DeleteSub.getId());
-            notifyItemRemoved(position);
+            int deletedPosition = holder.getAbsoluteAdapterPosition();
+            dates.remove(dates.indexOf(holder.subtext.getText()));
+            notifyItemRemoved(deletedPosition);
         });
     }
 
