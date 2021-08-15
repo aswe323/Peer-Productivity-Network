@@ -51,6 +51,8 @@ public class AddReminder extends Fragment implements View.OnClickListener {
     private Button save;
     private RecyclerView subActivitiesRecyclerView;
     private RecyclerView relevantDatesRecyclerView;
+    private RelevantDateAdapter relevantDateAdapter;
+    private SubActivityAdapter recycleAdapter;
 
     //for time dialog picker
     private DatePickerDialog datePickerDialog;
@@ -168,6 +170,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
                                 timeChecker=""+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
                                 dates.add(timeChecker);
+                                relevantDateAdapter.notifyDataSetChanged();
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -275,13 +278,14 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         subActivitiesRecyclerView = view.findViewById(R.id.subRecyclerView);
         relevantDatesRecyclerView = view.findViewById(R.id.datesRecyclerView);
 
-        SubActivityAdapter recycleAdapter = new SubActivityAdapter(subActivities);
+        recycleAdapter = new SubActivityAdapter(subActivities);
         subActivitiesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         subActivitiesRecyclerView.setAdapter(recycleAdapter);
 
-        RelevantDateAdapter relevantDateAdapter = new RelevantDateAdapter(dates);
+        relevantDateAdapter = new RelevantDateAdapter(dates);
         relevantDatesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         relevantDatesRecyclerView.setAdapter(relevantDateAdapter);
+
 
         //region OnClickListeners
 

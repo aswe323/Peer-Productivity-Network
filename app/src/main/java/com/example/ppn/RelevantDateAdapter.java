@@ -24,7 +24,7 @@ public class RelevantDateAdapter extends RecyclerView.Adapter<RelevantDateAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.subactivity_recycleview, parent, false);
 
-        return new RelevantDateAdapter.RelevantDateRecycleHolder(view);
+        return new RelevantDateRecycleHolder(view);
     }
 
     @Override
