@@ -99,14 +99,15 @@ public class MainActivity extends AppCompatActivity {
 
         //region testing
 
-/*        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+       /*FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         Repository.createPriorityWord("hello",10);
         LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
         LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
         ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
         localDateTimes.add(startingTime);
         localDateTimes.add(endingTime);
-        ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
+        TimePack t= new TimePack(startingTime,endingTime,8,Repetition.every_monday,null);
+         ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
         for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
             nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
 

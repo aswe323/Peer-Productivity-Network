@@ -11,46 +11,44 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.SubActivityRecycleHolder> {
-    private ArrayList<SubActivity> subActivities;
+public class RelevantDateAdapter extends RecyclerView.Adapter<RelevantDateAdapter.RelevantDateRecycleHolder>{
+    private ArrayList<String> dates;
 
-    public SubActivityAdapter(ArrayList<SubActivity> subActivities) {
-        this.subActivities=subActivities;
+    public RelevantDateAdapter(ArrayList<String> dates) {
+        this.dates = dates;
     }
 
     @NonNull
     @Override
-    public SubActivityRecycleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RelevantDateRecycleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.subactivity_recycleview, parent, false);
 
-        return new SubActivityRecycleHolder(view);
+        return new RelevantDateAdapter.RelevantDateRecycleHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SubActivityRecycleHolder holder, int position) {
-        //sub holder
-        holder.subtext.setText(subActivities.get(position).getContent());
+    public void onBindViewHolder(@NonNull RelevantDateRecycleHolder holder, int position) {
+        holder.subtext.setText(dates.get(position));
         holder.DeleteSub.setId(position);
         holder.DeleteSub.setOnClickListener(v -> {
-            subActivities.remove(holder.DeleteSub.getId());
+            dates.remove(holder.DeleteSub.getId());
             notifyItemRemoved(position);
         });
     }
 
     @Override
     public int getItemCount() {
-        return subActivities.size();
+        return dates.size();
     }
 
-    public class SubActivityRecycleHolder extends RecyclerView.ViewHolder{
+    public class RelevantDateRecycleHolder extends RecyclerView.ViewHolder{
         TextView subtext;
         Button DeleteSub;
-        public SubActivityRecycleHolder(@NonNull View itemView) {
+        public RelevantDateRecycleHolder(@NonNull View itemView) {
             super(itemView);
             subtext = itemView.findViewById(R.id.subtext);
             DeleteSub = itemView.findViewById(R.id.btnDeleteSub);
-
         }
     }
 }

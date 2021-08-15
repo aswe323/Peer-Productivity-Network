@@ -19,18 +19,32 @@
             <EditText
                 android:id="@+id/EditText_reminder_content"
                 android:layout_width="match_parent"
-                android:layout_height="125dp"
+                android:layout_height="110dp"
                 android:ems="10"
                 android:gravity="start|top"
                 android:inputType="textMultiLine"
                 android:hint="write reminder...." />
 
-            <Switch
-                android:id="@+id/Switch_AI_enabler"
+            <Button
+                android:id="@+id/btnRelevantDates"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="AI time setter"
+                android:textAllCaps="false"
+                android:text="click to choose relevant dates"
                 android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:text="relevant dates:"
+                android:textSize="20dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/datesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="80dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,7 +91,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/subRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="150dp">
+                android:layout_height="120dp">
 
             </androidx.recyclerview.widget.RecyclerView>
 
