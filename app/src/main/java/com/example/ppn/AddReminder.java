@@ -215,16 +215,13 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
             case R.id.btnRelevantDates:
                 //region add date
-                timeChecker="";
-
+    
                 datePickerDialog = new DatePickerDialog(getContext(),
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-
-                                timeChecker=""+ year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
 
                                 String timeForIf;
                                 if (monthOfYear<10)
@@ -241,9 +238,9 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                 {
                                     Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
                                 }
-                                else if(dates.indexOf(timeChecker)==-1) //check if the date exist add, if not toast
+                                else if(dates.indexOf(timeForIf)==-1) //check if the date exist add, if not toast
                                 {
-                                    dates.add(timeChecker);
+                                    dates.add(timeForIf);
                                     relevantDateAdapter.notifyDataSetChanged();
                                 }
                                 else
