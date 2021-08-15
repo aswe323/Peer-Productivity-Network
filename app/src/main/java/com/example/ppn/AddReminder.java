@@ -1,10 +1,13 @@
 package com.example.ppn;
 
 import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,19 +17,20 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
+import java.util.Calendar;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AddReminder#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddReminder extends Fragment {
+public class AddReminder extends Fragment implements View.OnClickListener {
 
-    private int activitytaskID=1; //TODO: fix it to get the last id and increment
+    private int activitytaskID; //TODO: fix it to get the last id and increment
     private AlertDialog.Builder subActivityDialogBox;
     private String subactivitytext="";
     private EditText inputForSubActivityDialog;
@@ -39,10 +43,17 @@ public class AddReminder extends Fragment {
     private Spinner categorySpinner;
     private TextView timeFromText;
     private TextView timeToText;
-    //TODO:recycleVIew
     private Button addSubActivity;
     private Button cancel;
     private Button save;
+    private RecyclerView recyclerView;
+
+    //for time dialog picker
+    private TimePickerDialog timePickerDialog;
+    private Calendar calendar = Calendar.getInstance();
+    final int hour=calendar.get(calendar.HOUR_OF_DAY);
+    final int minute=calendar.get(calendar.MINUTE);
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -134,6 +145,52 @@ public class AddReminder extends Fragment {
                 subActivityDialogBox.show();
                 //endregion
                 break;
+
+            case R.id.TextView_from_time:
+                //region add time from
+
+                timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String timeChecker="";
+                        if(hourOfDay<10)
+                            timeChecker+="0"+hourOfDay+":";
+                        else
+                            timeChecker+=hourOfDay+":";
+                        if(minute<10)
+                            timeChecker+="0"+minute;
+                        else
+                            timeChecker+=minute;
+
+                        timeFromText.setText("time from:\n" + timeChecker);
+                    }
+                },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
+                timePickerDialog.show();
+                //endregion
+                break;
+                
+            case R.id.TextView_to_time:
+                //region add time to
+
+                timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String timeChecker="";
+                        if(hourOfDay<10)
+                            timeChecker+="0"+hourOfDay+":";
+                        else
+                            timeChecker+=hourOfDay+":";
+                        if(minute<10)
+                            timeChecker+="0"+minute;
+                        else
+                            timeChecker+=minute;
+
+                        timeToText.setText("time to:\n" + timeChecker);
+                    }
+                },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
+                timePickerDialog.show();
+                //endregion
+                break;
         }
     }
 
@@ -154,8 +211,19 @@ public class AddReminder extends Fragment {
         addSubActivity=view.findViewById(R.id.Btn_add_subReminder);
         cancel=view.findViewById(R.id.Btn_cancel_reminder);
         save=view.findViewById(R.id.Btn_save_reminder);
+        recyclerView = view.findViewById(R.id.subRecyclerView);
 
+        SubActivityAdapter recycleAdapter = new SubActivityAdapter(subActivities);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(recycleAdapter);
 
+        //region OnClickListeners
+
+        addSubActivity.setOnClickListener(this);
+        timeFromText.setOnClickListener(this);
+        timeToText.setOnClickListener(this);
+
+        //endregion
 
         return view;
     }

@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,17 +33,25 @@ public class HomePage extends Fragment implements View.OnClickListener{
     private Button addReminder;
     private RecyclerView recyclerView;
 
-    private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter(options) {
+    private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,RecycleHolder>(options) {
+
+        @Override
+        protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
+            holder.textTask.setText(model.getContent());
+            holder.textTime.setText(""+model.getTimePack().getStartingTime()+" - "+model.getTimePack().getEndingTime());
+            //holder.checkBox.setChecked(model.); TODO: add done to activityTask???
+            //TODO: add edit/delete functionality
+        }
 
         @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return null;
+        public RecycleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.activitytask_recycleview, parent, false);
+
+            return new RecycleHolder(view);
         }
 
-        protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull Object model) {
-
-        }
     };
 
     // TODO: Rename parameter arguments, choose names that match
@@ -85,10 +94,6 @@ public class HomePage extends Fragment implements View.OnClickListener{
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        RecyclerView recyclerView = new RecyclerView(getContext());
-        adapter.startListening();
-        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -117,47 +122,21 @@ public class HomePage extends Fragment implements View.OnClickListener{
         recyclerView = view.findViewById(R.id.recycleView_home);
         addReminder = view.findViewById(R.id.Btn_add_reminder);
 
-        /*RecycleAdapter recycleAdapter = new RecycleAdapter(getActivity());
-        recyclerView.setAdapter(recycleAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));*/
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        adapter.startListening();
+        recyclerView.setAdapter(adapter);
 
-
-
-        /*FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,ActivityTaskHolder>(options) {
-            @Override
-            public void onBindViewHolder(ActivityTaskHolder holder, int position, ActivityTask model) {
-                // Bind the Chat object to the ChatHolder
-                // ...
-            }
-
-            @NonNull
-            @Override
-            public ActivityTaskHolder onCreateViewHolder(ViewGroup group, int i) {
-                // Create a new instance of the ViewHolder, in this case we are using a custom
-                // layout called R.layout.message for each item
-                View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.activitytask_recycleview, group, false);
-
-                return new ActivityTaskHolder(view);
-            }
-
-        };*/
-
+        //region OnClickListeners
         addReminder.setOnClickListener(this);
+
+        //endregion
 
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

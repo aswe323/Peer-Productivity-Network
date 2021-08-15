@@ -18,7 +18,7 @@
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
-            android:text="write reminder...."  />
+            android:hint="write reminder...."  />
 
         <Switch
             android:id="@+id/Switch_key_or_bucket"
