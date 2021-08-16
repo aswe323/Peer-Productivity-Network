@@ -1,5 +1,6 @@
 package com.example.ppn;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -40,6 +42,26 @@ public class HomePage extends Fragment implements View.OnClickListener{
             holder.textTask.setText(model.getContent());
             holder.textTime.setText(""+model.getTimePack().getStartingTime()+" - "+model.getTimePack().getEndingTime());
             //holder.checkBox.setChecked(model.); TODO: add done to activityTask???
+            holder.btnDelete.setOnClickListener(v -> {
+                Repository.deleteActivivtyTask(model.getActivityTaskID());
+                Repository.refreshNotifications();
+                Toast.makeText(getContext(), model.getContent()+" was deleted", Toast.LENGTH_SHORT).show();
+            });
+
+            holder.btnEdit.setOnClickListener(v -> {
+                Bundle bundle= new Bundle();
+                bundle.putInt("activityTaskID",model.getActivityTaskID());
+                bundle.putBoolean("isEdit",true);
+                AddReminder addReminder = new AddReminder();
+                addReminder.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(((ViewGroup)(getView().getParent())).getId(), addReminder)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("addReminder") // name can be null
+                        .commit();
+
+            });
             //TODO: add edit/delete functionality
         }
 
@@ -102,13 +124,17 @@ public class HomePage extends Fragment implements View.OnClickListener{
             case R.id.Btn_add_reminder:
                 //region add reminder
 
+                Bundle bundle= new Bundle();
+                bundle.putBoolean("isEdit",false);
                 AddReminder addReminder = new AddReminder();
+                addReminder.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(((ViewGroup)(getView().getParent())).getId(), addReminder)
                         .setReorderingAllowed(true)
                         .addToBackStack("addReminder") // name can be null
                         .commit();
+
                 //endregion
                 break;
         }

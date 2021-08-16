@@ -123,53 +123,59 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
             case R.id.Btn_save_reminder:
                 //region save
+
+                if(editText.getText().toString().equals("")){
+                    Toast.makeText(getActivity(), "make sure to write a description to the reminder", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                if(timeFromText.getText().toString().equals("click to choose")||timeToText.getText().toString().equals("click to choose"))
+                {
+                    Toast.makeText(getActivity(), "make sure to choose time from and time to", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                //make sure that the time from and time to is a relevant date to prevent bugs with TimePack
+                if(dates.indexOf(fromDate)==-1 && fromDate!=null)
+                {
+                    dates.add(fromDate);
+                    relevantDateAdapter.notifyDataSetChanged();
+                }
+                if(dates.indexOf(toDate)==-1 && toDate!=null)
+                {
+                    dates.add(toDate);
+                    relevantDateAdapter.notifyDataSetChanged();
+                }
+
+                //convert dates from string to localDateTime for the TimePack
+                ArrayList<LocalDateTime> relevantDatesForTimePack=new ArrayList<>();
+                DateTimeFormatter relevantDateFormatter =  new DateTimeFormatterBuilder()
+                        .appendPattern("yyyy-MM-dd[ HH:mm:ss]")
+                        .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                        .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                        .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                        .toFormatter();
+                //DateTimeFormatter relevantDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                for (String date:dates){
+                    relevantDatesForTimePack.add(LocalDateTime.parse(
+                            date,
+                            relevantDateFormatter));
+                }
+
+                //convert the starting time (from) and ending time (to) for TimePack
+                DateTimeFormatter formatter=TimePack.getFormatter();
+                LocalDateTime timeFrom = LocalDateTime.parse(
+                        timeFromText.getText().toString(),
+                        formatter);
+                LocalDateTime timeTo = LocalDateTime.parse(
+                        timeToText.getText().toString(),
+                        formatter);
+
+                time = new TimePack(timeFrom,
+                        timeTo,
+                        timeFrom.getMonthValue(),
+                        Repetition.valueOf(repetitionSpinner.getSelectedItem().toString()),
+                        relevantDatesForTimePack);
+
                 if(!isEditFlag) {
-                    if(editText.getText().toString().equals("")){
-                        Toast.makeText(getActivity(), "make sure to write a description to the reminder", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                    //make sure that the time from and time to is a relevant date to prevent bugs with TimePack
-                    if(dates.indexOf(fromDate)==-1)
-                    {
-                        dates.add(fromDate);
-                        relevantDateAdapter.notifyDataSetChanged();
-                    }
-                    if(dates.indexOf(toDate)==-1)
-                    {
-                        dates.add(toDate);
-                        relevantDateAdapter.notifyDataSetChanged();
-                    }
-
-                    //convert dates from string to localDateTime for the TimePack
-                    ArrayList<LocalDateTime> relevantDatesForTimePack=new ArrayList<>();
-                    DateTimeFormatter relevantDateFormatter =  new DateTimeFormatterBuilder()
-                            .appendPattern("yyyy-MM-dd[ HH:mm:ss]")
-                            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-                            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-                            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-                            .toFormatter();
-                    //DateTimeFormatter relevantDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                    for (String date:dates){
-                        relevantDatesForTimePack.add(LocalDateTime.parse(
-                                date,
-                                relevantDateFormatter));
-                    }
-
-                    //convert the starting time (from) and ending time (to) for TimePack
-                    DateTimeFormatter formatter=TimePack.getFormatter();
-                    Log.d("TAG", "timetotext: "+timeFromText.getText().toString());
-                    LocalDateTime timeFrom = LocalDateTime.parse(
-                            timeFromText.getText().toString(),
-                            formatter);
-                    LocalDateTime timeTo = LocalDateTime.parse(
-                            timeToText.getText().toString(),
-                            formatter);
-
-                    time = new TimePack(timeFrom,
-                            timeTo,
-                            timeFrom.getMonthValue(),
-                            Repetition.valueOf(repetitionSpinner.getSelectedItem().toString()),
-                            relevantDatesForTimePack);
 
                     Repository.createActivityTask(activitytaskID,
                             MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
@@ -177,9 +183,35 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             subActivities,
                             time);
                     Repository.refreshNotifications();
+                    getParentFragmentManager().beginTransaction().remove(this).commit();
+                }
+                else{
+                    Repository.deleteActivivtyTask(getArguments().getInt("activityTaskID"))
+                            .addOnCompleteListener(task -> {
+                                task.addOnCompleteListener(task1 -> {
+                                    Repository.createActivityTask(getArguments().getInt("activityTaskID"),
+                                            MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
+                                            editText.getText().toString(),
+                                            subActivities,
+                                            time);
+                                    Toast.makeText(getContext(), "updated the task", Toast.LENGTH_SHORT).show();
+                                    getParentFragmentManager().beginTransaction().remove(this).commit();
+                                });
+                            });
+
                 }
                 //endregion
                 break;
+
+            case R.id.Btn_cancel_reminder:
+                //region cancel
+
+                Toast.makeText(getContext(), "canceled", Toast.LENGTH_SHORT).show();
+                getParentFragmentManager().beginTransaction().remove(this).commit();
+
+                //endregion
+                break;
+
             case R.id.Btn_add_subReminder:
                 //region add sub reminder region
                 subActivityDialogBox = new AlertDialog.Builder(getContext());
@@ -191,13 +223,12 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 subActivityDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         subactivitytext = inputForSubActivityDialog.getText().toString();
-                        if(!isEditFlag) {
-                            Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
-                                    queryDocumentSnapshots ->{
-                                         activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
-                                        subActivities.add(new SubActivity(subactivitytext, activitytaskID));
-                                    });
-                        }
+                        Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
+                                queryDocumentSnapshots ->{
+                                    activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
+                                    subActivities.add(new SubActivity(subactivitytext, activitytaskID));
+                                    recycleAdapter.notifyDataSetChanged();
+                                });
                         Toast.makeText(getActivity(), "sub reminder was added: "+subactivitytext, Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -215,7 +246,8 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
             case R.id.btnRelevantDates:
                 //region add date
-    
+
+                //boolean illegalTime=false;
                 datePickerDialog = new DatePickerDialog(getContext(),
                         new DatePickerDialog.OnDateSetListener() {
 
@@ -237,6 +269,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                 if(LocalDate.now().isAfter(LocalDate.parse(timeForIf)))
                                 {
                                     Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
+                                    //illegalTime=true;
                                 }
                                 else if(dates.indexOf(timeForIf)==-1) //check if the date exist add, if not toast
                                 {
@@ -371,9 +404,9 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_add_reminder, container, false);
 
+        isEditFlag=getArguments().getBoolean("isEdit");
         subActivities=new ArrayList<>();
         dates = new ArrayList<>();
-        isEditFlag=false;
         editText=view.findViewById(R.id.EditText_reminder_content);
         addDate = view.findViewById(R.id.btnRelevantDates);
         repetitionSpinner=view.findViewById(R.id.Spinner_repetition);
@@ -386,6 +419,8 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         subActivitiesRecyclerView = view.findViewById(R.id.subRecyclerView);
         relevantDatesRecyclerView = view.findViewById(R.id.datesRecyclerView);
 
+
+
         recycleAdapter = new SubActivityAdapter(subActivities);
         subActivitiesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         subActivitiesRecyclerView.setAdapter(recycleAdapter);
@@ -394,13 +429,49 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         relevantDatesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         relevantDatesRecyclerView.setAdapter(relevantDateAdapter);
 
+        if(isEditFlag){
+            Task t=Repository.getActivityTaskCollection()
+                    .whereEqualTo("activityTaskID",getArguments()
+                            .getInt("activityTaskID")).get()
+                    .addOnSuccessListener(queryDocumentSnapshots ->{
 
+                        ActivityTask activityTask = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class);
+                        editText.setText(activityTask.getContent());
+                        for (String date:activityTask.getTimePack().getStrigifiedRelaventDates())
+                        {
+                            DateTimeFormatter formatter = TimePack.getFormatter();
+                            LocalDateTime localDateTime = LocalDateTime.parse(date,formatter);
+                            String time;
+                            if (localDateTime.getMonthValue()<10)
+                                time=""+ localDateTime.getYear() + "-0" + localDateTime.getMonthValue();
+                            else
+                                time=""+ localDateTime.getYear() + "-" + localDateTime.getMonthValue();
+
+                            if(localDateTime.getDayOfMonth()<10)
+                                time+="-0"+localDateTime.getDayOfMonth();
+                            else
+                                time+="-"+localDateTime.getDayOfMonth();
+
+                            dates.add(time);
+                        }
+                        repetitionSpinner.setSelection(activityTask.getTimePack().getRepetition().ordinal());
+                        categorySpinner.setSelection(activityTask.getMasloCategory().ordinal());
+                        timeFromText.setText(activityTask.getTimePack().getStartingTime());
+                        timeToText.setText(activityTask.getTimePack().getEndingTime());
+                        subActivities.addAll(activityTask.getSubActivitys());
+
+                        recycleAdapter.notifyDataSetChanged();
+                        relevantDateAdapter.notifyDataSetChanged();
+                    } );
+
+        }
         //region OnClickListeners
 
         addSubActivity.setOnClickListener(this);
         timeFromText.setOnClickListener(this);
         timeToText.setOnClickListener(this);
         save.setOnClickListener(this);
+        cancel.setOnClickListener(this);
         addDate.setOnClickListener(this);
 
 
