@@ -745,12 +745,6 @@ public class Repository {
         Map<String,Object> newMember = new HashMap<String,Object>(){{
             put(addedUser,0);
         }};
-        Map<String,Object> init = new HashMap<String,Object>(){{
-            put("groupMembers",new HashMap<String,Integer>());
-        }};
-
-
-            getUserGroupRef().set(init,SetOptions.merge());
 
         Task<Void> set = getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
         return set;

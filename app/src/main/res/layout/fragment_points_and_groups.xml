@@ -34,7 +34,18 @@
             android:textColor="#000000"
             android:text="group points: 0" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:textAllCaps="false"
+            android:textSize="25dp"
+            android:textColor="#000000"
+            android:text="comments:" />
+
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecycle"
             android:layout_width="360dp"
             android:layout_height="250dp"
             android:layout_marginTop="10dp"
@@ -51,13 +62,13 @@
             android:text="group friends" />
 
         <Button
-            android:id="@+id/Btn_group_join_or_leave"
+            android:id="@+id/Btn_add_to_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
             android:textAllCaps="false"
             android:textSize="25dp"
-            android:text="leave group"  />
+            android:text="add follower"  />
     </LinearLayout>
 </FrameLayout>
