@@ -11,9 +11,33 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="490dp">
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:text="priority words" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/priorityWordRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:text="bucket words" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bucketWordRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
 
         </androidx.recyclerview.widget.RecyclerView>
 

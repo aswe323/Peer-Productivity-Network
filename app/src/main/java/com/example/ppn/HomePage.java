@@ -27,6 +27,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
  * create an instance of this fragment.
  */
 public class HomePage extends Fragment implements View.OnClickListener{
+
     private FirestoreRecyclerOptions<ActivityTask> options = new FirestoreRecyclerOptions.Builder<ActivityTask>()
             .setQuery(Repository.getActivityTaskCollection().orderBy("activityTaskID"), ActivityTask.class)
             .build();
@@ -41,7 +42,9 @@ public class HomePage extends Fragment implements View.OnClickListener{
         protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
             holder.textTask.setText(model.getContent());
             holder.textTime.setText(""+model.getTimePack().getStartingTime()+" - "+model.getTimePack().getEndingTime());
+
             //holder.checkBox.setChecked(model.); TODO: add done to activityTask???
+
             holder.btnDelete.setOnClickListener(v -> {
                 Repository.deleteActivivtyTask(model.getActivityTaskID());
                 Repository.refreshNotifications();
@@ -62,7 +65,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
                         .commit();
 
             });
-            //TODO: add edit/delete functionality
+
         }
 
         @NonNull

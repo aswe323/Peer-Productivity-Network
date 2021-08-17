@@ -114,7 +114,7 @@ public class Repository {
      *
      * @return {@link DocumentReference} refrencing the current {@link #user} priority words.
      */
-    private static DocumentReference getPriorityWordsRef(){
+    public static DocumentReference getPriorityWordsRef(){
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("PriorityWords");
     }
 
@@ -122,7 +122,7 @@ public class Repository {
      *
      * @return {@link DocumentReference} refrencing the current {@link #user} bucket words.
      */
-    private static DocumentReference getBucketWordsRef() {
+    public static DocumentReference getBucketWordsRef() {
         return FirebaseFirestore.getInstance().collection(getUser().getDisplayName()).document("BucketWords");
     }
 

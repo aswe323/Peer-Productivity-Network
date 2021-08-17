@@ -18,12 +18,13 @@
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
-            android:hint="write reminder...."  />
+            android:hint="write a word...."  />
 
         <Switch
             android:id="@+id/Switch_key_or_bucket"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="24dp"
             android:text="bucket word:\t\t\t\t" />
 
         <SeekBar
@@ -36,14 +37,86 @@
             android:max="10"
             android:progress="1" />
 
+        <LinearLayout
+
+            android:id="@+id/bucketTimeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Spinner
+                android:id="@+id/Spinner_repetition_bucket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/Spinner_Edit_frequency"
+                android:gravity="center"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="time from:"
+                        android:textColor="@color/black"
+                        android:textSize="24dp" />
+
+                    <TextView
+                        android:id="@+id/TextView_from_time_word"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="click to choose"
+                        android:textColor="@color/black"
+                        android:textSize="24dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="time to:"
+                        android:textColor="@color/black"
+                        android:textSize="24dp" />
+
+                    <TextView
+                        android:id="@+id/TextView_to_time_word"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="click to choose"
+                        android:textColor="@color/black"
+                        android:textSize="24dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/TextView_priority_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textSize="20dp"
+            android:textSize="28dp"
             android:layout_marginLeft="0dp"
-            android:text="priority: N" />
+            android:text="priority: 0/10" />
 
         <LinearLayout
             android:layout_width="match_parent"

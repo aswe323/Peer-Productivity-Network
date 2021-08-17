@@ -119,7 +119,7 @@ public class TimePack {
      */
     public TimePack(HashMap<String ,Object> mappedData) {
         this.startingTime = (String) mappedData.get("startingTime");
-        this.endingTime = (String) mappedData.get("startingTime");
+        this.endingTime = (String) mappedData.get("endingTime");
         this.monthNumber = ((Long) mappedData.get("monthNumber")).intValue();
         this.strigifiedRelaventDates = (ArrayList<String>) mappedData.get("strigifiedRelaventDates");
         this.stringifiedNattyResults = (String) mappedData.get("strigifiedNattyResults");
