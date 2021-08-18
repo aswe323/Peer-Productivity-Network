@@ -1,6 +1,7 @@
 package com.example.ppn;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -45,6 +46,10 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
     private EditText inputForAddUserDialog;
     private String userNameText="";
     private CommentsRecycleAdapter commentsAdapter;
+    //dialog box of group friends
+    private AlertDialog.Builder groupsFriendsDialog;
+    private RecyclerView friendsRecyclerView;
+    private FriendsGroupAdapter friendsGroupAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -91,9 +96,26 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
         switch (v.getId()) {//recognizing what button was pushed
 
             case R.id.Btn_group_friends:
-                //region save
+                //region friends in group
 
+                groupsFriendsDialog = new AlertDialog.Builder(getContext());
+                groupsFriendsDialog.setTitle("group friends:\n");
 
+                /*friendsGroupAdapter = new FriendsGroupAdapter(Repository.readGroup());
+                friendsRecyclerView = new RecyclerView(getContext());
+                friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                friendsRecyclerView.setAdapter(friendsGroupAdapter);
+                groupsFriendsDialog.setView(friendsRecyclerView);*/
+
+                groupsFriendsDialog.setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                return;
+                            }
+                        });
+
+                groupsFriendsDialog.show();
 
                 //endregion
                 break;
@@ -141,6 +163,15 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
         commentsRecycle = view.findViewById(R.id.commentsRecycle);
 
 
+        Repository.getUserGroupRef().addSnapshotListener((value, error) -> {
+            ArrayList<HashMap<String,String>> dataComments = (ArrayList<HashMap<String,String>>)value.getData().get("comments");
+            dataComments.removeIf(stringStringHashMap -> {
+                return stringStringHashMap.containsKey("doNotShow") || stringStringHashMap.containsKey("doNotShow2");
+            });
+            commentsAdapter = new CommentsRecycleAdapter(dataComments);
+            commentsRecycle.setLayoutManager(new LinearLayoutManager(getActivity()));
+            commentsRecycle.setAdapter(commentsAdapter);
+        });
 
         Repository.readGroup().addOnSuccessListener(documentSnapshot -> {
             long groupPoints=0;
@@ -153,25 +184,12 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                     if (((String)entry.getKey()).equals(Repository.getUser().getDisplayName()))
                     {
                         myPointsText.setText("My points: "+((long)entry.getValue()));
-                        groupPoints+=((long)entry.getValue());
                     }
-                    else
-                    {
-                        groupPoints+=((long)entry.getValue());
-                    }
+                    groupPoints+=((long)entry.getValue());
                 }
             }
             groupPointsText.setText("group points: "+groupPoints);
 
-            ArrayList<HashMap<String,String>> test =(ArrayList<HashMap<String,String>>)documentSnapshot
-                    .getData()
-                    .get("comments");
-
-            commentsAdapter = new CommentsRecycleAdapter((ArrayList<HashMap<String,String>>)documentSnapshot
-                    .getData()
-                    .get("comments"));
-            commentsRecycle.setLayoutManager(new LinearLayoutManager(getActivity()));
-            commentsRecycle.setAdapter(commentsAdapter);
         });
 
         //region setOnClickListener

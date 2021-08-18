@@ -20,7 +20,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -132,7 +131,7 @@ public class Repository {
      *
      * @return {@link DocumentReference} refrencing the current {@link #user} group.
      */
-    private static DocumentReference getUserGroupRef(){
+    public static DocumentReference getUserGroupRef(){
         return FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName());
     }
 
@@ -303,7 +302,7 @@ public class Repository {
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task<QuerySnapshot> getThisDayActivityTasks(){
-        FieldPath.of("timePack","relaventDatesNumbered");
+
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
         Task task = getAllUserActivityTasks().continueWithTask(task1 -> {
                 task1.getResult().toObjects(ActivityTask.class);
@@ -333,9 +332,11 @@ public class Repository {
                                 newWords) {
                             newPriority += priorityWords.getOrDefault(newWord,0);
                         }
+
                     }
                     updatedActivityTask.update("priority",newPriority);
                 });
+
         return task;
     }
 
@@ -798,7 +799,8 @@ public class Repository {
             {
                 put(targetedUserName, comment);
             }};
-        getUserGroupRef().update("comments",FieldValue.arrayRemove(updates));
+        getUserGroupRef().update("comments",
+                FieldValue.arrayRemove(updates));
 
         return task;
 

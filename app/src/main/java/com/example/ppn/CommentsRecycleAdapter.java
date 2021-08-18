@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,15 +41,16 @@ public class CommentsRecycleAdapter extends RecyclerView.Adapter<CommentsRecycle
 
         for (Map.Entry<String,String> entry:comments.get(position).entrySet())
         {
+
             holder.user.setText(
                     entry.getKey());
             holder.comment.setText(
                     entry.getValue());
 
             holder.deleteComment.setOnClickListener(v -> {
-                Repository.deleteCommentFromMyProfile(entry.getValue(),entry.getKey());
-                notifyItemRemoved(position);
+                Repository.deleteCommentFromMyProfile(entry.getValue(), entry.getKey());
             });
+
         }
 
     }
@@ -62,12 +64,14 @@ public class CommentsRecycleAdapter extends RecyclerView.Adapter<CommentsRecycle
     {
         TextView user,comment;
         Button deleteComment;
+        LinearLayout commentMainLayout;
 
         public CommentHolder(@NonNull View itemView) {
             super(itemView);
             user = itemView.findViewById(R.id.friendUserNameText_cmnt);
             comment = itemView.findViewById(R.id.friendText_cmnt);
             deleteComment = itemView.findViewById(R.id.btnDeleteComment);
+            commentMainLayout = itemView.findViewById(R.id.commentMainLayout);
 
 
         }

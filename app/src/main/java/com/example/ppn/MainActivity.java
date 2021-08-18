@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.TabLayout);
         viewPager = findViewById(R.id.viewpager);
 
+        Repository.setDefaultContext(this);
+        Repository.setDefaultActivity(this);
+
         viewPager.setAdapter(new ViewpagerAdapter(getSupportFragmentManager(),getLifecycle()));
 
         tabLayoutMediator = new TabLayoutMediator(tabLayout,viewPager,true,
@@ -98,7 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         //region testing
-
+        /*Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"1Avi");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"2test");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"3Comment");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"44444");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"5this");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"6that");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"7yeet");
+        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"8ququq");*/
        /*FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         Repository.createPriorityWord("hello",10);
         LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
