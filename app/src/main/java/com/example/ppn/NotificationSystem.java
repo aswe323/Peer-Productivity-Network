@@ -40,7 +40,7 @@ public class NotificationSystem extends BroadcastReceiver { //create and scedual
 
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
         int notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
-        notificationManager.notify(notificationId, notification);
+        //notificationManager.notify(notificationId, notification);
 
     }
 

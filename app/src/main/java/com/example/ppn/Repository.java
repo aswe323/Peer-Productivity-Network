@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +106,7 @@ public class Repository {
     /**
      * priority words of the user. should not be used outside {@link Repository}
      */
-    private static Map<String, Integer> priorityWords = new HashMap<>();
+    public static Map<String, Integer> priorityWords = new HashMap<>(); //TODO ************************************************************************
     /**
      * bucket words of the user. should not be used outside {@link Repository}
      */
@@ -676,8 +677,12 @@ public class Repository {
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
 
 
-
-        long delayInMili = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() - LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        long LDTnow =LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        ZonedDateTime now =LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem"));
+        long timePackTime = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        long delayInMili =
+                LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() -
+                activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
                 delayInMili,

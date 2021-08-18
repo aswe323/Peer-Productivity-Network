@@ -186,7 +186,17 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             editText.getText().toString(),
                             subActivities,
                             time);
-                    Repository.refreshNotifications();
+                    //Repository.refreshNotifications(); TODO: was before the marked under
+                    //TODO ************************************************************************
+                    ActivityTask activityTask=new ActivityTask(activitytaskID,
+                            MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
+                            editText.getText().toString(),
+                            subActivities,
+                            time,
+                            Repository.priorityWords);
+                    Repository.setNotification(getContext(),activityTask,getActivity());
+                    //TODO ************************************************************************
+
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
                 else{
