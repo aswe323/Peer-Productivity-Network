@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -301,14 +303,12 @@ public class Repository {
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static Task<QuerySnapshot> getThisDayActivityTasks(){
-
-        getActivityTaskCollection().orderBy("activityTaskID");
+        FieldPath.of("timePack","relaventDatesNumbered");
         //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
-        Task task = getActivityTaskCollection()
-                .whereEqualTo("monthNumber", YearMonth.now().getMonthValue())
-                .whereArrayContains("relaventDatesNumbered",LocalDateTime.now().getDayOfMonth())
-                .get();
-
+        Task task = getAllUserActivityTasks().continueWithTask(task1 -> {
+                task1.getResult().toObjects(ActivityTask.class);
+            return task1;
+        });
          return task;
     }
 
@@ -320,7 +320,7 @@ public class Repository {
      * @return {@link Task<Void>} of the operation
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static Task<Void> updateActivityTask(int activityTaskID, String fieldToUpdate, String newValue) {
+    public static Task<Void> updateActivityTask(int activityTaskID, String fieldToUpdate, Object newValue) {
         DocumentReference updatedActivityTask = getActivityTaskCollection().document("ActivityTask" + activityTaskID);
         Task task = updatedActivityTask
                 .update(fieldToUpdate, newValue)
@@ -328,16 +328,14 @@ public class Repository {
                     Log.d("firestore", "updateActivityTask: success for ID " + activityTaskID + " | updated " + fieldToUpdate + "to " + newValue);
                     int newPriority = 0;
                     if(fieldToUpdate.equals("content")){
-                        String[] newWords = newValue.split(" ");
+                        String[] newWords = ((String) newValue).split(" ");
                         for (String newWord :
                                 newWords) {
                             newPriority += priorityWords.getOrDefault(newWord,0);
                         }
-
                     }
                     updatedActivityTask.update("priority",newPriority);
                 });
-
         return task;
     }
 
@@ -551,13 +549,17 @@ public class Repository {
         Map<LocalDate,Boolean> today = new HashMap<>();
         today.put(LocalDate.now(),true);
         ArrayList<ActivityTask> thisDayActivityTasks = new ArrayList<>();
-        getThisDayActivityTasks().addOnCompleteListener(task -> {
+        getAllUserActivityTasks().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 for (QueryDocumentSnapshot document :
                         task.getResult()) {
                     thisDayActivityTasks.add(document.toObject(ActivityTask.class));
                 }
-
+                thisDayActivityTasks.removeIf (activityTask -> !activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth()));
+                thisDayActivityTasks.forEach(activityTask -> {
+                    activityTask.setComplete(false);
+                    updateActivityTask(activityTask.getActivityTaskID(),"complete",false);
+                });
 
                 for (ActivityTask activityTask1 :
                         thisDayActivityTasks) {
@@ -710,6 +712,22 @@ public class Repository {
 
     //region groups
 
+
+    public static Task<HashMap<String,Integer>> getOtherUserGroup(String otherUserDisplayName){
+        Task<HashMap<String ,Integer>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
+            HashMap<String ,Integer> hashMap = new HashMap<>();
+            task.addOnSuccessListener(documentSnapshot -> {
+                for (Map.Entry entry:
+                        ((HashMap<String ,Integer>)task.getResult().getData().get("groupMemebrs")).entrySet()) {
+                    hashMap.put((String)entry.getKey(),(Integer) entry.getValue());
+                }
+            });
+            return hashMap;
+
+        });
+        return returned;
+    }
+
     /**
      *
      * @return {@link Task<DocumentSnapshot>} that resolves into a {@link DocumentSnapshot} with the {@link #user} group document.
@@ -780,7 +798,7 @@ public class Repository {
             {
                 put(targetedUserName, comment);
             }};
-        getUserGroupRef().update("comments",updates);
+        getUserGroupRef().update("comments",FieldValue.arrayRemove(updates));
 
         return task;
 
