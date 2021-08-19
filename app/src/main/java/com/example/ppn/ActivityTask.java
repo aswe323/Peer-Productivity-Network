@@ -48,8 +48,6 @@ public class ActivityTask {
      * indicates if the task was completed or not.
      */
     private boolean complete;
-
-
     /**
      * firestore requires an empty constructor in order to use {@link com.google.firebase.firestore.DocumentSnapshot#toObject(Class) toObject(Class)}.
      */
@@ -77,12 +75,15 @@ public class ActivityTask {
 
         parseContent(content,priorityWords);
 
-        if(this.getTimePack().readTimeTange().isEmpty()){
-            getTimePack().readTimeTange().set(0,timePack.readNattyResults());
-            getTimePack().readTimeTange().set(1,timePack.readNattyResults());
-        }
+        extracted(timePack);
         getTimePack().reCalculateReleventDates();
+    }
 
+    private void extracted(TimePack timePack) {
+        if(this.getTimePack().readTimeTange().isEmpty()){
+            getTimePack().readTimeTange().set(0, timePack.readNattyResults());
+            getTimePack().readTimeTange().set(1, timePack.readNattyResults());
+        }
     }
 
     private void parseContent(String content,@NonNull Map<String, Integer> priorityWords) {

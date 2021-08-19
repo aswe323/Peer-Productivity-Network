@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             }
     );
 
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayoutMediator.attach();
 
 
+        Repository.init();
         //region testing
         /*Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"1Avi");
         Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"2test");
@@ -148,6 +151,14 @@ public class MainActivity extends AppCompatActivity {
         Repository.completeActivityTask(69);
         Repository.completeActivityTask(69);
        Repository.completeActivityTask(69); */
+
+       Repository.getAllUserActivityTasks().addOnSuccessListener(queryDocumentSnapshots -> {
+           List<DocumentSnapshot> activityTasks = queryDocumentSnapshots.getDocuments();
+           activityTasks.forEach(documentSnapshot -> {
+                ActivityTask    activityTask = documentSnapshot.toObject(ActivityTask.class);
+               Log.d(TAG, "onCreate: found" + activityTask.getActivityTaskID());
+           });
+       });
 
 
         //endregion

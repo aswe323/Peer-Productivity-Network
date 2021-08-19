@@ -68,7 +68,6 @@ public class TimePack {
      * @param strigifiedRelaventDates stringified {@link LocalDateTime}s in the format {@link #getFormatter()} gives.
      */
     public TimePack(ArrayList<LocalDateTime> timeRange, int monthNumber,Repetition repetition,ArrayList<String> strigifiedRelaventDates) {
-
         try {
             this.startingTime = timeRange.get(0).format(getFormatter());
             this.endingTime = timeRange.get(1).format(getFormatter());
@@ -76,15 +75,12 @@ public class TimePack {
         }catch (Exception e){
             Log.d(TAG, "TimePack: wrong LocalDateTime format, use TimePack.getFormatter() to make sure it's the right one.");
         }
-        
 
         setMonthNumber(monthNumber);
         setRepetition(repetition);
         setStrigifiedRelaventDates(strigifiedRelaventDates);
         this.stringifiedNattyResults = LocalDateTime.now().format(getFormatter());
-
         notificationCounter = notificationCounter +1;
-
 
     }
 

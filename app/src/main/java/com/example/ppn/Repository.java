@@ -29,6 +29,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
@@ -678,11 +679,10 @@ public class Repository {
 
 
         long LDTnow =LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
-        ZonedDateTime now =LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem"));
+ //       LocalDateTime now = LocalDateTime.parse(LocalDateTime.now().format(TimePack.getFormatter()));
         long timePackTime = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
-        long delayInMili =
-                LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli() -
-                activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
+        long delayInMili = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()
+                -LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
         NotificationSystem.scheduleNotification(context,
                 delayInMili,

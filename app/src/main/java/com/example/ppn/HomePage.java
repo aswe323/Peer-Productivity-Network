@@ -21,6 +21,9 @@ import android.widget.Toast;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link HomePage#newInstance} factory method to
@@ -40,6 +43,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
         @Override
         protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
+
             holder.textTask.setText(model.getContent());
             holder.textTime.setText(""+model.getTimePack().getStartingTime()+" - "+model.getTimePack().getEndingTime());
 
