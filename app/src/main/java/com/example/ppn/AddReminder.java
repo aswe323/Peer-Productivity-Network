@@ -186,17 +186,11 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
                             editText.getText().toString(),
                             subActivities,
-                            time);
-                    //Repository.refreshNotifications(); TODO: was before the marked under
-                    //TODO ************************************************************************
-                    ActivityTask activityTask=new ActivityTask(activitytaskID,
-                            MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
-                            editText.getText().toString(),
-                            subActivities,
-                            time,
-                            Repository.priorityWords);
-                    Repository.setNotification(getContext(),activityTask,getActivity());
-                    //TODO ************************************************************************
+                            time).addOnCompleteListener(task -> {
+                        Repository.refreshNotifications();
+                    });
+
+
 
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
@@ -208,8 +202,9 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                             MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
                                             editText.getText().toString(),
                                             subActivities,
-                                            time);
-                                    Repository.refreshNotifications();
+                                            time).addOnCompleteListener(taskNotification -> {
+                                        Repository.refreshNotifications();
+                                    });
                                     Toast.makeText(getContext(), "updated the task", Toast.LENGTH_SHORT).show();
                                     getParentFragmentManager().beginTransaction().remove(this).commit();
                                 });

@@ -107,7 +107,7 @@ public class Repository {
     /**
      * priority words of the user. should not be used outside {@link Repository}
      */
-    public static Map<String, Integer> priorityWords = new HashMap<>(); //TODO ************************************************************************
+    private static Map<String, Integer> priorityWords = new HashMap<>(); //TODO ************************************************************************
     /**
      * bucket words of the user. should not be used outside {@link Repository}
      */
@@ -677,10 +677,6 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void setNotification(Context context, ActivityTask activityTask, Activity activity){
 
-
-        long LDTnow =LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
- //       LocalDateTime now = LocalDateTime.parse(LocalDateTime.now().format(TimePack.getFormatter()));
-        long timePackTime = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
         long delayInMili = activityTask.getTimePack().readTimeTange().get(0).atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli()
                 -LocalDateTime.now().atZone(ZoneId.of("Asia/Jerusalem")).toInstant().toEpochMilli();
 
@@ -691,7 +687,6 @@ public class Repository {
                 activityTask.getMasloCategory().toString(),
                 activityTask.getContent());
 
-        Toast.makeText(context, ""+delayInMili, Toast.LENGTH_LONG).show();
     }
 
 

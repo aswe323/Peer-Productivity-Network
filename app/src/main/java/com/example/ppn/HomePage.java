@@ -50,8 +50,10 @@ public class HomePage extends Fragment implements View.OnClickListener{
             //holder.checkBox.setChecked(model.); TODO: add done to activityTask???
 
             holder.btnDelete.setOnClickListener(v -> {
-                Repository.deleteActivivtyTask(model.getActivityTaskID());
-                Repository.refreshNotifications();
+                Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
+                    Repository.refreshNotifications();
+                });
+
                 Toast.makeText(getContext(), model.getContent()+" was deleted", Toast.LENGTH_SHORT).show();
             });
 

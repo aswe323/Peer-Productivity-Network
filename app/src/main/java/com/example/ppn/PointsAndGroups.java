@@ -101,6 +101,10 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                 groupsFriendsDialog = new AlertDialog.Builder(getContext());
                 groupsFriendsDialog.setTitle("group friends:\n");
 
+                Repository.readGroup().addOnCompleteListener(task -> {
+                    ArrayList<HashMap<String,Integer>> m = (ArrayList<HashMap<String,Integer>>) task.getResult().getData().get("groupMembers");
+
+                });
                 /*friendsGroupAdapter = new FriendsGroupAdapter(Repository.readGroup());
                 friendsRecyclerView = new RecyclerView(getContext());
                 friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

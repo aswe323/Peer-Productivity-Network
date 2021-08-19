@@ -32,11 +32,19 @@
                 android:id="@+id/friendPoints"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
                 android:layout_weight="1"
-                android:layout_marginRight="100dp"
-                android:textSize="24dp"
+                android:text="0"
                 android:textColor="@color/black"
-                android:text="0" />
+                android:textSize="24dp" />
+
+            <Button
+                android:id="@+id/leaveCommentText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:text="comment" />
 
             <Button
                 android:id="@+id/btnDeleteFriend"
