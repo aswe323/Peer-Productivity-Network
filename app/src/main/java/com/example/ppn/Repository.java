@@ -155,6 +155,7 @@ public class Repository {
      */
     public static void init(FirebaseAuth firebaseAuth){
         init();
+
     }
     /**
      * <p>if {@link #created} is true, returns</p>
@@ -170,8 +171,11 @@ public class Repository {
         if(created) return;
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth1 -> {
             if(firebaseAuth1.getCurrentUser() != null) {
-                Log.d(TAG, "init: confirmed logged in");
+                Log.d(TAG, "init: " + firebaseAuth1.getCurrentUser().getDisplayName() + " confirmed logged in");
                 setUser(firebaseAuth1.getCurrentUser());
+
+                //making sure there are necessary documents and collections for the current user.
+                //group
                 HashMap<String, Object> commetnsInit = new HashMap<String, Object>(){{
                     put("comments",FieldValue.arrayUnion());
                 }};
@@ -179,20 +183,26 @@ public class Repository {
                     put("groupMembers",FieldValue.arrayUnion());
                 }};
                 FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get()
-                        .addOnSuccessListener(documentSnapshot -> {
-                    if(!documentSnapshot.contains("comments")){
-                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit,SetOptions.merge());
-                    }
-                    if(!documentSnapshot.contains("groupMembers")){
-                        FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit,SetOptions.merge());
+                        .addOnCompleteListener(task -> {
 
-                    }
-                });
-                Task taskPriorityWords = getAllPriorityWords();
-                Task taskBucketWords = getBucketWords();
+                                if(!task.getResult().contains("comments")){
+                                    FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit,SetOptions.merge());
+                                }
+                                if(!task.getResult().contains("groupMembers")){
+                                    FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit,SetOptions.merge());
+
+                                }
+
+
+
+                        });
+
+                //words
+                Task<DocumentSnapshot> taskPriorityWords = getAllPriorityWords();
+                Task<DocumentSnapshot> taskBucketWords = getBucketWords();
 
                 taskPriorityWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful() && task.getResult().exists() ) {
                         try {
 
                             for (Map.Entry<String, Object> entry:
@@ -203,10 +213,13 @@ public class Repository {
                             Log.d("firestore,Repository", "onComplete: failed at adding PriorityWords to HashMap");
                             throwable.printStackTrace();
                         }
+                    }else if (!task.getResult().exists()){
+                        FirebaseFirestore.getInstance().collection(user.getDisplayName()).document("PriorityWords").set(new HashMap<String ,Integer>());
                     }
                 });
+
                 taskBucketWords.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful() && task.getResult().exists()) {
                         try {
                             for(Map.Entry<String, Object> entry:
                                     task.getResult().getData().entrySet()){
@@ -216,8 +229,24 @@ public class Repository {
                             Log.d("firestore,Repository", "onComplete: failed at adding BucketWords to HashMap");
                             throwable.printStackTrace();
                         }
+                    }else if(!task.getResult().exists()){
+                        FirebaseFirestore.getInstance().collection(user.getDisplayName()).document("BucketWords").set(new HashMap<String ,Integer>());
                     }
                 });
+
+                //tasks
+                Task<QuerySnapshot> taskActivityTasks= getAllUserActivityTasks();
+                taskActivityTasks.addOnCompleteListener(task -> {
+                task.getResult().getDocuments().isEmpty();
+            });
+
+                getActivityTaskCollection().document().get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){}
+                    else if(!task.getResult().exists()){
+                        getActivityTaskCollection().document("initializer").set("");
+                    }
+                });
+
 
             }
 
