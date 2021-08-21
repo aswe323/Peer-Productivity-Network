@@ -743,13 +743,15 @@ public class Repository {
     //region groups
 
 
-    public static Task<HashMap<String,Integer>> getOtherUserGroup(String otherUserDisplayName){
-        Task<HashMap<String ,Integer>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
-            HashMap<String ,Integer> hashMap = new HashMap<>();
+    public static Task<HashMap<String,Long>> getOtherUserGroup(String otherUserDisplayName){
+        Task<HashMap<String ,Long>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
+            HashMap<String ,Long> hashMap = new HashMap<>();
             task.addOnSuccessListener(documentSnapshot -> {
-                for (Map.Entry entry:
-                        ((HashMap<String ,Integer>)task.getResult().getData().get("groupMemebrs")).entrySet()) {
-                    hashMap.put((String)entry.getKey(),(Integer) entry.getValue());
+                for (HashMap<String,Long> entry:
+                        (ArrayList<HashMap<String ,Long>>)task.getResult().getData().get("groupMembers")) {
+                    entry.keySet().forEach(s -> {
+                        hashMap.put(s,entry.get(s));
+                    });
                 }
             });
             return hashMap;
