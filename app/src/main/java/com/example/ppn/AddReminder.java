@@ -50,6 +50,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
     private ArrayList<String> dates;
     private TimePack time;
     private boolean isEditFlag;
+    private boolean isDataShow;
     private EditText editText;
     private Spinner repetitionSpinner;
     private Spinner categorySpinner;
@@ -425,7 +426,8 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_add_reminder, container, false);
 
-        isEditFlag=getArguments().getBoolean("isEdit");
+        isEditFlag = getArguments().getBoolean("isEdit");
+        isDataShow = getArguments().getBoolean("isDataShow");
         subActivities=new ArrayList<>();
         dates = new ArrayList<>();
         editText=view.findViewById(R.id.EditText_reminder_content);
@@ -485,6 +487,64 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         relevantDateAdapter.notifyDataSetChanged();
                     } );
 
+        }
+        else if(isDataShow)
+        {
+            Task t=Repository.getActivityTaskCollection()
+                    .whereEqualTo("activityTaskID",getArguments()
+                            .getInt("activityTaskID")).get()
+                    .addOnSuccessListener(queryDocumentSnapshots ->{
+
+                        ActivityTask activityTask = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class);
+                        editText.setText(activityTask.getContent());
+                        editText.setEnabled(false);
+                        for (String date:activityTask.getTimePack().getStrigifiedRelaventDates())
+                        {
+                            DateTimeFormatter formatter = TimePack.getFormatter();
+                            LocalDateTime localDateTime = LocalDateTime.parse(date,formatter);
+                            String time;
+                            if (localDateTime.getMonthValue()<10)
+                                time=""+ localDateTime.getYear() + "-0" + localDateTime.getMonthValue();
+                            else
+                                time=""+ localDateTime.getYear() + "-" + localDateTime.getMonthValue();
+
+                            if(localDateTime.getDayOfMonth()<10)
+                                time+="-0"+localDateTime.getDayOfMonth();
+                            else
+                                time+="-"+localDateTime.getDayOfMonth();
+
+                            dates.add(time);
+                        }
+                        repetitionSpinner.setSelection(activityTask.getTimePack().getRepetition().ordinal());
+                        repetitionSpinner.setEnabled(false);
+
+                        categorySpinner.setSelection(activityTask.getMasloCategory().ordinal());
+                        categorySpinner.setEnabled(false);
+
+                        timeFromText.setText(activityTask.getTimePack().getStartingTime());
+                        timeFromText.setEnabled(false);
+
+                        timeToText.setText(activityTask.getTimePack().getEndingTime());
+                        timeToText.setEnabled(false);
+
+                        subActivities.addAll(activityTask.getSubActivitys());
+
+                        addDate.setEnabled(false);
+                        addDate.setVisibility(View.GONE);
+
+                        addSubActivity.setEnabled(false);
+                        addSubActivity.setVisibility(View.GONE);
+
+                        cancel.setEnabled(false);
+                        cancel.setVisibility(View.GONE);
+
+                        save.setEnabled(false);
+                        save.setVisibility(View.GONE);
+
+
+                        recycleAdapter.notifyDataSetChanged();
+                        relevantDateAdapter.notifyDataSetChanged();
+                    });
         }
         //region OnClickListeners
 

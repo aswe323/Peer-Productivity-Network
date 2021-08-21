@@ -26,9 +26,9 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
     private AlertDialog.Builder commentDialogBox;
     private EditText inputForCommentDialog;
     private String commentText="";
-    ArrayList<HashMap<String,Integer>> friends = new ArrayList<>();
+    ArrayList<HashMap<String,Long>> friends = new ArrayList<>();
 
-    public FriendsGroupAdapter(ArrayList<HashMap<String,Integer>> friends) {
+    public FriendsGroupAdapter(ArrayList<HashMap<String,Long>> friends) {
         this.friends = friends;
     }
 
@@ -43,13 +43,19 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
 
     @Override
     public void onBindViewHolder(@NonNull FriendsGroupHolder holder, int position) {
-        for (Map.Entry<String,Integer> entry:friends.get(position).entrySet())
+        for (Map.Entry<String,Long> entry:friends.get(position).entrySet())
         {
             holder.friendsUserName.setText(entry.getKey());
-            holder.friendsPoints.setText(entry.getValue());
+            holder.friendsPoints.setText(entry.getValue().toString());
             holder.deleteUserFromGroup.setOnClickListener(v -> {
                 Repository.deleteUserFromMyGroup(entry.getKey());
+                friends.remove(friends.get(position));
+                notifyItemRemoved(position);
                 Toast.makeText(v.getContext(), entry.getKey()+" was deleted from your group", Toast.LENGTH_SHORT).show();
+            });
+
+            holder.friendsPoints.setOnClickListener(v -> {
+                //TODO: on click show fiends profile
             });
 
             holder.leaveComment.setOnClickListener(v -> {

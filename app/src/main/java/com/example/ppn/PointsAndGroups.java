@@ -102,14 +102,15 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                 groupsFriendsDialog.setTitle("group friends:\n");
 
                 Repository.readGroup().addOnCompleteListener(task -> {
-                    ArrayList<HashMap<String,Integer>> m = (ArrayList<HashMap<String,Integer>>) task.getResult().getData().get("groupMembers");
-
+                    ArrayList<HashMap<String,Long>> groupFriendsArray = (ArrayList<HashMap<String,Long>>) task.getResult().getData().get("groupMembers");
+                    friendsGroupAdapter = new FriendsGroupAdapter(groupFriendsArray);
+                    friendsRecyclerView = new RecyclerView(getContext());
+                    friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    friendsRecyclerView.setAdapter(friendsGroupAdapter);
+                    groupsFriendsDialog.setView(friendsRecyclerView);
+                    groupsFriendsDialog.show();
+                    //friendsGroupAdapter.notifyItemRemoved();
                 });
-                /*friendsGroupAdapter = new FriendsGroupAdapter(Repository.readGroup());
-                friendsRecyclerView = new RecyclerView(getContext());
-                friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                friendsRecyclerView.setAdapter(friendsGroupAdapter);
-                groupsFriendsDialog.setView(friendsRecyclerView);*/
 
                 groupsFriendsDialog.setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
@@ -119,7 +120,7 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                             }
                         });
 
-                groupsFriendsDialog.show();
+
 
                 //endregion
                 break;

@@ -107,7 +107,7 @@ public class Repository {
     /**
      * priority words of the user. should not be used outside {@link Repository}
      */
-    private static Map<String, Integer> priorityWords = new HashMap<>(); //TODO ************************************************************************
+    private static Map<String, Integer> priorityWords = new HashMap<>();
     /**
      * bucket words of the user. should not be used outside {@link Repository}
      */
@@ -776,11 +776,17 @@ public class Repository {
      */
     public static Task<Void> deleteUserFromMyGroup(String targetedUser){
 
-        Task<Void> task;
+        HashMap<String, Long> hashMap = new HashMap<>();
 
-        task = getUserGroupRef().update("groupMembers",targetedUser,FieldValue.delete());
+        Task task1 = getUserGroupRef().get().addOnSuccessListener(documentSnapshot -> {
+            for (Map<String, Object> map :
+                    (ArrayList<HashMap<String, Object>>) documentSnapshot.getData().get("groupMembers")) {
+                if(map.containsKey(targetedUser)) hashMap.put(targetedUser, (Long) map.get(targetedUser));//we know targetedUser exists.
+            }
+            getUserGroupRef().update("groupMembers",FieldValue.arrayRemove(hashMap));
+        });
 
-        return task;
+        return task1;
 
     }
 

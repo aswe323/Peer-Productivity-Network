@@ -1,9 +1,11 @@
 package com.example.ppn;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +24,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import java.lang.reflect.Field;
+import java.time.MonthDay;
 import java.util.ArrayList;
 
 /**
@@ -38,39 +41,89 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     private Button addReminder;
     private RecyclerView recyclerView;
+    private AlertDialog.Builder reminderDataDialog;
 
     private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,RecycleHolder>(options) {
 
         @Override
         protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
 
-            holder.textTask.setText(model.getContent());
-            holder.textTime.setText(""+model.getTimePack().getStartingTime()+" - "+model.getTimePack().getEndingTime());
+            if(model.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth())) { //if the activity is for today show it, else hide all and disable it
 
-            //holder.checkBox.setChecked(model.); TODO: add done to activityTask???
+                holder.textTask.setText(model.getContent());
+                holder.textTime.setText("" + model.getTimePack().getStartingTime() + " - " + model.getTimePack().getEndingTime());
 
-            holder.btnDelete.setOnClickListener(v -> {
-                Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
-                    Repository.refreshNotifications();
+                /*if(model.getComplete()) TODO: checkbox
+                {
+                    holder.checkBox.setChecked(true);
+                    holder.checkBox.setEnabled(false);
+                }
+                holder.checkBox.setOnClickListener(v -> {
+                    if(holder.checkBox.isChecked())
+                    {
+                        holder.checkBox.setChecked(true);
+                        holder.checkBox.setEnabled(false);
+                        model.setComplete(true);
+                        Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
+                            Repository.createActivityTask(model.getActivityTaskID(),
+                                    model.getMasloCategory(),
+                                    model.getContent(),
+                                    model.getSubActivitys(),
+                                    model.getTimePack());
+                        });
+                    }
+                    else
+                        holder.checkBox.setChecked(true);
+                });*/
+
+                holder.btnDelete.setOnClickListener(v -> {
+                    Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
+                        Repository.refreshNotifications();
+                    });
+
+                    Toast.makeText(getContext(), model.getContent() + " was deleted", Toast.LENGTH_SHORT).show();
                 });
 
-                Toast.makeText(getContext(), model.getContent()+" was deleted", Toast.LENGTH_SHORT).show();
-            });
+                holder.btnEdit.setOnClickListener(v -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("activityTaskID", model.getActivityTaskID());
+                    bundle.putBoolean("isEdit", true);
+                    AddReminder addReminder = new AddReminder();
+                    addReminder.setArguments(bundle);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(((ViewGroup) (getView().getParent())).getId(), addReminder)
+                            .setReorderingAllowed(true)
+                            .addToBackStack("addReminder") // name can be null
+                            .commit();
 
-            holder.btnEdit.setOnClickListener(v -> {
-                Bundle bundle= new Bundle();
-                bundle.putInt("activityTaskID",model.getActivityTaskID());
-                bundle.putBoolean("isEdit",true);
-                AddReminder addReminder = new AddReminder();
-                addReminder.setArguments(bundle);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(((ViewGroup)(getView().getParent())).getId(), addReminder)
-                        .setReorderingAllowed(true)
-                        .addToBackStack("addReminder") // name can be null
-                        .commit();
+                });
 
-            });
+                holder.dataHolder.setOnClickListener(v -> {
+                    /*DialogFragment dialogFragment...... //TODO:************************
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("activityTaskID", model.getActivityTaskID());
+                    bundle.putBoolean("isDataShow", true);
+                    reminderDataDialog = new AlertDialog.Builder(getContext());
+                    View view = getLayoutInflater().inflate(R.layout.fragment_add_reminder,null);
+                    reminderDataDialog.setView(view).setPositiveButton("ok",null).setNegativeButton("cancel",null);
+                    reminderDataDialog.create().show();*/
+
+                });
+            }
+            else
+            {
+                holder.textTask.setVisibility(View.GONE);
+                holder.textTask.setEnabled(false);
+                holder.textTime.setVisibility(View.GONE);
+                holder.textTime.setEnabled(false);
+                holder.btnDelete.setVisibility(View.GONE);
+                holder.btnDelete.setEnabled(false);
+                holder.btnEdit.setVisibility(View.GONE);
+                holder.btnEdit.setEnabled(false);
+                holder.checkBox.setVisibility(View.GONE);
+                holder.checkBox.setEnabled(false);
+            }
 
         }
 
