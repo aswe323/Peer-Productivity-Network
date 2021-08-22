@@ -810,15 +810,19 @@ public class Repository {
         Task<DocumentSnapshot> set;
 
 
-        set = FirebaseFirestore.getInstance().collection("groups").document(addedUser).get().addOnSuccessListener(documentSnapshot -> {
-            ((ArrayList<HashMap<String,Long>>)documentSnapshot.get("groupMembers")).forEach(stringLongHashMap -> {
-                if(stringLongHashMap.keySet().contains(addedUser)){
-                    newMember.put(addedUser,stringLongHashMap.get(addedUser));
-                    getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
-                };
-            });
+        set =  FirebaseFirestore.getInstance().collection("groups").document(addedUser).get().addOnCompleteListener(documentSnapshot -> {
+            if(documentSnapshot.getResult().exists()){
+                    ((ArrayList<HashMap<String,Long>>)documentSnapshot.getResult().get("groupMembers")).forEach(stringLongHashMap -> {
+                        if(stringLongHashMap.keySet().contains(addedUser)){
+                            newMember.put(addedUser,stringLongHashMap.get(addedUser));
+                            getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
+                        };
+                    });
 
+            }
         });
+
+
         return set;
 
     }
