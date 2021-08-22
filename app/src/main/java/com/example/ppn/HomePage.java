@@ -71,7 +71,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     {
                         holder.checkBox.setChecked(true);
                         holder.checkBox.setEnabled(false);
-                        
+
                         Repository.completeActivityTask(model.getActivityTaskID());
 
                     }
@@ -101,14 +101,14 @@ public class HomePage extends Fragment implements View.OnClickListener{
                 });
 
                 holder.dataHolder.setOnClickListener(v -> {
-                    /*DialogFragment dialogFragment...... //TODO:************************
+                    /*DialogFragment dialogFragment...... //TODO:*************************/
                     Bundle bundle = new Bundle();
                     bundle.putInt("activityTaskID", model.getActivityTaskID());
                     bundle.putBoolean("isDataShow", true);
                     reminderDataDialog = new AlertDialog.Builder(getContext());
                     View view = getLayoutInflater().inflate(R.layout.fragment_add_reminder,null);
                     reminderDataDialog.setView(view).setPositiveButton("ok",null).setNegativeButton("cancel",null);
-                    reminderDataDialog.create().show();*/
+                    reminderDataDialog.create().show();
 
                 });
             }

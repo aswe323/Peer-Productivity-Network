@@ -76,6 +76,7 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
                     userdata.setTextColor(Color.BLACK);
                     userdata.setText(entry.getKey()+":\t\t\t\t"+entry.getValue()+"\n\n\n\t\t\t\t\t\t\t\tfollowers:");
                     userdata.setLayoutParams(params);
+
                     friendsFollowersAdapter = new FriendsFollowersAdapter(otherFriendsFollowers);
                     friendsFollowersRecycle = new RecyclerView(v.getContext());
                     friendsFollowersRecycle.setLayoutManager(new LinearLayoutManager(v.getContext()));

@@ -104,9 +104,14 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
 
                 Repository.readGroup().addOnCompleteListener(task -> {
                     ArrayList<HashMap<String,Long>> groupFriendsArray = (ArrayList<HashMap<String,Long>>) task.getResult().getData().get("groupMembers");
-                    groupFriendsArray.remove(0);
-                    groupFriendsArray.remove(0);
-                    groupFriendsArray.remove(0);
+                    groupFriendsArray.removeIf(stringLongHashMap -> {
+                        boolean containstDoNotShow = stringLongHashMap.containsKey("doNotShow");
+                        boolean containstDoNotShowTwo = stringLongHashMap.containsKey("doNotShow2");
+                        boolean containsUserDisplayName = stringLongHashMap.containsKey(Repository.getUser().getDisplayName());
+
+                        return containstDoNotShow || containstDoNotShowTwo || containsUserDisplayName;
+                    });
+
                     friendsGroupAdapter = new FriendsGroupAdapter(groupFriendsArray);
                     friendsRecyclerView = new RecyclerView(getContext());
                     friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
