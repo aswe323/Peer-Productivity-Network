@@ -11,6 +11,8 @@ import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
 import java.time.LocalDateTime;
+import java.time.MonthDay;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,6 +50,33 @@ public class ActivityTask {
      * indicates if the task was completed or not.
      */
     private boolean complete;
+
+    private String stringifiedLastDateCompleted;
+
+    public String getStringifiedLastDateCompleted() {
+        return stringifiedLastDateCompleted;
+    }
+
+    public void setStringifiedLastDateCompleted(String stringifiedLastDateCompleted) {
+        this.stringifiedLastDateCompleted = stringifiedLastDateCompleted;
+    }
+
+    public void updateStringifiedLastDateCompleted(LocalDateTime dayOfCompletion){
+        setStringifiedLastDateCompleted(dayOfCompletion.format(TimePack.getFormatter()));
+    }
+
+    /**
+     *
+     * @return the last date when this {@link ActivityTask } was completed. or null if it never was completed
+     */
+    public  LocalDateTime readStringifiedLastDateCompleted(){
+        if (getStringifiedLastDateCompleted() == "") {
+            return LocalDateTime.parse(getStringifiedLastDateCompleted(),TimePack.getFormatter());
+        }
+        return null;
+    }
+
+
     /**
      * firestore requires an empty constructor in order to use {@link com.google.firebase.firestore.DocumentSnapshot#toObject(Class) toObject(Class)}.
      */
@@ -72,6 +101,7 @@ public class ActivityTask {
         setContent(content);
         setTimePack(timePack);
         setComplete(false);
+        setStringifiedLastDateCompleted("");
 
         parseContent(content,priorityWords);
 

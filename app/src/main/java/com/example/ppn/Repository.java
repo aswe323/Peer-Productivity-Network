@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -14,7 +12,6 @@ import androidx.annotation.RequiresApi;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,19 +24,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
-import java.time.YearMonth;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,6 +165,7 @@ public class Repository {
                 setUser(firebaseAuth1.getCurrentUser());
 
                 //making sure there are necessary documents and collections for the current user.
+
                 //group
                 HashMap<String, Object> commetnsInit = new HashMap<String, Object>(){{
                     put("comments",FieldValue.arrayUnion());
@@ -399,6 +390,7 @@ public class Repository {
             if(activityTask != null && !activityTask.getComplete()){
                 getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).continueWith(task -> {
                     if(task.isSuccessful()) {
+                        getActivityTaskCollection().document("ActivityTask"+activityTaskID).update("stringifiedLastDateCompleted", LocalDateTime.now().format(TimePack.getFormatter()));
                         FirebaseFirestore.getInstance().collection("groups").get()
                                 .addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
@@ -587,7 +579,12 @@ public class Repository {
                         task.getResult()) {
                     thisDayActivityTasks.add(document.toObject(ActivityTask.class));
                 }
-                thisDayActivityTasks.removeIf (activityTask -> !activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth()));
+                thisDayActivityTasks.removeIf (activityTask -> {
+                    boolean relevant = !activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
+                    boolean completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() != LocalDateTime.now().getDayOfYear();
+                    return !relevant || completedToday;
+
+                });
                 thisDayActivityTasks.forEach(activityTask -> {
                     activityTask.setComplete(false);
                     updateActivityTask(activityTask.getActivityTaskID(),"complete",false);
@@ -743,13 +740,15 @@ public class Repository {
     //region groups
 
 
-    public static Task<HashMap<String,Integer>> getOtherUserGroup(String otherUserDisplayName){
-        Task<HashMap<String ,Integer>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
-            HashMap<String ,Integer> hashMap = new HashMap<>();
+    public static Task<HashMap<String,Long>> getOtherUserGroup(String otherUserDisplayName){
+        Task<HashMap<String ,Long>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
+            HashMap<String ,Long> hashMap = new HashMap<>();
             task.addOnSuccessListener(documentSnapshot -> {
-                for (Map.Entry entry:
-                        ((HashMap<String ,Integer>)task.getResult().getData().get("groupMemebrs")).entrySet()) {
-                    hashMap.put((String)entry.getKey(),(Integer) entry.getValue());
+                for (HashMap<String,Integer> entry:
+                        (ArrayList<HashMap<String ,Integer>>)task.getResult().getData().get("groupMembers")) {
+                    entry.keySet().forEach(s -> {
+                        hashMap.put(s,Long.valueOf(entry.get(s)));
+                    });
                 }
             });
             return hashMap;
@@ -795,12 +794,22 @@ public class Repository {
      * @param addedUser the name of the user to be added as will be seen if they called {@link FirebaseUser#getDisplayName()}.
      * @return {@link Task<Void>} of the operation
      */
-    public static Task<Void> addUserToMyGroup(String addedUser){
+    public static Task<DocumentSnapshot> addUserToMyGroup(String addedUser){
         Map<String,Object> newMember = new HashMap<String,Object>(){{
             put(addedUser,0);
         }};
+        Task<DocumentSnapshot> set;
 
-        Task<Void> set = getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
+
+        set = FirebaseFirestore.getInstance().collection("groups").document(addedUser).get().addOnSuccessListener(documentSnapshot -> {
+            ((ArrayList<HashMap<String,Long>>)documentSnapshot.get("groupMembers")).forEach(stringLongHashMap -> {
+                if(stringLongHashMap.keySet().contains(addedUser)){
+                    newMember.put(addedUser,stringLongHashMap.get(addedUser));
+                    getUserGroupRef().update("groupMembers",FieldValue.arrayUnion(newMember));
+                };
+            });
+
+        });
         return set;
 
     }
@@ -840,10 +849,16 @@ public class Repository {
         return task;
 
     }
-
-
-
-
-
+    
     //endregion
+
+
+    /// TODO: 22/08/2021 user:points of a followed user aren't being updated on addUserToMyGroup call. ((DONE!)
+
+    // TODO: 22/08/2021 change/add complete indicator as date beside/insted of boolean for ActivityTask.
+    // 1. Add to activitytask as stringifiedLastDateCompleted ?done?
+    // 2. set/get with converters ?done?
+    // 3. check in refreshNotifications for stringifiedLastDateCompleted if it's today, ignrore it. ?done?
+    // 4. in completeActivityTask updated stringifiedLastDateCompleted field ?done?
+
 }
