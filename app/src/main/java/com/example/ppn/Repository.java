@@ -406,9 +406,11 @@ public class Repository {
                                     if (task1.isSuccessful()) {
                                         task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
                                             ((ArrayList<HashMap<String,Long>>)(documentSnapshot1.get("groupMembers"))).forEach(stringLongHashMap -> {
-                                                HashMap<String, Long> hashMap = new HashMap<>();
-                                                hashMap.put(getUser().getDisplayName(), stringLongHashMap.get(user.getDisplayName()));
-                                                documentSnapshot1.getReference().update("groupMembers", FieldValue.arrayUnion(hashMap));
+                                                if(stringLongHashMap.containsKey(user.getDisplayName())) {
+                                                    HashMap<String, Long> hashMap = new HashMap<>();
+                                                    hashMap.put(getUser().getDisplayName(), stringLongHashMap.get(user.getDisplayName()));
+                                                    documentSnapshot1.getReference().update("groupMembers", FieldValue.arrayUnion(hashMap));
+                                                }
                                             });
                                         });
                                     } else {
