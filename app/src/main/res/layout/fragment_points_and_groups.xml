@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:background="?android:windowBackground"
     tools:context=".PointsAndGroups"
+    android:clickable="true"
+    android:focusable="true"
     android:id="@+id/pointsNgroups">
 
     <LinearLayout

@@ -43,7 +43,6 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     private Button addReminder;
     private RecyclerView recyclerView;
-    private AlertDialog.Builder reminderDataDialog;
 
     private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,RecycleHolder>(options) {
 
@@ -101,7 +100,6 @@ public class HomePage extends Fragment implements View.OnClickListener{
                 });
 
                 holder.dataHolder.setOnClickListener(v -> {
-                    /*DialogFragment dialogFragment...... //TODO:*************************/
                     Bundle bundle = new Bundle();
                     bundle.putInt("activityTaskID", model.getActivityTaskID());
                     bundle.putBoolean("isDataShow", true);
@@ -227,28 +225,6 @@ public class HomePage extends Fragment implements View.OnClickListener{
         //endregion
 
         return view;
-    }
-
-
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_menu: //if clicked the search icon it will move the user into the search fragment
-                /*FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                Search erf = new Search();
-                ft.replace(getView().getId(), erf).commit();*/
-
-                //getChildFragmentManager().beginTransaction().add(R.id.Fragment_Search,)
-                return true;
-            case R.id.user_menu: //TODO:this will allow the user to login\logout of the google user
-                //Toast.makeText(this.getContext(), "this is not a bug... it's a feature, read comment to learn more", Toast.LENGTH_SHORT).show();
-                //Toast.makeText(getContext(), ""+ FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_LONG).show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
     }
 
 

@@ -223,14 +223,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.search_menu: //if clicked the search icon it will move the user into the search fragment
-                /*FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                Search erf = new Search();
-                ft.replace(getView().getId(), erf).commit();*/
-
-                //getChildFragmentManager().beginTransaction().add(R.id.Fragment_Search,)
-                return true;
-            case R.id.user_menu: //TODO:this will allow the user to login\logout of the google user
+            case R.id.user_menu:
                 signOut();
                 startActivity(new Intent(this,loading.class));
                 finish();
