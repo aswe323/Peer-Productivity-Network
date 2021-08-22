@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -12,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -24,12 +27,19 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
+import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -744,10 +754,11 @@ public class Repository {
         Task<HashMap<String ,Long>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
             HashMap<String ,Long> hashMap = new HashMap<>();
             task.addOnSuccessListener(documentSnapshot -> {
-                for (HashMap<String,Integer> entry:
-                        (ArrayList<HashMap<String ,Integer>>)task.getResult().getData().get("groupMembers")) {
+
+                for (HashMap<String,Long> entry:
+                        (ArrayList<HashMap<String ,Long>>)task.getResult().getData().get("groupMembers")) {
                     entry.keySet().forEach(s -> {
-                        hashMap.put(s,Long.valueOf(entry.get(s)));
+                        hashMap.put(s,entry.get(s));
                     });
                 }
             });
@@ -849,16 +860,10 @@ public class Repository {
         return task;
 
     }
-    
+
+
+
+
+
     //endregion
-
-
-    /// TODO: 22/08/2021 user:points of a followed user aren't being updated on addUserToMyGroup call. ((DONE!)
-
-    // TODO: 22/08/2021 change/add complete indicator as date beside/insted of boolean for ActivityTask.
-    // 1. Add to activitytask as stringifiedLastDateCompleted ?done?
-    // 2. set/get with converters ?done?
-    // 3. check in refreshNotifications for stringifiedLastDateCompleted if it's today, ignrore it. ?done?
-    // 4. in completeActivityTask updated stringifiedLastDateCompleted field ?done?
-
 }

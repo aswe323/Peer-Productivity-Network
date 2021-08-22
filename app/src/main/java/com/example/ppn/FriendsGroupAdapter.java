@@ -2,6 +2,7 @@ package com.example.ppn;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.Task;
@@ -27,6 +29,10 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
     private EditText inputForCommentDialog;
     private String commentText="";
     ArrayList<HashMap<String,Long>> friends = new ArrayList<>();
+    //friends profile variables
+    private AlertDialog.Builder friendsProfile;
+    private RecyclerView friendsFollowersRecycle;
+    private FriendsFollowersAdapter friendsFollowersAdapter;
 
     public FriendsGroupAdapter(ArrayList<HashMap<String,Long>> friends) {
         this.friends = friends;
@@ -54,8 +60,35 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
                 Toast.makeText(v.getContext(), entry.getKey()+" was deleted from your group", Toast.LENGTH_SHORT).show();
             });
 
-            holder.friendsPoints.setOnClickListener(v -> {
-                //TODO: on click show fiends profile
+            holder.friendsUserName.setOnClickListener(v -> {
+                friendsProfile = new AlertDialog.Builder(v.getContext());
+                //friendsProfile.setTitle(entry.getKey()+" profile:");
+                Repository.getOtherUserGroup(entry.getKey()).addOnCompleteListener(task -> {
+                    HashMap<String,Long> otherFriendsFollowers = task.getResult();
+                    LinearLayout linearLayout = new LinearLayout(v.getContext());
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    params.setMargins(15,0,0,15);
+                    TextView userdata = new TextView(v.getContext());
+                    //TextView userpoints = new TextView(v.getContext());
+
+                    userdata.setTextSize(24);
+                    userdata.setTextColor(Color.BLACK);
+                    userdata.setText(entry.getKey()+":\t\t\t\t"+entry.getValue()+"\n\n\n\t\t\t\t\t\t\t\tfollowers:");
+                    userdata.setLayoutParams(params);
+                    //userpoints.setText(entry.getValue().toString());
+                    //userpoints.setGravity(View.FOCUS_LEFT);
+                    friendsFollowersAdapter = new FriendsFollowersAdapter(otherFriendsFollowers);
+                    friendsFollowersRecycle = new RecyclerView(v.getContext());
+                    friendsFollowersRecycle.setLayoutManager(new LinearLayoutManager(v.getContext()));
+                    friendsFollowersRecycle.setAdapter(friendsFollowersAdapter);
+                    linearLayout.addView(userdata);
+                    linearLayout.addView(friendsFollowersRecycle);
+                    friendsProfile.setView(linearLayout);
+                    friendsProfile.setNegativeButton("close",null).show();
+                });
+
+
             });
 
             holder.leaveComment.setOnClickListener(v -> {
