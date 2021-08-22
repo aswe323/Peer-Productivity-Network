@@ -386,31 +386,28 @@ public class Repository {
     HashMap<String,FieldValue> updates = new HashMap<>();
     updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
-    return    getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
+    return getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
             ActivityTask activityTask = documentSnapshot.toObject(ActivityTask.class);
             if(activityTask != null && !activityTask.getComplete()){
-                getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).continueWith(task -> {
-                    if(task.isSuccessful()) {
-                        getActivityTaskCollection().document("ActivityTask"+activityTaskID).update("stringifiedLastDateCompleted", LocalDateTime.now().format(TimePack.getFormatter()));
-                        FirebaseFirestore.getInstance().collection("groups").get()
-                                .addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
-                                            ((ArrayList<HashMap<String,Long>>)(documentSnapshot1.get("groupMembers"))).forEach(stringLongHashMap -> {
-                                                if(stringLongHashMap.containsKey(user.getDisplayName())) {
-                                                    ArrayList<HashMap<String,Long>> arrayList = new ArrayList<>();
-                                                    arrayList.addAll(((ArrayList<HashMap<String,Long>>)(documentSnapshot1.get("groupMembers"))));
-                                                    arrayList.get(arrayList.indexOf(stringLongHashMap)).put(user.getDisplayName(),stringLongHashMap.get(user.getDisplayName())+1);
-                                                    documentSnapshot1.getReference().update("groupMembers", arrayList);
-                                                }
+                getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).addOnSuccessListener(task -> {
+                        getActivityTaskCollection().document("ActivityTask"+activityTaskID).update("stringifiedLastDateCompleted", LocalDateTime.now().format(TimePack.getFormatter())).addOnSuccessListener(task2 -> {
+                            FirebaseFirestore.getInstance().collection("groups").get().addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
+                                                ((ArrayList<HashMap<String, Long>>) (documentSnapshot1.get("groupMembers"))).forEach(stringLongHashMap -> {
+                                                    if (stringLongHashMap.containsKey(user.getDisplayName())) {
+                                                        ArrayList<HashMap<String, Long>> arrayList = new ArrayList<>();
+                                                        arrayList.addAll(((ArrayList<HashMap<String, Long>>) (documentSnapshot1.get("groupMembers"))));
+                                                        arrayList.get(arrayList.indexOf(stringLongHashMap)).put(user.getDisplayName(), stringLongHashMap.get(user.getDisplayName()) + 1);
+                                                        documentSnapshot1.getReference().update("groupMembers", arrayList);
+                                                    }
+                                                });
                                             });
-                                        });
-                                    } else {
-                                        Log.d(TAG, "completeActivityTask: failed");
-                                    }
-                                });
-                    }
-                    return null;
+                                        } else {
+                                            Log.d(TAG, "completeActivityTask: failed");
+                                        }
+                                    });
+                        });
                 });
             }
         });
@@ -589,7 +586,7 @@ public class Repository {
                 thisDayActivityTasks.removeIf (activityTask -> {
                     boolean relevant = activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
                     boolean completedToday = false;
-                    if (activityTask.readStringifiedLastDateCompleted().equals("")) {
+                    if (!activityTask.readStringifiedLastDateCompleted().equals("")) {
                         completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() == LocalDateTime.now().getDayOfYear();
                     }
 
