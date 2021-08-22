@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -14,7 +12,6 @@ import androidx.annotation.RequiresApi;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,19 +24,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.MonthDay;
-import java.time.YearMonth;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -390,12 +380,13 @@ public class Repository {
     /**
      * marks the {@link ActivityTask} with the activityTaskID as complete, and updates score across groups.
      * @param activityTaskID the ID of the {@link ActivityTask} to mark as completed.
+     * @return
      */
-    public static void completeActivityTask(int activityTaskID){
+    public static Task<DocumentSnapshot> completeActivityTask(int activityTaskID){
     HashMap<String,FieldValue> updates = new HashMap<>();
     updates.put(getUser().getDisplayName(),FieldValue.increment(1));
 
-        getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
+    return    getActivityTaskCollection().document("ActivityTask" + activityTaskID).get().addOnSuccessListener(documentSnapshot -> {
             ActivityTask activityTask = documentSnapshot.toObject(ActivityTask.class);
             if(activityTask != null && !activityTask.getComplete()){
                 getActivityTaskCollection().document("ActivityTask" + activityTaskID).update("complete",true).continueWith(task -> {
@@ -599,7 +590,7 @@ public class Repository {
                     boolean relevant = activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
                     boolean completedToday = false;
                     if (activityTask.readStringifiedLastDateCompleted().equals("")) {
-                        completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() != LocalDateTime.now().getDayOfYear();
+                        completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() == LocalDateTime.now().getDayOfYear();
                     }
 
                     return !relevant || completedToday;
