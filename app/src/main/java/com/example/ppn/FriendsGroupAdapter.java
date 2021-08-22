@@ -54,7 +54,9 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
             holder.friendsUserName.setText(entry.getKey());
             holder.friendsPoints.setText(entry.getValue().toString());
             holder.deleteUserFromGroup.setOnClickListener(v -> {
-                Repository.deleteUserFromMyGroup(entry.getKey());
+                Repository.deleteUserFromMyGroup(entry.getKey()).addOnCompleteListener(task -> {
+                    PointsAndGroups.displayGroupPoints();
+                });
                 friends.remove(friends.get(position));
                 notifyItemRemoved(position);
                 Toast.makeText(v.getContext(), entry.getKey()+" was deleted from your group", Toast.LENGTH_SHORT).show();
@@ -62,7 +64,6 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
 
             holder.friendsUserName.setOnClickListener(v -> {
                 friendsProfile = new AlertDialog.Builder(v.getContext());
-                //friendsProfile.setTitle(entry.getKey()+" profile:");
                 Repository.getOtherUserGroup(entry.getKey()).addOnCompleteListener(task -> {
                     HashMap<String,Long> otherFriendsFollowers = task.getResult();
                     LinearLayout linearLayout = new LinearLayout(v.getContext());
@@ -70,14 +71,11 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                     params.setMargins(15,0,0,15);
                     TextView userdata = new TextView(v.getContext());
-                    //TextView userpoints = new TextView(v.getContext());
 
                     userdata.setTextSize(24);
                     userdata.setTextColor(Color.BLACK);
                     userdata.setText(entry.getKey()+":\t\t\t\t"+entry.getValue()+"\n\n\n\t\t\t\t\t\t\t\tfollowers:");
                     userdata.setLayoutParams(params);
-                    //userpoints.setText(entry.getValue().toString());
-                    //userpoints.setGravity(View.FOCUS_LEFT);
                     friendsFollowersAdapter = new FriendsFollowersAdapter(otherFriendsFollowers);
                     friendsFollowersRecycle = new RecyclerView(v.getContext());
                     friendsFollowersRecycle.setLayoutManager(new LinearLayoutManager(v.getContext()));

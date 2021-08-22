@@ -17,6 +17,7 @@ public class FriendsFollowersAdapter extends RecyclerView.Adapter<FriendsFollowe
 
     public FriendsFollowersAdapter(HashMap<String, Long> otherFriendsFollowers) {
         this.otherFriendsFollowers = otherFriendsFollowers;
+
     }
 
     @NonNull

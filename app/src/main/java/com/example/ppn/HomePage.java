@@ -53,7 +53,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
                 holder.textTask.setText(model.getContent());
                 holder.textTime.setText("" + model.getTimePack().getStartingTime() + " - " + model.getTimePack().getEndingTime());
 
-                /*if(model.getComplete()) TODO: checkbox
+                /**/if(model.getComplete())
                 {
                     holder.checkBox.setChecked(true);
                     holder.checkBox.setEnabled(false);
@@ -63,18 +63,12 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     {
                         holder.checkBox.setChecked(true);
                         holder.checkBox.setEnabled(false);
-                        model.setComplete(true);
-                        Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
-                            Repository.createActivityTask(model.getActivityTaskID(),
-                                    model.getMasloCategory(),
-                                    model.getContent(),
-                                    model.getSubActivitys(),
-                                    model.getTimePack());
-                        });
+                        Repository.completeActivityTask(model.getActivityTaskID());
+
                     }
                     else
                         holder.checkBox.setChecked(true);
-                });*/
+                });
 
                 holder.btnDelete.setOnClickListener(v -> {
                     Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {

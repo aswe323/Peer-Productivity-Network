@@ -803,7 +803,7 @@ public class Repository {
     /**
      * adds a user to track the score of in the {@link #user} group.
      * @param addedUser the name of the user to be added as will be seen if they called {@link FirebaseUser#getDisplayName()}.
-     * @return {@link Task<Void>} of the operation
+     * @return {@link Task<DocumentSnapshot>} of the operation
      */
     public static Task<DocumentSnapshot> addUserToMyGroup(String addedUser){
         Map<String,Object> newMember = new HashMap<String,Object>(){{

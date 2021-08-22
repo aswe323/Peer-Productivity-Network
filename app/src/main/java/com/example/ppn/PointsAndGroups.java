@@ -37,8 +37,8 @@ import java.util.Map;
  */
 public class PointsAndGroups extends Fragment implements View.OnClickListener{
 
-    private TextView myPointsText;
-    private TextView groupPointsText;
+    private static TextView myPointsText;
+    private static TextView groupPointsText;
     private RecyclerView commentsRecycle;
     private Button groupFriendsBtn;
     private Button addFriendBtn;
@@ -103,13 +103,15 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
 
                 Repository.readGroup().addOnCompleteListener(task -> {
                     ArrayList<HashMap<String,Long>> groupFriendsArray = (ArrayList<HashMap<String,Long>>) task.getResult().getData().get("groupMembers");
+                    groupFriendsArray.remove(0);
+                    groupFriendsArray.remove(0);
+                    groupFriendsArray.remove(0);
                     friendsGroupAdapter = new FriendsGroupAdapter(groupFriendsArray);
                     friendsRecyclerView = new RecyclerView(getContext());
                     friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     friendsRecyclerView.setAdapter(friendsGroupAdapter);
                     groupsFriendsDialog.setView(friendsRecyclerView);
                     groupsFriendsDialog.show();
-                    //friendsGroupAdapter.notifyItemRemoved();
                 });
 
                 groupsFriendsDialog.setNegativeButton("Cancel",
@@ -137,7 +139,10 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                 addUserActivityDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         userNameText = inputForAddUserDialog.getText().toString();
-                        Repository.addUserToMyGroup(userNameText);
+                        Repository.addUserToMyGroup(userNameText).addOnCompleteListener(task -> {
+                            PointsAndGroups.displayGroupPoints();
+                        });
+
                         return;
                     }
                 });
@@ -160,7 +165,6 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_points_and_groups, container, false);
-
         myPointsText = view.findViewById(R.id.TextView_MyPoint);
         groupPointsText = view.findViewById(R.id.TextView_GroupPoints);
         groupFriendsBtn = view.findViewById(R.id.Btn_group_friends);
@@ -177,6 +181,22 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
             commentsRecycle.setLayoutManager(new LinearLayoutManager(getActivity()));
             commentsRecycle.setAdapter(commentsAdapter);
         });
+
+        PointsAndGroups.displayGroupPoints();
+
+        //region setOnClickListener
+
+        addFriendBtn.setOnClickListener(this);
+        groupFriendsBtn.setOnClickListener(this);
+
+        //endregion
+
+
+        return view;
+    }
+
+    public static void displayGroupPoints()
+    {
 
         Repository.readGroup().addOnSuccessListener(documentSnapshot -> {
             long groupPoints=0;
@@ -196,16 +216,6 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
             groupPointsText.setText("group points: "+groupPoints);
 
         });
-
-        //region setOnClickListener
-
-        addFriendBtn.setOnClickListener(this);
-        groupFriendsBtn.setOnClickListener(this);
-
-        //endregion
-
-
-        return view;
     }
 
 }
