@@ -39,6 +39,7 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
 
     private static TextView myPointsText;
     private static TextView groupPointsText;
+    private static View view;
     private RecyclerView commentsRecycle;
     private Button groupFriendsBtn;
     private Button addFriendBtn;
@@ -164,7 +165,7 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_points_and_groups, container, false);
+        view = inflater.inflate(R.layout.fragment_points_and_groups, container, false);
         myPointsText = view.findViewById(R.id.TextView_MyPoint);
         groupPointsText = view.findViewById(R.id.TextView_GroupPoints);
         groupFriendsBtn = view.findViewById(R.id.Btn_group_friends);

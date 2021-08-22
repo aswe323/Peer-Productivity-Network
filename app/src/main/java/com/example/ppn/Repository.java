@@ -406,6 +406,7 @@ public class Repository {
                                         } else {
                                             Log.d(TAG, "completeActivityTask: failed");
                                         }
+                                        PointsAndGroups.displayGroupPoints();
                                     });
                         });
                 });
@@ -586,7 +587,7 @@ public class Repository {
                 thisDayActivityTasks.removeIf (activityTask -> {
                     boolean relevant = activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
                     boolean completedToday = false;
-                    if (!activityTask.readStringifiedLastDateCompleted().equals("")) {
+                    if (!activityTask.getStringifiedLastDateCompleted().equals("")) {
                         completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() == LocalDateTime.now().getDayOfYear();
                     }
 
