@@ -756,7 +756,9 @@ public class Repository {
                 for (HashMap<String,Long> entry:
                         (ArrayList<HashMap<String ,Long>>)task.getResult().getData().get("groupMembers")) {
                     entry.keySet().forEach(s -> {
-                        hashMap.put(s,entry.get(s));
+                        if(!s.equals("doNotShow") && !s.equals("doNotShow2") && !s.equals(user.getDisplayName())) {
+                            hashMap.put(s, entry.get(s));
+                        }
                     });
                 }
             });
@@ -808,8 +810,6 @@ public class Repository {
             put(addedUser,0);
         }};
         Task<DocumentSnapshot> set;
-
-
         set =  FirebaseFirestore.getInstance().collection("groups").document(addedUser).get().addOnCompleteListener(documentSnapshot -> {
             if(documentSnapshot.getResult().exists()){
                     ((ArrayList<HashMap<String,Long>>)documentSnapshot.getResult().get("groupMembers")).forEach(stringLongHashMap -> {
