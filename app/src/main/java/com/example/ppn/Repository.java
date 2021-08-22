@@ -406,7 +406,6 @@ public class Repository {
                                         } else {
                                             Log.d(TAG, "completeActivityTask: failed");
                                         }
-                                        PointsAndGroups.displayGroupPoints();
                                     });
                         });
                 });

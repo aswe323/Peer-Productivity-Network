@@ -1,5 +1,6 @@
 package com.example.ppn;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,RecycleHolder>(options) {
 
+        @SuppressLint("ResourceType")
         @Override
         protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
 
@@ -69,6 +71,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     {
                         holder.checkBox.setChecked(true);
                         holder.checkBox.setEnabled(false);
+                        
                         Repository.completeActivityTask(model.getActivityTaskID());
 
                     }

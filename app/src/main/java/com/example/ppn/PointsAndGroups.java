@@ -185,6 +185,10 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
 
         PointsAndGroups.displayGroupPoints();
 
+        Repository.getUserGroupRef().addSnapshotListener((value, error) -> {
+            PointsAndGroups.displayGroupPoints();
+        });
+
         //region setOnClickListener
 
         addFriendBtn.setOnClickListener(this);
@@ -196,9 +200,17 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
         return view;
     }
 
+    private static void setIdTextView()
+    {
+        myPointsText = view.findViewById(R.id.TextView_MyPoint);
+        groupPointsText = view.findViewById(R.id.TextView_GroupPoints);
+    }
+
     public static void displayGroupPoints()
     {
-
+        if(myPointsText==null || groupPointsText==null){
+            setIdTextView();
+        }
         Repository.readGroup().addOnSuccessListener(documentSnapshot -> {
             long groupPoints=0;
             for(Map<String,Integer> individualComment:(ArrayList<Map<String,Integer>>)documentSnapshot
