@@ -105,10 +105,14 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     Bundle bundle = new Bundle();
                     bundle.putInt("activityTaskID", model.getActivityTaskID());
                     bundle.putBoolean("isDataShow", true);
-                    reminderDataDialog = new AlertDialog.Builder(getContext());
-                    View view = getLayoutInflater().inflate(R.layout.fragment_add_reminder,null);
-                    reminderDataDialog.setView(view).setPositiveButton("ok",null).setNegativeButton("cancel",null);
-                    reminderDataDialog.create().show();
+                    AddReminder addReminder = new AddReminder();
+                    addReminder.setArguments(bundle);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(((ViewGroup) (getView().getParent())).getId(), addReminder)
+                            .setReorderingAllowed(true)
+                            .addToBackStack("addReminder") // name can be null
+                            .commit();
 
                 });
             }

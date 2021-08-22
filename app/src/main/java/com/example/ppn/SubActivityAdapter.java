@@ -14,9 +14,11 @@ import java.util.ArrayList;
 
 public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.SubActivityRecycleHolder> {
     private ArrayList<SubActivity> subActivities;
+    private boolean dataShow = false;
 
-    public SubActivityAdapter(ArrayList<SubActivity> subActivities) {
+    public SubActivityAdapter(ArrayList<SubActivity> subActivities,boolean dataShow) {
         this.subActivities=subActivities;
+        this.dataShow = dataShow;
     }
 
     @NonNull
@@ -32,15 +34,23 @@ public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.
     public void onBindViewHolder(@NonNull SubActivityRecycleHolder holder, int position) {
         //sub holder
         holder.subtext.setText(subActivities.get(position).getContent());
-        holder.DeleteSub.setOnClickListener(v -> {
-            for (SubActivity subActivity: subActivities)
-                if (subActivity.getContent()==holder.subtext.getText().toString()) {
-                    subActivities.remove(subActivity);
-                    int deletedPosition = holder.getAbsoluteAdapterPosition();
-                    notifyItemRemoved(deletedPosition);
-                    break;
-                }
-        });
+        if(!dataShow)
+        {
+            holder.DeleteSub.setOnClickListener(v -> {
+                for (SubActivity subActivity : subActivities)
+                    if (subActivity.getContent() == holder.subtext.getText().toString()) {
+                        subActivities.remove(subActivity);
+                        int deletedPosition = holder.getAbsoluteAdapterPosition();
+                        notifyItemRemoved(deletedPosition);
+                        break;
+                    }
+            });
+        }
+        else
+        {
+            holder.DeleteSub.setVisibility(View.GONE);
+            holder.DeleteSub.setEnabled(false);
+        }
     }
 
     @Override

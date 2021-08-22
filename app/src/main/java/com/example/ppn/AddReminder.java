@@ -444,11 +444,11 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
 
 
-        recycleAdapter = new SubActivityAdapter(subActivities);
+        recycleAdapter = new SubActivityAdapter(subActivities,isDataShow);
         subActivitiesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         subActivitiesRecyclerView.setAdapter(recycleAdapter);
 
-        relevantDateAdapter = new RelevantDateAdapter(dates);
+        relevantDateAdapter = new RelevantDateAdapter(dates,isDataShow);
         relevantDatesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         relevantDatesRecyclerView.setAdapter(relevantDateAdapter);
 

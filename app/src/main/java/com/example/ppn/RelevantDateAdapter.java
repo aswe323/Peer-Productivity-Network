@@ -14,9 +14,11 @@ import java.util.ArrayList;
 
 public class RelevantDateAdapter extends RecyclerView.Adapter<RelevantDateAdapter.RelevantDateRecycleHolder>{
     private ArrayList<String> dates;
+    private boolean isDataShow = false;
 
-    public RelevantDateAdapter(ArrayList<String> dates) {
+    public RelevantDateAdapter(ArrayList<String> dates,boolean isDataShow) {
         this.dates = dates;
+        this.isDataShow = isDataShow;
     }
 
     @NonNull
@@ -31,11 +33,19 @@ public class RelevantDateAdapter extends RecyclerView.Adapter<RelevantDateAdapte
     @Override
     public void onBindViewHolder(@NonNull RelevantDateRecycleHolder holder, int position) {
         holder.subtext.setText(dates.get(position));
-        holder.DeleteSub.setOnClickListener(v -> {
-            int deletedPosition = holder.getAbsoluteAdapterPosition();
-            dates.remove(dates.indexOf(holder.subtext.getText()));
-            notifyItemRemoved(deletedPosition);
-        });
+        if(!isDataShow)
+        {
+            holder.DeleteSub.setOnClickListener(v -> {
+                int deletedPosition = holder.getAbsoluteAdapterPosition();
+                dates.remove(dates.indexOf(holder.subtext.getText()));
+                notifyItemRemoved(deletedPosition);
+            });
+        }
+        else
+        {
+            holder.DeleteSub.setVisibility(View.GONE);
+            holder.DeleteSub.setEnabled(false);
+        }
     }
 
     @Override
