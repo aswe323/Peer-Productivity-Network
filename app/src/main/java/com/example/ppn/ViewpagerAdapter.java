@@ -23,13 +23,6 @@ public class ViewpagerAdapter extends FragmentStateAdapter {
                 return new KeyWords();
              case 2:
                 return new PointsAndGroups();
-             case 3:
-             return new Search();
-             /*case 4:
-             return new edit_reminder();
-             case 5:
-             return new RemindersCollection();
-             */
             default:
                 return null;
         }
