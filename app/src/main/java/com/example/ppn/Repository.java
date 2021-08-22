@@ -405,7 +405,9 @@ public class Repository {
                                 .addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
                                         task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
-                                            documentSnapshot1.getReference().update("groupMembers." + getUser().getDisplayName(), FieldValue.increment(1));
+                                            HashMap<String ,FieldValue> hashMap = new HashMap<>();
+                                            hashMap.put(getUser().getDisplayName(), FieldValue.increment(1));
+                                            documentSnapshot1.getReference().update("groupMembers" , FieldValue.arrayUnion(hashMap));
                                         });
 
                                     } else {
@@ -590,7 +592,7 @@ public class Repository {
                     thisDayActivityTasks.add(document.toObject(ActivityTask.class));
                 }
                 thisDayActivityTasks.removeIf (activityTask -> {
-                    boolean relevant = !activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
+                    boolean relevant = activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
                     boolean completedToday = false;
                     if (activityTask.readStringifiedLastDateCompleted().equals("")) {
                         completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() != LocalDateTime.now().getDayOfYear();

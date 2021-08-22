@@ -70,7 +70,7 @@ public class ActivityTask {
      * @return the last date when this {@link ActivityTask } was completed. or null if it never was completed
      */
     public  LocalDateTime readStringifiedLastDateCompleted(){
-        if (getStringifiedLastDateCompleted() == "") {
+        if (getStringifiedLastDateCompleted() != "") {
             return LocalDateTime.parse(getStringifiedLastDateCompleted(),TimePack.getFormatter());
         }
         return null;
