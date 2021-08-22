@@ -405,11 +405,12 @@ public class Repository {
                                 .addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
                                         task1.getResult().getDocuments().forEach(documentSnapshot1 -> {
-                                            HashMap<String ,FieldValue> hashMap = new HashMap<>();
-                                            hashMap.put(getUser().getDisplayName(), FieldValue.increment(1));
-                                            documentSnapshot1.getReference().update("groupMembers" , FieldValue.arrayUnion(hashMap));
+                                            ((ArrayList<HashMap<String,Long>>)(documentSnapshot1.get("groupMembers"))).forEach(stringLongHashMap -> {
+                                                HashMap<String, Long> hashMap = new HashMap<>();
+                                                hashMap.put(getUser().getDisplayName(), stringLongHashMap.get(user.getDisplayName()));
+                                                documentSnapshot1.getReference().update("groupMembers", FieldValue.arrayUnion(hashMap));
+                                            });
                                         });
-
                                     } else {
                                         Log.d(TAG, "completeActivityTask: failed");
                                     }
