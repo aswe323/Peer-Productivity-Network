@@ -408,7 +408,7 @@ public class Repository {
                                             ((ArrayList<HashMap<String,Long>>)(documentSnapshot1.get("groupMembers"))).forEach(stringLongHashMap -> {
                                                 if(stringLongHashMap.containsKey(user.getDisplayName())) {
                                                     HashMap<String, Long> hashMap = new HashMap<>();
-                                                    hashMap.put(getUser().getDisplayName(), stringLongHashMap.get(user.getDisplayName()));
+                                                    hashMap.put(getUser().getDisplayName(), stringLongHashMap.get(user.getDisplayName())+1);
                                                     documentSnapshot1.getReference().update("groupMembers", FieldValue.arrayUnion(hashMap));
                                                 }
                                             });
