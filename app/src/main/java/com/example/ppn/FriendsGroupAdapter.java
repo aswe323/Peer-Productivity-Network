@@ -99,11 +99,19 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
 
                 commentDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        commentText = inputForCommentDialog.getText().toString();
-                        Repository.addCommentToAnotherUser(entry.getKey(),commentText);
 
-                        Toast.makeText(v.getContext(), "commented: "+commentText +" to "+entry.getKey(), Toast.LENGTH_SHORT).show();
-                        return;
+                        commentText = inputForCommentDialog.getText().toString();
+                        if(commentText.length()<25)
+                        {
+                            Repository.addCommentToAnotherUser(entry.getKey(), commentText);
+                            Toast.makeText(v.getContext(), "commented: " + commentText + " to " + entry.getKey(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        else{
+                            Toast.makeText(v.getContext(), "commented is too long, restricted to 25", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                     }
                 });
                 commentDialogBox.setNegativeButton("Cancel",
