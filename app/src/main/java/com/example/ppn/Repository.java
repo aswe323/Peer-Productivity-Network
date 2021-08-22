@@ -591,7 +591,11 @@ public class Repository {
                 }
                 thisDayActivityTasks.removeIf (activityTask -> {
                     boolean relevant = !activityTask.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth());
-                    boolean completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() != LocalDateTime.now().getDayOfYear();
+                    boolean completedToday = false;
+                    if (activityTask.readStringifiedLastDateCompleted().equals("")) {
+                        completedToday = activityTask.readStringifiedLastDateCompleted().getDayOfYear() != LocalDateTime.now().getDayOfYear();
+                    }
+
                     return !relevant || completedToday;
 
                 });
