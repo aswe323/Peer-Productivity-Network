@@ -169,7 +169,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
                 else{ //if in edit mode, delete the reminder from the DB, then recreate it whit the new data, then when it's done update the notifications
-                    Repository.deleteActivivtyTask(getArguments().getInt("activityTaskID"))
+                    Repository.deleteActivityTask(getArguments().getInt("activityTaskID"))
                             .addOnCompleteListener(task -> {
                                 task.addOnCompleteListener(task1 -> {
                                     Repository.createActivityTask(getArguments().getInt("activityTaskID"),
