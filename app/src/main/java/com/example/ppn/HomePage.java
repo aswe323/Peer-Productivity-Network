@@ -21,32 +21,41 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import java.time.MonthDay;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomePage#newInstance} factory method to
- * create an instance of this fragment.
+ *
+ * A simple {@link Fragment} subclass used to show the home page of the UI.<br><br>
+ *
+ * The home page is used to be the first UI element interacting with the user after he logged in with his Google account to the app,
+ * the class is called automatically by the {@link ViewpagerAdapter} class (which is in the {@link MainActivity}) when the app and login process been completed.<br><br>
+ *
+ * It will show the user a {@link RecyclerView} showing the reminders in under his user in the FireBase,
+ * the reminders are  {@link ActivityTask} objects and stored in the database (see the {@link Repository} class for info on the backend).<br><br>
+ *
+ * In addition a button to add new reminder will be presented at the bottom of the RecyclerView, at click on the button the {@link HomePage} fragment will be
+ * replaced with {@link AddReminder} fragment.
+ *
  */
 public class HomePage extends Fragment implements View.OnClickListener{
 
+    //The Button and RecyclerView variables
+    private Button addReminder;
+    private RecyclerView recyclerView;
+    //options is a variable to dynamically fetch data from the firebase and show it in the RecyclerView.
+    //The adapter used to set the elements of the holder class the necessary data and click actions.
     private FirestoreRecyclerOptions<ActivityTask> options = new FirestoreRecyclerOptions.Builder<ActivityTask>()
             .setQuery(Repository.getActivityTaskCollection().orderBy("activityTaskID"), ActivityTask.class)
             .build();
-
-
-    private Button addReminder;
-    private RecyclerView recyclerView;
-
     private FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<ActivityTask,RecycleHolder>(options) {
 
         @SuppressLint("ResourceType")
         @Override
         protected void onBindViewHolder(@NonNull RecycleHolder holder, int position, @NonNull ActivityTask model) {
 
-            if(model.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth())) { //if the activity is for today show it, else hide all and disable it
-
+            if(model.getTimePack().getRelaventDatesNumbered().contains(MonthDay.now().getDayOfMonth())) { //If the ActivityTask is for today show it, else hide all and disable it.
+                //Set the text of the reminder and the time range.
                 holder.textTask.setText(model.getContent());
                 holder.textTime.setText("" + model.getTimePack().getStartingTime() + " - " + model.getTimePack().getEndingTime());
 
-                if(model.getComplete())
+                if(model.getComplete()) //If the reminder was done today so disable the CheckBox and mark it as checked, else make sure it's enabled and marked unchecked.
                 {
                     holder.checkBox.setChecked(true);
                     holder.checkBox.setEnabled(false);
@@ -56,6 +65,8 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     holder.checkBox.setChecked(false);
                     holder.checkBox.setEnabled(true);
                 }
+
+                //If the CheckBox was clicked and it now it marked as checked then make sure it's checked and disable it, call the Repository method to mark it as checked in the DB.
                 holder.checkBox.setOnClickListener(v -> {
                     if(holder.checkBox.isChecked())
                     {
@@ -67,6 +78,8 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     }
                 });
 
+                //If the delete button was clicked call the Repository method to delete the reminder,
+                //when completed deleting the reminder call the Repository method to update the notifications.
                 holder.btnDelete.setOnClickListener(v -> {
                     Repository.deleteActivityTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
                         Repository.refreshNotifications();
@@ -75,6 +88,8 @@ public class HomePage extends Fragment implements View.OnClickListener{
                     Toast.makeText(getContext(), model.getContent() + " was deleted", Toast.LENGTH_SHORT).show();
                 });
 
+                //if the edit button was clicked create a Bundle to hold the reminder ID and an edit flag,
+                //send it to the AddReminder fragment and replace HomePage fragment to AddReminder Fragment.
                 holder.btnEdit.setOnClickListener(v -> {
                     Bundle bundle = new Bundle();
                     bundle.putInt("activityTaskID", model.getActivityTaskID());
@@ -89,11 +104,13 @@ public class HomePage extends Fragment implements View.OnClickListener{
                             .commit();
 
                 });
-
+                //If the layout holding the reminder content and time was clicked create a Bundle to hold the reminder ID and an dataShow flag,
+                //send it to the AddReminder fragment and replace HomePage fragment to AddReminder Fragment.
                 holder.dataHolder.setOnClickListener(v -> {
                     Bundle bundle = new Bundle();
                     bundle.putInt("activityTaskID", model.getActivityTaskID());
                     bundle.putBoolean("isDataShow", true);
+                    //create the fragment that we will replace to and then replace the current fragment to it
                     AddReminder addReminder = new AddReminder();
                     addReminder.setArguments(bundle);
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -105,7 +122,8 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
                 });
             }
-            else
+
+            else //If the reminders is not for today make it inviable and disable all the clickiness of the elements.
             {
                 holder.textTask.setVisibility(View.GONE);
                 holder.textTask.setEnabled(false);
@@ -121,6 +139,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
         }
 
+        //an inner older class to inflate the layout of the RecyclerView
         @NonNull
         @Override
         public RecycleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -132,63 +151,32 @@ public class HomePage extends Fragment implements View.OnClickListener{
 
     };
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public HomePage() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment homePage.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomePage newInstance(String param1, String param2) {
-        HomePage fragment = new HomePage();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true); //unable the menu onOptionsItemSelected method to work in the fragment.
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public void onClick(View v){
         switch (v.getId()) {//recognizing what button was pushed
-            case R.id.Btn_add_reminder:
+            case R.id.Btn_add_reminder: //when the add reminder button was clicked this will be the chosen case
                 //region add reminder
 
+                //created a bundle to pass that edit flag is false
                 Bundle bundle= new Bundle();
                 bundle.putBoolean("isEdit",false);
+                //create the fragment that we will replace to and then replace the current fragment to it
                 AddReminder addReminder = new AddReminder();
                 addReminder.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(((ViewGroup)(getView().getParent())).getId(), addReminder)
                         .setReorderingAllowed(true)
-                        .addToBackStack("addReminder") // name can be null
+                        .addToBackStack("addReminder")
                         .commit();
 
                 //endregion
@@ -201,9 +189,11 @@ public class HomePage extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+        //connect the elements in the layout to the values
         recyclerView = view.findViewById(R.id.recycleView_home);
         addReminder = view.findViewById(R.id.Btn_add_reminder);
 
+        //set the RecyclerView element to his adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
         RecyclerView recyclerView = new RecyclerView(getContext());

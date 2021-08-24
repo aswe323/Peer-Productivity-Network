@@ -7,9 +7,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -26,6 +29,7 @@ import com.google.firebase.firestore.Query;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -33,21 +37,26 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link AddReminder#newInstance} factory method to
- * create an instance of this fragment.
+ *
+ * A simple {@link Fragment} subclass used to show the add reminder page of the UI.<br><br>
+ *
+ * This fragment is a prat of the UI containing the elements that are used to set the data of a new reminder or to edit an existing reminder.<br>
+ * The class is called by the {@link FragmentManager} class and replacing the {@link HomePage} fragment when the <b><i>Add new reminder</i></b> button in HomePage was clicked.<br><br>
+ *
+ * The fragment contains UI elements such as Buttons, RecyclerViews, TextViews ect to get an input and present an output of the data that will be inserted to the DB.<br><br>
+ *
  */
 public class AddReminder extends Fragment implements View.OnClickListener {
 
-    private int activitytaskID;
-    private AlertDialog.Builder subActivityDialogBox;
-    private String subactivitytext="";
-    private EditText inputForSubActivityDialog;
-    private ArrayList<SubActivity> subActivities;
-    private ArrayList<String> dates;
+    private int activitytaskID; //Used to hold the reminder ID.
+    private AlertDialog.Builder subActivityDialogBox; //Used to open a DialogBox to add an SubActivity.
+    private String subactivitytext=""; //Used to contain the SubActivity text to add to the reminder.
+    private EditText inputForSubActivityDialog; //Used for a text Input for subActivityDialogBox.
+    private ArrayList<SubActivity> subActivities; //Holds all of the reminder SubActivities.
+    private ArrayList<String> dates; //Holds all the dates the reminder is relevant to.
     private TimePack time;
-    private boolean isEditFlag;
-    private boolean isDataShow;
+    private boolean isEditFlag; //A flag that is True when in edit mode, get his status from Bundle.
+    private boolean isDataShow; //A flag that is True when in data show mode, get his status from Bundle.
     private EditText editText;
     private Spinner repetitionSpinner;
     private Spinner categorySpinner;
@@ -57,8 +66,8 @@ public class AddReminder extends Fragment implements View.OnClickListener {
     private Button addSubActivity;
     private Button cancel;
     private Button save;
-    private RecyclerView subActivitiesRecyclerView;
-    private RecyclerView relevantDatesRecyclerView;
+    private RecyclerView subActivitiesRecyclerView; //A RecyclerView to show all of the SubActivities of the reminder
+    private RecyclerView relevantDatesRecyclerView; //A RecyclerView to show all of the relevant dates of the reminder
     private RelevantDateAdapter relevantDateAdapter;
     private SubActivityAdapter recycleAdapter;
     private String fromDate,toDate;
@@ -75,44 +84,13 @@ public class AddReminder extends Fragment implements View.OnClickListener {
     private int mDay = calendar.get(calendar.DAY_OF_MONTH);
 
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public AddReminder() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddReminder.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddReminder newInstance(String param1, String param2) {
-        AddReminder fragment = new AddReminder();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
     }
 
@@ -120,7 +98,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
 
         switch (view.getId()) {//recognizing what button was pushed
 
-            case R.id.Btn_save_reminder:
+            case R.id.Btn_save_reminder: //when the save button was clicked this will be the chosen case
                 //region save
 
                 if(editText.getText().toString().equals("")){
@@ -178,7 +156,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         Repetition.valueOf(repetitionSpinner.getSelectedItem().toString()),
                         relevantDatesForTimePack);
 
-                if(!isEditFlag) {
+                if(!isEditFlag) { //if it's not an edit mode then call the Repository method that creates the reminder and when done doing so update the notifications
 
                     Repository.createActivityTask(activitytaskID,
                             MasloCategory.valueOf(categorySpinner.getSelectedItem().toString()),
@@ -187,13 +165,11 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                             time).addOnCompleteListener(task -> {
                         Repository.refreshNotifications();
                     });
-
-
-
+                    //Remove this fragment from the backstack and go back.
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
-                else{
-                    Repository.deleteActivityTask(getArguments().getInt("activityTaskID"))
+                else{ //if in edit mode, delete the reminder from the DB, then recreate it whit the new data, then when it's done update the notifications
+                    Repository.deleteActivivtyTask(getArguments().getInt("activityTaskID"))
                             .addOnCompleteListener(task -> {
                                 task.addOnCompleteListener(task1 -> {
                                     Repository.createActivityTask(getArguments().getInt("activityTaskID"),
@@ -204,6 +180,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                         Repository.refreshNotifications();
                                     });
                                     Toast.makeText(getContext(), "updated the task", Toast.LENGTH_SHORT).show();
+                                    //Remove this fragment from the backstack and go back.
                                     getParentFragmentManager().beginTransaction().remove(this).commit();
                                 });
                             });
@@ -212,29 +189,36 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 //endregion
                 break;
 
-            case R.id.Btn_cancel_reminder:
+            case R.id.Btn_cancel_reminder: //when the cancel button was clicked this will be the chosen case
                 //region cancel
 
                 Toast.makeText(getContext(), "canceled", Toast.LENGTH_SHORT).show();
+                //Remove this fragment from the backstack and go back.
                 getParentFragmentManager().beginTransaction().remove(this).commit();
 
                 //endregion
                 break;
 
-            case R.id.Btn_add_subReminder:
+            case R.id.Btn_add_subReminder: //when the Add SubReminder button was clicked this will be the chosen case
                 //region add sub reminder region
-                subActivityDialogBox = new AlertDialog.Builder(getContext());
+
+                subActivityDialogBox = new AlertDialog.Builder(getContext()); //create the DialogBox
                 subActivityDialogBox.setTitle("sub reminder:");
                 subActivityDialogBox.setMessage("enter the sub reminder here: ");
                 inputForSubActivityDialog = new EditText(getContext());
-                subActivityDialogBox.setView(inputForSubActivityDialog);
+                subActivityDialogBox.setView(inputForSubActivityDialog); //add the EditText to the DialogBox to get the SubReminder content
 
-                subActivityDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                subActivityDialogBox.setPositiveButton("Ok", new DialogInterface.OnClickListener() { //setting action for the ok button
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        subactivitytext = inputForSubActivityDialog.getText().toString();
+
+                        subactivitytext = inputForSubActivityDialog.getText().toString(); //get the content of the EditText
+                        //make sure to give it the ID of the next new reminder
                         Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
                                 queryDocumentSnapshots ->{
-                                    activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
+                                    if(!isEditFlag)
+                                        activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
+                                    else
+                                        activitytaskID = getArguments().getInt("activityTaskID");
                                     subActivities.add(new SubActivity(subactivitytext, activitytaskID));
                                     recycleAdapter.notifyDataSetChanged();
                                 });
@@ -253,7 +237,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 //endregion
                 break;
 
-            case R.id.btnRelevantDates:
+            case R.id.btnRelevantDates: //when the click to choose relevant dates button was clicked this will be the chosen case
                 //region add date
 
                 datePickerDialog = new DatePickerDialog(getContext(),
@@ -294,7 +278,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 //endregion
                 break;
 
-            case R.id.TextView_from_time:
+            case R.id.TextView_from_time: //when the click to choose TextView of time from was clicked this will be the chosen case
                 //region add time from
                 timeChecker="";
 
@@ -355,7 +339,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 //endregion
                 break;
 
-            case R.id.TextView_to_time:
+            case R.id.TextView_to_time: //when the click to choose TextView of time to was clicked this will be the chosen case
                 //region add time to
                 timeChecker="";
 
