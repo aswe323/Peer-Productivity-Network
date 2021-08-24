@@ -51,16 +51,31 @@ public class ActivityTask {
      */
     private boolean complete;
 
+    /**
+     * Indicates the last date this {@link ActivityTask} have been completed
+     */
     private String stringifiedLastDateCompleted;
 
-    public String getStringifiedLastDateCompleted() {
+    /**
+     * used by firestore
+     * @return a string formatted from a {@link LocalDateTime} using {@link TimePack#getFormatter()}
+      */
+   public String getStringifiedLastDateCompleted() {
         return stringifiedLastDateCompleted;
     }
 
+    /**
+     * used by firestore
+     * @param stringifiedLastDateCompleted a string formatted from a {@link LocalDateTime} using {@link TimePack#getFormatter()}
+     */
     public void setStringifiedLastDateCompleted(String stringifiedLastDateCompleted) {
         this.stringifiedLastDateCompleted = stringifiedLastDateCompleted;
     }
 
+    /**
+     *
+     * @param dayOfCompletion a {@link LocalDateTime} object indicating the date this {@link ActivityTask} was last completed.
+     */
     public void updateStringifiedLastDateCompleted(LocalDateTime dayOfCompletion){
         setStringifiedLastDateCompleted(dayOfCompletion.format(TimePack.getFormatter()));
     }
@@ -84,7 +99,7 @@ public class ActivityTask {
     }
 
     /**
-     * <p>should only be called from {@link Repository} in order to sync the {@link #activityTaskID} with firestore.</p>
+     * <p>should only be called from {@link Repository} in to make sure to sync the {@link #activityTaskID} with firestore.</p>
      * <p>if natty is not able to parse {@link #content} for a {@link LocalDateTime}, {@link LocalDateTime#now()} will be used instead.</p>
      * <p>uses the passed priorityWords parameter to set the {@link #priority}</p>
      * @param activityTaskID {@link #activityTaskID}
@@ -109,6 +124,10 @@ public class ActivityTask {
         getTimePack().reCalculateReleventDates();
     }
 
+    /**
+     * makes sure the time pack have a starting and ending time, otherwise sets the starting and ending time to now.
+     * @param timePack
+     */
     private void extracted(TimePack timePack) {
         if(this.getTimePack().readTimeTange().isEmpty()){
             getTimePack().readTimeTange().set(0, timePack.readNattyResults());
@@ -116,6 +135,14 @@ public class ActivityTask {
         }
     }
 
+    /**
+     *
+     * <p>tryes to use natty on content to get a date, if failes then set's {@link TimePack#stringifiedNattyResults} to {@link LocalDateTime#now()} using {@link TimePack#getFormatter()}</p>
+     * <p>set's the score of {@link ActivityTask#priority} using passed priorityWords</p>
+     *
+     * @param content the content of the {@link ActivityTask}.
+     * @param priorityWords words ranked by priority.
+     */
     private void parseContent(String content,@NonNull Map<String, Integer> priorityWords) {
         List<DateGroup> groups;
         Parser parser = new Parser();
@@ -138,37 +165,20 @@ public class ActivityTask {
         setPriority(score);
     }
 
+    /**
+     * used by firestore, do mark an {@link ActivityTask} as completed, use {@link Repository#completeActivityTask(int)} passing {@link ActivityTask#activityTaskID}.
+     * @param complete {@link #complete}
+     */
     public void setComplete(boolean complete) {
         this.complete = complete;
     }
 
+    /**
+     *
+     * @return {@link #complete}
+     */
     public boolean getComplete(){
         return complete;
-    }
-
-    /**
-     *  <p>if natty is not able to parse newContent, {@link LocalDateTime#now()} will be used.</p>
-     *  <p>note that the task returned is the operation updating the {@link ActivityTask} {@link #priority}</p>
-     * @param newContent will be the new {@link #content}
-     * @param newMasloCategory will be the new {@link #masloCategory}
-     * @param newRepetition will be this {@link ActivityTask} {@link TimePack#repetition}
-     * @return {@link Task<DocumentSnapshot>} of the operation
-     */
-    public Task<DocumentSnapshot> editReminder(String newContent, MasloCategory newMasloCategory, Repetition newRepetition){
-        setMasloCategory(newMasloCategory);
-        setContent(newContent);//
-        getTimePack().setRepetition(newRepetition);
-
-        return Repository.getAllPriorityWords().addOnSuccessListener(documentSnapshot -> {
-            int newScore = 0;
-            Map<String, Object> data = documentSnapshot.getData();
-
-            for (String word :
-                        newContent.split(" ")) {
-                                if(data.containsKey(word))
-                            newScore += (int) data.get(word);
-                }
-        });
     }
 
     public ArrayList<SubActivity> getSubActivitys() {

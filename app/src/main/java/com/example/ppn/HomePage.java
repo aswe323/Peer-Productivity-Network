@@ -1,33 +1,24 @@
 package com.example.ppn;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.lang.reflect.Field;
 import java.time.MonthDay;
-import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -77,7 +68,7 @@ public class HomePage extends Fragment implements View.OnClickListener{
                 });
 
                 holder.btnDelete.setOnClickListener(v -> {
-                    Repository.deleteActivivtyTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
+                    Repository.deleteActivityTask(model.getActivityTaskID()).addOnCompleteListener(task -> {
                         Repository.refreshNotifications();
                     });
 

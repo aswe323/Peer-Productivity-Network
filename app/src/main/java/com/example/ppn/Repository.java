@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.core.Repo;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -148,12 +149,13 @@ public class Repository {
 
     }
     /**
-     * <p>if {@link #created} is true, returns</p>
-     * <p>uses a {@link FirebaseAuth.AuthStateListener}, when the state changed and a user is logged in does the following:</p>
+     * <p>if {@link #created} is true, returns without doing anything.</p>
+     * <p>sets a {@link FirebaseAuth.AuthStateListener}, when the state changed and a user is logged in does the following:</p>
      * <lo>
      *     <li>calls {@link #setUser(FirebaseUser)}</li>
      *     <li>makes sure both the current user group and user comments fields are initialized in firestore, if not, initializes them</li>
-     *     <li>initializes {@link #priorityWords} and {@link #bucketWords} from firestore</li>
+     *     <li>initializes {@link #priorityWords} and {@link #bucketWords} from firestore, and creates relevant documents</li>
+     *     <li>initializes ActivityTasks collection</li>
      *     <li>sets {@link #created} to true, <b>regardless of success</b></li>
      * </lo>
      */
@@ -267,10 +269,12 @@ public class Repository {
     /**
      * <p>resolves a new {@link ActivityTask} into the {@link #user} ActivityTask collection</p>
      * <p>the ID given may change if already taken.</p>
+     *
+     * <p><b>note:</b> do not pass null</p>
      * @param activityTaskID the candidate ID for the ActivityTask
      * @param masloCategory {@link MasloCategory}
      * @param content the description of the ActivityTask
-     * @param subActivitys an array of {@link SubActivity}, can be null.
+     * @param subActivitys an array of {@link SubActivity}, can't be null.
      * @param timePack {@link TimePack}
      * @return {@link Task} the upload process to firestore
      */
@@ -319,22 +323,7 @@ public class Repository {
     }
 
     /**
-     *
-     * @return {@link Task<QuerySnapshot>} that resolves into {@link QuerySnapshot} containing activityTasks relevant to the current date.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static Task<QuerySnapshot> getThisDayActivityTasks(){
-
-        //because there are no other objects beside ActivityTask that contain TimePack, this will return an array of ActivityTasks
-        Task task = getAllUserActivityTasks().continueWithTask(task1 -> {
-                task1.getResult().toObjects(ActivityTask.class);
-            return task1;
-        });
-         return task;
-    }
-
-    /**
-     *
+     * @implNote  may produce unexpected results when an {@link ActivityTask} is resolved on the device, avoid.
      * @param activityTaskID the ID of the {@link ActivityTask} to update in firestore
      * @param fieldToUpdate one of {@link ActivityTask} members.
      * @param newValue the new value for the field to hold.
@@ -367,7 +356,7 @@ public class Repository {
      * @param activityTaskID the ID of the {@link ActivityTask} to be deleted from firestore
      * @return {@link Task} of the operation.
      */
-    public static Task<Void> deleteActivivtyTask(int activityTaskID){
+    public static Task<Void> deleteActivityTask(int activityTaskID){
 
 
         return getActivityTaskCollection().document("ActivityTask" + activityTaskID)
@@ -378,9 +367,10 @@ public class Repository {
     }
 
     /**
-     * marks the {@link ActivityTask} with the activityTaskID as complete, and updates score across groups.
+     * marks the {@link ActivityTask} with the activityTaskID as complete, and updates score across groups. as well as the {@link ActivityTask#stringifiedLastDateCompleted} field.
      * @param activityTaskID the ID of the {@link ActivityTask} to mark as completed.
      * @return
+     * @implNote the series of listeners takes a long time to complete, possible optimization with {@link com.google.android.gms.tasks.Tasks#whenAllComplete(Task[])} after creating updated fields.
      */
     public static Task<DocumentSnapshot> completeActivityTask(int activityTaskID){
     HashMap<String,FieldValue> updates = new HashMap<>();
@@ -568,8 +558,9 @@ public class Repository {
     //region notification
 
     /**
-     *<p>The method calls for the ActivityTasks relevent for the date LocalDateTime.now() returns. and applies smart notification logic</p>
-     *@see <a href="https://app.diagrams.net/#G1F6Cc5yGinKNx1HIdPaEcC9FuKkSm9ye3">Smart notification logic flowchart</a>
+     *<p>The method filters for the ActivityTasks relevent for the date {@link LocalDateTime#now()} returns, and ones where {@link ActivityTask#stringifiedLastDateCompleted} isn't today. then applies smart notification logic</p>
+     *<p>uses {@link #defaultActivity} and {@link #defaultContext} for {@link #setNotification(Context, ActivityTask, Activity)} to create a notification</p>
+     * @see <a href="https://app.diagrams.net/#G1F6Cc5yGinKNx1HIdPaEcC9FuKkSm9ye3">Smart notification logic flowchart</a>
      * @throws Throwable
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -591,6 +582,10 @@ public class Repository {
                     }
 
                     return !relevant || completedToday;
+
+
+
+
 
                 });
                 thisDayActivityTasks.forEach(activityTask -> {
@@ -747,7 +742,11 @@ public class Repository {
 
     //region groups
 
-
+    /**
+     *
+     * @param otherUserDisplayName the user name as if returned from {@link FirebaseUser#getDisplayName()}
+     * @return the requested user group data, user names and their score.
+     */
     public static Task<HashMap<String,Long>> getOtherUserGroup(String otherUserDisplayName){
         Task<HashMap<String ,Long>> returned = FirebaseFirestore.getInstance().collection("groups").document(otherUserDisplayName).get().continueWith(task -> {
             HashMap<String ,Long> hashMap = new HashMap<>();
@@ -851,7 +850,6 @@ public class Repository {
      */
     public static Task<Void> deleteCommentFromMyProfile(String comment,String targetedUserName){
 
-        Task<Void> task = null;
         Map<String,Object> updates = new HashMap<String,Object>(){
             {
                 put(targetedUserName, comment);
@@ -859,7 +857,7 @@ public class Repository {
         getUserGroupRef().update("comments",
                 FieldValue.arrayRemove(updates));
 
-        return task;
+        return null;
 
     }
 

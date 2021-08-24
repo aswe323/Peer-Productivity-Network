@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -28,7 +26,6 @@ import com.google.firebase.firestore.Query;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -196,7 +193,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
                 else{
-                    Repository.deleteActivivtyTask(getArguments().getInt("activityTaskID"))
+                    Repository.deleteActivityTask(getArguments().getInt("activityTaskID"))
                             .addOnCompleteListener(task -> {
                                 task.addOnCompleteListener(task1 -> {
                                     Repository.createActivityTask(getArguments().getInt("activityTaskID"),

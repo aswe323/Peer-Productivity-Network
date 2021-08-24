@@ -10,9 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A helper class to centralize time operations.
- * <p><b>note:</b> it is easyer to work with the already supported fields in firestore, hench the heavy use of Strings</p>
- *
+ * <p>A helper class to centralize time operations.</p>
+ * <p></p>
  */
 public class TimePack {
 
@@ -26,7 +25,7 @@ public class TimePack {
      */
     private String endingTime;
     /**
-     * January will be 1 February will be 2 and so on... tip: can get current month number with YearMonth.now().getMonth().getValue()
+     * January will be 1 February will be 2 and so on.
      */
     private int monthNumber;
     /**
@@ -99,12 +98,10 @@ public class TimePack {
 
         setStartingTime(startingTime.format(getFormatter()));
         setEndingTime(endingTime.format(getFormatter()));
-
-        this.monthNumber = monthNumber;
+        setMonthNumber(monthNumber);
         setRepetition(repetition);
         updateRelaventDates(relaventDates);
-        this.stringifiedNattyResults = LocalDateTime.now().format(getFormatter());
-
+        setStringifiedNattyResults(LocalDateTime.now().format(getFormatter()));
         notificationCounter = notificationCounter +1;
 
     }
