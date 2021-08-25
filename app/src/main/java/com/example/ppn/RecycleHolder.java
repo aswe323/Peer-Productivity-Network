@@ -9,6 +9,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ *
+ * A class used for a {@link RecyclerView} for the reminders.<br><br>
+ *
+ * This class is used to create a view of a UI section list of reminders.<br>
+ * Due to the use of a {@link com.firebase.ui.database.FirebaseRecyclerAdapter} in the {@link HomePage} this class will contain only the holder unlike the other RecyclerViews.
+ *
+ */
 public class RecycleHolder extends RecyclerView.ViewHolder {
 
     TextView textTask,textTime;

@@ -212,7 +212,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         subactivitytext = inputForSubActivityDialog.getText().toString(); //get the content of the EditText
-                        //make sure to give it the ID of the next new reminder
+                        //get the next reminder ID that will be created, or the ID of the edited reminder
                         Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
                                 queryDocumentSnapshots ->{
                                     if(!isEditFlag)
@@ -240,13 +240,14 @@ public class AddReminder extends Fragment implements View.OnClickListener {
             case R.id.btnRelevantDates: //when the click to choose relevant dates button was clicked this will be the chosen case
                 //region add date
 
+                //date picker DialogBox
                 datePickerDialog = new DatePickerDialog(getContext(),
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-
+                                //make the time string correct to avoid any bugs when formatting to LocalDateTime
                                 String timeForIf;
                                 if (monthOfYear<10)
                                     timeForIf=""+year + "-0" + (monthOfYear + 1);
@@ -262,7 +263,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                 {
                                     Toast.makeText(getActivity(),"this date has passed, can't choose it",Toast.LENGTH_SHORT).show();
                                 }
-                                else if(dates.indexOf(timeForIf)==-1) //check if the date exist add, if not toast
+                                else if(dates.indexOf(timeForIf)==-1) //check if the date exist add, if not add it
                                 {
                                     dates.add(timeForIf);
                                     relevantDateAdapter.notifyDataSetChanged();
@@ -282,10 +283,11 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                 //region add time from
                 timeChecker="";
 
+                //time Picker DialogBox
                 timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
+                        //make the time string correct to avoid any bugs when formatting to LocalDateTime
                         if(hourOfDay<10)
                             timeChecker+="0"+hourOfDay+":";
                         else
@@ -304,14 +306,14 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     }
                 },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
 
-
+                //date picker DialogBox
                 datePickerDialog = new DatePickerDialog(getContext(),
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-
+                                //make the time string correct to avoid any bugs when formatting to LocalDateTime
                                 String timeForIf;
                                 if (monthOfYear<10)
                                     timeForIf=""+year + "-0" + (monthOfYear + 1);
@@ -342,11 +344,11 @@ public class AddReminder extends Fragment implements View.OnClickListener {
             case R.id.TextView_to_time: //when the click to choose TextView of time to was clicked this will be the chosen case
                 //region add time to
                 timeChecker="";
-
+                //time picker DialogBox
                 timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
+                        //make the time string correct to avoid any bugs when formatting to LocalDateTime
                         if(hourOfDay<10)
                             timeChecker+="0"+hourOfDay+":";
                         else
@@ -365,14 +367,14 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     }
                 },hour,minute,android.text.format.DateFormat.is24HourFormat(getContext()));
 
-
+                //date picker DialogBox
                 datePickerDialog = new DatePickerDialog(getContext(),
                         new DatePickerDialog.OnDateSetListener() {
 
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-
+                                //make the time string correct to avoid any bugs when formatting to LocalDateTime
                                 String timeForIf;
                                 if (monthOfYear<10)
                                     timeForIf=""+year + "-0" + (monthOfYear + 1);
@@ -424,16 +426,17 @@ public class AddReminder extends Fragment implements View.OnClickListener {
         relevantDatesRecyclerView = view.findViewById(R.id.datesRecyclerView);
 
 
-
+        //creating the RecyclerView for the SubActivities and his adapter and connecting between them
         recycleAdapter = new SubActivityAdapter(subActivities,isDataShow);
         subActivitiesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         subActivitiesRecyclerView.setAdapter(recycleAdapter);
 
+        //creating the RecyclerView for the relevant dates and his adapter and connecting between them
         relevantDateAdapter = new RelevantDateAdapter(dates,isDataShow);
         relevantDatesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         relevantDatesRecyclerView.setAdapter(relevantDateAdapter);
 
-        if(isEditFlag){
+        if(isEditFlag){ //if edit flag is true then fetch from the DB the reminder data and set it to the elements
             Task t=Repository.getActivityTaskCollection()
                     .whereEqualTo("activityTaskID",getArguments()
                             .getInt("activityTaskID")).get()
@@ -469,7 +472,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                     } );
 
         }
-        else if(isDataShow)
+        else if(isDataShow) //if data show flag is true then fetch from the DB the reminder data and set it to the elements,disable the elements and hide the buttons to prevent data manipulation
         {
             Task t=Repository.getActivityTaskCollection()
                     .whereEqualTo("activityTaskID",getArguments()

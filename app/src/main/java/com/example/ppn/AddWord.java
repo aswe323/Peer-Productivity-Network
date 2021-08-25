@@ -29,9 +29,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link AddWord#newInstance} factory method to
- * create an instance of this fragment.
+ *
+ * A simple {@link Fragment} subclass used to show the add word page of the UI.<br><br>
+ *
+ * This fragment is a part of the UI containing elements that are used to set the data of a new word or to edit an existing word.<br>
+ * The class is called by the {@link FragmentManager} class and replacing the {@link KeyWords} fragment when the <b><i>Add new word</i></b> button in KeyWords was clicked.<br><br>
+ *
+ * The fragment contains EditText, switch, Seekbar, TextViews, Spinners and Buttons to get the data that will create the word.
+ *
  */
 public class AddWord extends Fragment implements View.OnClickListener{
 
@@ -51,60 +56,32 @@ public class AddWord extends Fragment implements View.OnClickListener{
     private final int hour = calendar.get(calendar.HOUR_OF_DAY);
     private final int minute = calendar.get(calendar.MINUTE);
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public AddWord() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddWord.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddWord newInstance(String param1, String param2) {
-        AddWord fragment = new AddWord();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {//recognizing what button was pushed
 
-            case R.id.Btn_save_word:
+            case R.id.Btn_save_word: //when the save was clicked this will be the chosen case
                 //region save
-                if(!wordTxt.getText().toString().matches("[a-zA-Z]+")) {
+
+                if(!wordTxt.getText().toString().matches("[a-zA-Z]+")) { //make sure it's a single word with characters only
                     Toast.makeText(getActivity(), "has to be one word and contain only letters", Toast.LENGTH_SHORT).show();
                     break;
                 }
 
-                if(isBucket)
+                if(isBucket)  //if it's a bucket word then enter
                 {
-                    if(!bucketTimeFrom.getText().toString().matches("[0-9:]+") || !bucketTimeTo.getText().toString().matches("[0-9:]+"))
+                    if(!bucketTimeFrom.getText().toString().matches("[0-9:]+") || !bucketTimeTo.getText().toString().matches("[0-9:]+")) //make sure time was picked
                     {
                         Toast.makeText(getActivity(), "choose time", Toast.LENGTH_SHORT).show();
                         break;
@@ -113,6 +90,7 @@ public class AddWord extends Fragment implements View.OnClickListener{
                     String timeCheckerFrom="";
                     String timeCheckerTo="";
 
+                    //make the time string correct to avoid any bugs when formatting to LocalDateTime
                     if (LocalDateTime.now().getMonthValue()<10)
                     {
                         timeCheckerFrom = ""+ LocalDateTime.now().getYear() + "-0" + LocalDateTime.now().getMonthValue();
@@ -133,6 +111,7 @@ public class AddWord extends Fragment implements View.OnClickListener{
                         timeCheckerFrom += "-" + LocalDateTime.now().getDayOfMonth();
                         timeCheckerTo += "-" + LocalDateTime.now().getDayOfMonth();
                     }
+
                     timeCheckerFrom+=" "+bucketTimeFrom.getText().toString();
                     timeCheckerTo+=" "+bucketTimeTo.getText().toString();
 
@@ -151,33 +130,38 @@ public class AddWord extends Fragment implements View.OnClickListener{
                             Repetition.valueOf(repetitionSpinner.getSelectedItem().toString()),
                             new ArrayList<LocalDateTime>() );
 
+                    //call the Repository method to create the bucket word in the DB.
                     Repository.createBucketWord(wordTxt.getText().toString(),time);
+                    //Remove this fragment from the backstack and go back.
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
-                else
+                else //it it's not a bucket word then enter here
                 {
+                    //call the Repository method to create the priority word in the DB.
                     Repository.createPriorityWord(wordTxt.getText().toString(),seekBarPriority.getProgress());
+                    //Remove this fragment from the backstack and go back.
                     getParentFragmentManager().beginTransaction().remove(this).commit();
                 }
 
                 //endregion
                 break;
-            case R.id.Btn_cancel_word:
+            case R.id.Btn_cancel_word://when the cancel was clicked this will be the chosen case
                 //region cancel
 
+                //Remove this fragment from the backstack and go back.
                 getParentFragmentManager().beginTransaction().remove(this).commit();
 
                 //endregion
                 break;
 
-            case R.id.TextView_from_time_word:
+            case R.id.TextView_from_time_word: //when the click to choose was clicked in the time from this will be the chosen case
                 //region add time from
                 timeChecker="";
-
+                //time Picker DialogBox
                 timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
+                        //make the time string correct to avoid any bugs when formatting to LocalDateTime
                         if(hourOfDay<10)
                             timeChecker+="0"+hourOfDay+":";
                         else
@@ -194,15 +178,15 @@ public class AddWord extends Fragment implements View.OnClickListener{
 
                 //endregion
                 break;
-            case R.id.TextView_to_time_word:
+            case R.id.TextView_to_time_word: //when the click to choose was clicked in the time to this will be the chosen case
                 //region add time to
 
                 timeChecker="";
-
+                //time Picker DialogBox
                 timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
+                        //make the time string correct to avoid any bugs when formatting to LocalDateTime
                         if(hourOfDay<10)
                             timeChecker+="0"+hourOfDay+":";
                         else
@@ -239,7 +223,7 @@ public class AddWord extends Fragment implements View.OnClickListener{
         save = view.findViewById(R.id.Btn_save_word);
         cancel = view.findViewById(R.id.Btn_cancel_word);
 
-        seekBarPriority.setProgress(0);
+        seekBarPriority.setProgress(0); //make sure the seekbar progress is set to 0
 
 
 
@@ -250,7 +234,10 @@ public class AddWord extends Fragment implements View.OnClickListener{
         save.setOnClickListener(this);
         cancel.setOnClickListener(this);
 
-        bucketWordSwitch.setOnClickListener(v -> {
+        bucketWordSwitch.setOnClickListener(v -> { //if the switch was clicked start action
+
+            //if the switch is checked hide seekbar and the Textview of the progress and disable it,
+            // show and unable the layout holding the bucket word elements, set bucket flag to true.
             if (bucketWordSwitch.isChecked()){
                 seekBarPriority.setVisibility(View.GONE);
                 seekBarPriority.setEnabled(false);
@@ -258,7 +245,7 @@ public class AddWord extends Fragment implements View.OnClickListener{
                 bucketTimeSetLayout.setVisibility(View.VISIBLE);
                 isBucket=true;
             }
-            else{
+            else{ //if the switch is check was turned back hide the layout holding the bucket word elements, and show the seekbar and Textview of the priority word, set flag to false.
                 seekBarPriority.setVisibility(View.VISIBLE);
                 seekBarPriority.setEnabled(true);
                 priorityOnSeekBar.setVisibility(View.VISIBLE);
@@ -270,7 +257,7 @@ public class AddWord extends Fragment implements View.OnClickListener{
         seekBarPriority.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                priorityOnSeekBar.setText("priority: " + progress + "/10");//every time something changed, update the text of seekbar
+                priorityOnSeekBar.setText("priority: " + progress + "/10"); //if seekbar was moved, updated what his progress is now at the TextView
             }
 
             @Override

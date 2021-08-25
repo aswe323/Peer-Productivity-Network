@@ -11,10 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-
+/**
+ *
+ *  A class used for a {@link RecyclerView} for {@link SubActivity}.<br><br>
+ *
+ *  This class is used to create a view of a UI section list of SunActivities that is in {@link AddReminder}.
+ *
+ */
 public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.SubActivityRecycleHolder> {
     private ArrayList<SubActivity> subActivities;
-    private boolean dataShow = false;
+    private boolean dataShow = false;//A flag to mention if the data is for show only which means to hide and disable the delete button when true
 
     public SubActivityAdapter(ArrayList<SubActivity> subActivities,boolean dataShow) {
         this.subActivities=subActivities;
@@ -32,10 +38,12 @@ public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull SubActivityRecycleHolder holder, int position) {
-        //sub holder
+        //set the subActivity text
         holder.subtext.setText(subActivities.get(position).getContent());
-        if(!dataShow)
+
+        if(!dataShow) //if the data show flag is false set the delete button
         {
+            //when the delete button is pressed delete the subActivity from the ArrayList
             holder.DeleteSub.setOnClickListener(v -> {
                 for (SubActivity subActivity : subActivities)
                     if (subActivity.getContent() == holder.subtext.getText().toString()) {
@@ -48,6 +56,7 @@ public class SubActivityAdapter extends RecyclerView.Adapter<SubActivityAdapter.
         }
         else
         {
+            //if the flag is true disable and hide the delete button
             holder.DeleteSub.setVisibility(View.GONE);
             holder.DeleteSub.setEnabled(false);
         }
