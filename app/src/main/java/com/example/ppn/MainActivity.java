@@ -104,53 +104,6 @@ public class MainActivity extends AppCompatActivity {
 
         Repository.init();
         //region testing
-        /*Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"1Avi");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"2test");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"3Comment");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"44444");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"5this");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"6that");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"7yeet");
-        Repository.addCommentToAnotherUser(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),"8ququq");*/
-       /*FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Repository.createPriorityWord("hello",10);
-        LocalDateTime startingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(15);
-        LocalDateTime endingTime = LocalDateTime.now().withDayOfMonth(25).withHour(19).withMinute(20);
-        ArrayList<LocalDateTime> localDateTimes = new ArrayList<>();
-        localDateTimes.add(startingTime);
-        localDateTimes.add(endingTime);
-        TimePack t= new TimePack(startingTime,endingTime,8,Repetition.every_monday,null);
-         ArrayList<String > nonStirigifiedRelaventDates = new ArrayList<>();
-        for (int i = 1; i <= LocalDate.now().withMonth(7).lengthOfMonth(); i++)
-            nonStirigifiedRelaventDates.add(LocalDateTime.now().withDayOfMonth(i).format(TimePack.getFormatter()));
-
-
-
-
-        Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-        Repository.deleteActivivtyTask(69);
-        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-
-
-
-        Repository.getAllUserActivityTasks().addOnCompleteListener(task -> {
-            task.getResult().getDocuments().forEach(documentSnapshot -> Log.d(TAG, "onSignInResult: found -> " + documentSnapshot.toObject(ActivityTask.class).getActivityTaskID()));
-
-        });*/
-
-        //Repository.addUserToMyGroup(firebaseUser.getDisplayName());
-/*        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is a comment");
-        Repository.addCommentToAnotherUser(firebaseUser.getDisplayName(), "this is another comment");
-
-        Repository.completeActivityTask(70);
-        Repository.createActivityTask(70,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-        Repository.createActivityTask(69,MasloCategory.Esteem,"bleep bloop",null,new TimePack(localDateTimes, YearMonth.now().getYear(),Repetition.every_satuday,nonStirigifiedRelaventDates));
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-        Repository.completeActivityTask(69);
-       Repository.completeActivityTask(69); */
 
        Repository.getAllUserActivityTasks().addOnSuccessListener(queryDocumentSnapshots -> {
            List<DocumentSnapshot> activityTasks = queryDocumentSnapshots.getDocuments();
@@ -163,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         //endregion
 
-        //Toast.makeText(this, ""+ FirebaseAuth.getInstance().getCurrentUser(), Toast.LENGTH_LONG).show(); used to show if logged in or not
 
 
     }

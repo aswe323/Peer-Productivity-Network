@@ -12,6 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Map;
 
+/**
+ *
+ * A class used for a {@link RecyclerView} for the words.<br><br>
+ *
+ * This class is used to create a view of a UI section list of priority and bucket words based on the flag.<br>
+ *
+ */
 public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.WordRecycleHolder> {
 
     private Map<String,Integer> priorityWordMap;
@@ -20,7 +27,7 @@ public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.
 
     public WordRecycleAdapter(Map<String, Integer> priorityWordMap, Map<String,String> bucketWordMap, boolean isBucket) {
         this.isBucket = isBucket;
-        if(isBucket)
+        if(isBucket) //set the map according if the bucket flag is true or false
             this.bucketWordMap = bucketWordMap;
         else
             this.priorityWordMap = priorityWordMap;
@@ -38,7 +45,7 @@ public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.
 
     @Override
     public int getItemCount() {
-        if(isBucket)
+        if(isBucket) //get the map size based on the bucket flag
             return bucketWordMap.size();
         else
             return priorityWordMap.size();
@@ -49,7 +56,7 @@ public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.
 
         int i = 0;
 
-        if (isBucket)
+        if (isBucket) //set the TextView and delete button based on the bucket flag
         {
             for (Map.Entry<String, String> entry : bucketWordMap.entrySet()) {
                 if (position == i) {
@@ -60,6 +67,7 @@ public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.
                 i++;
             }
 
+            //when the delete button delete the bucket word with a method called from the Repository
             holder.deleteButton.setOnClickListener(v -> {
                 bucketWordMap.remove(holder.wordTxt.getText().toString());
                 Repository.deleteBucketWord(holder.wordTxt.getText().toString());
@@ -75,6 +83,8 @@ public class WordRecycleAdapter extends RecyclerView.Adapter<WordRecycleAdapter.
                 }
                 i++;
             }
+
+            //when the delete button delete the priority word with a method called from the Repository
             holder.deleteButton.setOnClickListener(v -> {
                 priorityWordMap.remove(holder.wordTxt.getText().toString());
                 Repository.deletePriorityWord(holder.wordTxt.getText().toString());

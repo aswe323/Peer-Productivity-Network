@@ -21,9 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link KeyWords#newInstance} factory method to
- * create an instance of this fragment.
+ *
+ * A simple {@link Fragment} subclass used to show the priority and bucket words of the UI.<br><br>
+ *
+ * The word management UI page is open when the user is clicking the <b><i>word management</i></b> tab in the {@link android.widget.TableLayout}.<br><br>
+ *
+ * It will show the user two {@link RecyclerView} elements, one for priority words, other for bucket words that are in the DB.<br><br>
+ *
+ * At the bottom of the page there's an the <b><i>Add new word</i></b> button that when clicked replacing the page to {@link AddWord} page.
+ *
  */
 public class KeyWords extends Fragment implements View.OnClickListener{
 
@@ -32,62 +38,34 @@ public class KeyWords extends Fragment implements View.OnClickListener{
     private RecyclerView bucketRecyclerView;
     private WordRecycleAdapter adapter;
 
-    private Map<String,Integer> priorityWordMap;
-    private Map<String,String> bucketWordMap;
+    private Map<String,Integer> priorityWordMap; //Holds the priority words from the DB
+    private Map<String,String> bucketWordMap; //Holds the bucket words from the DB
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public KeyWords() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment keyWords.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static KeyWords newInstance(String param1, String param2) {
-        KeyWords fragment = new KeyWords();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {//recognizing what button was pushed
-            case R.id.Btn_add_word:
+            case R.id.Btn_add_word: //when the Add new word button was clicked this will be the chosen case
                 //region add reminder
 
+                //create the fragment that we will replace to and then replace the current fragment to it
                 AddWord addWord = new AddWord();
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(((ViewGroup)(getView().getParent())).getId(), addWord)
                         .setReorderingAllowed(true)
-                        .addToBackStack("addWord") // name can be null
+                        .addToBackStack("addWord")
                         .commit();
+
                 //endregion
                 break;
         }
@@ -107,17 +85,19 @@ public class KeyWords extends Fragment implements View.OnClickListener{
 
 
 
-
+        //on and data manipulation the database of the words will recall this section and get the priority words from the DB
         Repository.getPriorityWordsRef().addSnapshotListener((value, error) -> {
 
             Task t=Repository.getAllPriorityWords();
             t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
                 if(task.isSuccessful())
                 {
+                    //add the word to the map
                     for (Map.Entry<String ,Object> entry:
                             task.getResult().getData().entrySet()) {
                         priorityWordMap.put(entry.getKey(),((Long) entry.getValue()).intValue());
                     }
+                    //creating the RecyclerView for the priority words and their adapter and connecting between them
                     adapter = new WordRecycleAdapter(priorityWordMap,null,false);
                     wordRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                     wordRecyclerView.setAdapter(adapter);
@@ -126,12 +106,14 @@ public class KeyWords extends Fragment implements View.OnClickListener{
 
         });
 
+        //on and data manipulation the database of the words will recall this section and get the bucket words from the DB
         Repository.getBucketWordsRef().addSnapshotListener((value, error) -> {
 
             Task t=Repository.getBucketWords();
             t.addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
                 if(task.isSuccessful())
                 {
+                    //add the word to the map
                     for (Map.Entry<String ,Object> entry:
                             task.getResult().getData().entrySet()) {
 
@@ -139,8 +121,7 @@ public class KeyWords extends Fragment implements View.OnClickListener{
                         String time = "" + timePack.getStartingTime().split(" ")[1] + " - " + timePack.getEndingTime().split(" ")[1];
                         bucketWordMap.put(entry.getKey(),time);
                     }
-
-
+                    //creating the RecyclerView for the bucket words and their adapter and connecting between them
                     adapter = new WordRecycleAdapter(null,bucketWordMap,true);
                     bucketRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                     bucketRecyclerView.setAdapter(adapter);
@@ -148,10 +129,6 @@ public class KeyWords extends Fragment implements View.OnClickListener{
             });
 
         });
-
-        //recyclerView.setAdapter(adapter);
-
-
 
         //region OnClickListeners
 
