@@ -16,16 +16,15 @@ import android.os.SystemClock;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-public class NotificationSystem extends BroadcastReceiver { //create and scedual notification
+
+/**
+ * uses {@link AlarmManager} to trigger notifications, allows to set notifications for a future time.
+ */
+public class NotificationSystem extends BroadcastReceiver {
 
     public static String NOTIFICATION_ID = "ID";
     public static String NOTIFICATION = "notification";
 
-    /**
-     *
-     * @param context
-     * @param intent
-     */
     public void onReceive(final Context context, Intent intent) {
 
         //Before you can deliver the notification on Android 8.0 and higher, you must register your app's notification channel with the system by passing an instance of NotificationChannel.

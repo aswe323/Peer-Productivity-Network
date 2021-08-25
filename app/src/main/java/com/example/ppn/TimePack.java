@@ -59,8 +59,8 @@ public class TimePack {
     }
     /**
      * <p>sets the starting time and ending time of the {@link #startingTime} and {@link #endingTime} according to the first and secound elements of timeRange paramater, any other elements are not used</p>
-     * <p>uses the repetition parmeter to calculate {@link #relaventDatesNumbered} form the starting time recived.</p>
-     *<p>{@link #stringifiedNattyResults} is set by default to now, incase natty will not be able to parse {@link ActivityTask#content} for a date</p>
+     * <p>uses the repetition parmeter to calculate {@link #relaventDatesNumbered} from the starting time recived.</p>
+     * <p>{@link #stringifiedNattyResults} is set by default to now, in case natty will not be able to parse {@link ActivityTask#content} for a date</p>
      * @param timeRange expected to hold 2 values, the first is the starting time of the {@link TimePack} the second is the ending time
      * @param monthNumber the month number where this {@link TimePack} is relevant to. 1-12
      * @param repetition {@link Repetition} as to how the {@link TimePack} is to be repeated.
@@ -85,9 +85,8 @@ public class TimePack {
 
     /**
      *
-     * <p>calculates relevant dates according to the repetition parameter and adds the one sin the relevantDates parameter</p>
-     * <p>sets {@link #stringifiedNattyResults} to {@link LocalDateTime#now()} using {@link #getFormatter()}</p>
-     * <p></p>
+     * <p>calculates relevant dates according to the repetition parameter and adds the ones in the relevantDates parameter</p>
+     * <p>{@link #stringifiedNattyResults} is set by default to now, in case natty will not be able to parse {@link ActivityTask#content} for a date</p>
      * @param startingTime starting time of the {@link TimePack}.
      * @param endingTime ending time of the {@link TimePack}.
      * @param monthNumber the month number relevant for this {@link TimePack}.
@@ -107,8 +106,10 @@ public class TimePack {
     }
 
     /**
-     * a class ment to be used with data returned from firestore, should only be used if something gone wrong and there is a problem with {@link com.google.firebase.firestore.DocumentSnapshot#toObject(Class)}
+     * @deprecated
+     * <p>a class ment to be used with data returned from firestore, should only be used if something gone wrong and there is a problem with {@link com.google.firebase.firestore.DocumentSnapshot#toObject(Class)}</p>
      * @param mappedData the mapped data that build the TimePack, keys are the member names and values are their content.
+     *
      */
     public TimePack(HashMap<String ,Object> mappedData) {
         this.startingTime = (String) mappedData.get("startingTime");
@@ -121,7 +122,7 @@ public class TimePack {
     }
 
     /**
-     * converts {@link LocalDateTime} to a string and assings to {@link #stringifiedNattyResults} using {@link #getFormatter()}
+     * converts {@link LocalDateTime} to a string and assigning to {@link #stringifiedNattyResults} using {@link #getFormatter()}
      * @param nattyResults
      */
     public void updateNattyResults(LocalDateTime nattyResults) {
@@ -137,6 +138,8 @@ public class TimePack {
     }
 
     /**
+     *
+     *
      * getter for {@link #stringifiedNattyResults}
      * @return {@link #stringifiedNattyResults}
      */
