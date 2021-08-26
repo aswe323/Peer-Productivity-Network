@@ -755,7 +755,7 @@ public class Repository {
                 for (HashMap<String,Long> entry:
                         (ArrayList<HashMap<String ,Long>>)task.getResult().getData().get("groupMembers")) {
                     entry.keySet().forEach(s -> {
-                        if(!s.equals("doNotShow") && !s.equals("doNotShow2") && !s.equals(user.getDisplayName())) {
+                        if(!s.equals("doNotShow") && !s.equals("doNotShow2") && !s.equals(otherUserDisplayName)) {
                             hashMap.put(s, entry.get(s));
                         }
                     });
