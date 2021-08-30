@@ -15,13 +15,14 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ *
+ * This {@link android.app.Activity} class is the first Activity that loads in the app, it asks the user to login to his google account so the app could connect him to the DB.
+ *
+ */
 public class loading extends AppCompatActivity {
 
     private static final String TAG = "loading";
@@ -72,11 +73,6 @@ public class loading extends AppCompatActivity {
             finish();
 
 
-        } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
         }
     }
 }

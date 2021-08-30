@@ -120,7 +120,7 @@ public class FriendsGroupAdapter extends RecyclerView.Adapter<FriendsGroupAdapte
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         commentText = inputForCommentDialog.getText().toString();
-                        if(commentText.length()<25) //the comment is limited to 25 characters to prevent spamming, if less then 25 characters call the Repository method to add it to the DB
+                        if(commentText.length()<=25) //the comment is limited to 25 characters to prevent spamming, if less then 25 characters call the Repository method to add it to the DB
                         {
                             Repository.addCommentToAnotherUser(entry.getKey(), commentText);
                             Toast.makeText(v.getContext(), "commented: " + commentText + " to " + entry.getKey(), Toast.LENGTH_SHORT).show();

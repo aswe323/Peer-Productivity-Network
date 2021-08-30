@@ -105,7 +105,7 @@ public class PointsAndGroups extends Fragment implements View.OnClickListener{
                     groupsFriendsDialog.show();
                 });
 
-                groupsFriendsDialog.setNegativeButton("Cancel",
+                groupsFriendsDialog.setNegativeButton("Close",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
 

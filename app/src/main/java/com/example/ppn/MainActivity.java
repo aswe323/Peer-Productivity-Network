@@ -7,67 +7,37 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+/**
+ *
+ * This is the main {{@link android.app.Activity}} class that holds our {@link ViewPager2} and present us the fragments of the UI
+ *
+ * In this class we set up out {@link TabLayout}, our {@link ViewPager2}, initialize the {@link Repository} and the {@link Menu} logout option
+ *
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private TabLayoutMediator tabLayoutMediator;
-    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
-            new FirebaseAuthUIActivityResultContract(),
-            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
-                @Override
-                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                    onSignInResult(result);
-                }
-            }
-    );
-
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -103,63 +73,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         Repository.init();
-        //region testing
-
-       Repository.getAllUserActivityTasks().addOnSuccessListener(queryDocumentSnapshots -> {
-           List<DocumentSnapshot> activityTasks = queryDocumentSnapshots.getDocuments();
-           activityTasks.forEach(documentSnapshot -> {
-                ActivityTask    activityTask = documentSnapshot.toObject(ActivityTask.class);
-               Log.d(TAG, "onCreate: found" + activityTask.getActivityTaskID());
-           });
-       });
-
-
-        //endregion
-
-
 
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) { //infilating our menu
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    public void startSignInFlow() {
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-
-        // Create and launch sign-in intent
-        Intent signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build();
-        signInLauncher.launch(signInIntent);
-    }
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        IdpResponse response = result.getIdpResponse();
-        if (result.getResultCode() == RESULT_OK) {
-            // Successfully signed in
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            Log.d(TAG, "onSignInResult: signed in as " + user.getDisplayName());
-
-
-
-        } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
-        }
     }
 
     public void signOut() {
@@ -173,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) { //if the logout was selected it will log us out and relaunching the loading Activity
         switch (item.getItemId()) {
             case R.id.user_menu:
                 signOut();
