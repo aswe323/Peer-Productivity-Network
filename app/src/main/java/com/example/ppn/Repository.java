@@ -305,12 +305,17 @@ public class Repository {
     public static Task createActivityTask(int activityTaskID, MasloCategory masloCategory, String content, ArrayList<SubActivity> subActivitys, TimePack timePack) {
         ActivityTask activityTask = new ActivityTask(activityTaskID,masloCategory,content,subActivitys,timePack, priorityWords);
 
+        activityTask.getSubActivitys().forEach(subActivity -> subActivity.setActivityTaskID(activityTaskID));
+
         return getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().continueWithTask(task ->
                 task.addOnCompleteListener(queryDocumentSnapshots -> {
             List<DocumentSnapshot> documentSnapshot = queryDocumentSnapshots.getResult().getDocuments();
             if(!documentSnapshot.isEmpty()) {
                 int nextID = documentSnapshot.get(0).toObject(ActivityTask.class).getActivityTaskID() + 1;
                 activityTask.setActivityTaskID(nextID);
+
+                activityTask.getSubActivitys().forEach(subActivity -> subActivity.setActivityTaskID(nextID));
+
                 getActivityTaskCollection().document("ActivityTask" + nextID).set(activityTask)
                         .addOnSuccessListener(unused -> Log.d("firestore", "createActivityTask: success"))
                         .addOnFailureListener(e -> Log.d("firestore", "createActivityTask: failed"));

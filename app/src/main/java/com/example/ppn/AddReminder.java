@@ -216,7 +216,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                         Task t=Repository.getActivityTaskCollection().orderBy("activityTaskID", Query.Direction.DESCENDING).limit(1).get().addOnSuccessListener(
                                 queryDocumentSnapshots ->{
                                     if(!isEditFlag)
-                                        activitytaskID = queryDocumentSnapshots.getDocuments().get(0).toObject(ActivityTask.class).getActivityTaskID()+1;
+                                        activitytaskID = 1;
                                     else
                                         activitytaskID = getArguments().getInt("activityTaskID");
                                     subActivities.add(new SubActivity(subactivitytext, activitytaskID));

@@ -47,6 +47,10 @@ public class SubActivity {
         this.activityTaskID = activityTaskID;
     }
 
+    public void setActivityTaskID(int activityTaskID) {
+        this.activityTaskID = activityTaskID;
+    }
+
     /**
      *
      * @return the activityTaskID this SubActivity is related to.
