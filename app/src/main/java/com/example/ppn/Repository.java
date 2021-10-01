@@ -169,17 +169,41 @@ public class Repository {
                 //making sure there are necessary documents and collections for the current user.
 
                 //group
+
+
+                HashMap<String,String> doNotShow = new HashMap<String,String>(){{
+                    put("doNotShow","doNotShow");
+                }};
+
+                HashMap<String,String> doNotShow2 = new HashMap<String,String>(){{
+                    put("doNotShow2","doNotShow2");
+                }};
+
+                HashMap<String,Long> userInitialScore = new HashMap<String,Long>(){{
+                    put(user.getDisplayName(), 0L);
+                }};
+
+                HashMap<String,Long> doNotShowScore = new HashMap<String,Long>(){{
+                    put("doNotShow",0L);
+                }};
+
+                HashMap<String,Long> doNotShowScore2 = new HashMap<String,Long>(){{
+                    put("doNotShow2",0L);
+                }};
+
+
                 HashMap<String, Object> commetnsInit = new HashMap<String, Object>(){{
-                    put("comments",FieldValue.arrayUnion());
+                    put("comments",FieldValue.arrayUnion(doNotShow,doNotShow2));
                 }};
                 HashMap<String, Object> groupMembersInit = new HashMap<String, Object>(){{
-                    put("groupMembers",FieldValue.arrayUnion());
+                    put("groupMembers",FieldValue.arrayUnion(userInitialScore,doNotShowScore,doNotShowScore2));
                 }};
                 FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).get()
                         .addOnCompleteListener(task -> {
 
                                 if(!task.getResult().contains("comments")){
                                     FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(commetnsInit,SetOptions.merge());
+
                                 }
                                 if(!task.getResult().contains("groupMembers")){
                                     FirebaseFirestore.getInstance().collection("groups").document(getUser().getDisplayName()).set(groupMembersInit,SetOptions.merge());

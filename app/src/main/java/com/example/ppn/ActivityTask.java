@@ -135,9 +135,10 @@ public class ActivityTask {
         }
     }
 
+
     /**
      *
-     * <p>tryes to use natty on content to get a date, if failes then set's {@link TimePack#stringifiedNattyResults} to {@link LocalDateTime#now()} using {@link TimePack#getFormatter()}</p>
+     * <p>tryes to use natty on content to get a date, if failes then sets {@link TimePack#stringifiedNattyResults} to {@link LocalDateTime#now()} using {@link TimePack#getFormatter()}</p>
      * <p>set's the score of {@link ActivityTask#priority} using passed priorityWords</p>
      *
      * @param content the content of the {@link ActivityTask}.
@@ -147,7 +148,8 @@ public class ActivityTask {
         List<DateGroup> groups;
         Parser parser = new Parser();
         groups = parser.parse(content);
-        if (groups.size()>0){//check if i got a date
+        if (groups.size()>0){//check if
+            // i got a date
 
             List dates = groups.get(0).getDates();//get the date that natty created for us
             LocalDateTime localDateTime = ((Date) dates.get(0)).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); //convert it to LocalDateTIme
