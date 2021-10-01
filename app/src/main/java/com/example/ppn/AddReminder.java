@@ -376,7 +376,7 @@ public class AddReminder extends Fragment implements View.OnClickListener {
                                                   int monthOfYear, int dayOfMonth) {
                                 //make the time string correct to avoid any bugs when formatting to LocalDateTime
                                 String timeForIf;
-                                if (monthOfYear<10)
+                                if (monthOfYear<9)
                                     timeForIf=""+year + "-0" + (monthOfYear + 1);
                                 else
                                     timeForIf=""+year + "-" + (monthOfYear + 1);
